@@ -42,15 +42,29 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
   })
 
   const expanded = hovered && isVisible
+  const [visibleNow, setVisibleNow] = useState(isVisible)
 
   // listen for overlay unlock event (fires inside the user's click) and play immediately
   useEffect(() => {
     const handler = () => {
       player.play()
     }
+    const started = () => setVisibleNow(true)
     window.addEventListener("unlockAudio", handler)
-    return () => window.removeEventListener("unlockAudio", handler)
+    window.addEventListener("musicStarted", started)
+
+    // if the music already started (rare), show immediately
+    if ((typeof window !== "undefined") && (window as any).__musicStarted) setVisibleNow(true)
+
+    return () => {
+      window.removeEventListener("unlockAudio", handler)
+      window.removeEventListener("musicStarted", started)
+    }
   }, [player])
+
+  useEffect(() => {
+    if (!isVisible) setVisibleNow(false)
+  }, [isVisible])
 
   return (
     <motion.div

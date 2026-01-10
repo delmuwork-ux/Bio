@@ -40,8 +40,10 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
     }
 
     if (readyRef.current) {
-      audio.play().catch(() => {})
-      setPlaying(true)
+      audio.play().then(() => {
+        setPlaying(true)
+        window.dispatchEvent(new CustomEvent("musicStarted"))
+      }).catch(() => {})
     }
 
     return () => {
@@ -62,6 +64,12 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       if (audio && autoPlayRef.current) {
         audio.play().then(() => {
           setPlaying(true)
+          // notify UI that music started so components can appear
+          window.dispatchEvent(new CustomEvent("musicStarted"))
+          // set a marker so listeners mounted later can check
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          window.__musicStarted = true
         }).catch(() => {})
       }
     }
@@ -70,6 +78,18 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       // mark that the user requested music and ensure play happens
       autoPlayRef.current = true
       handleInteraction()
+    }
+
+    // If a page-level click already requested audio before this hook mounted,
+    // honor it immediately.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    if ((typeof window !== "undefined" && (window.__audioUnlockRequested === true))) {
+      handleUnlockAudio()
+      // clear flag so we don't replay on every mount
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      window.__audioUnlockRequested = false
     }
 
     document.addEventListener("click", handleInteraction)
