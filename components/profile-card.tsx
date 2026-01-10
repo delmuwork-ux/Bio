@@ -91,7 +91,7 @@ export function ProfileCard() {
                 className="text-lg font-medium text-white"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: showStats ? 1 : 0 }}
-                transition={{ duration: 0.9, delay: i * 0.35 }}
+                transition={{ duration: 1.4, delay: i * 0.35 }}
               >
                 {stat.value}
               </motion.p>
@@ -99,7 +99,7 @@ export function ProfileCard() {
                 className="text-[11px] text-white/40 uppercase tracking-wider"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: showStats ? 1 : 0 }}
-                transition={{ duration: 0.9, delay: 0.6 + i * 0.35 }}
+                transition={{ duration: 1.4, delay: 0.6 + i * 0.35 }}
               >
                 {stat.label}
               </motion.p>
