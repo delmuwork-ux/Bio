@@ -77,7 +77,7 @@ export function SocialLinks() {
 
 
 	return (
-		<div className="relative p-6 bg-[#111] border border-white/10 overflow-hidden">
+		<div className="relative p-6 card overflow-hidden">
 			<div
 				className="absolute inset-0 bg-white z-30 pointer-events-none"
 				style={{

@@ -68,7 +68,7 @@ export function ProfileCard({ onNameAnimationStart }: ProfileCardProps) {
   }, [statsPhase])
 
   return (
-    <div className="relative p-8 bg-[#111]/60 border border-white/10 card">
+    <div className="relative p-8 card">
       {/* Avatar */}
       <div className="flex flex-col items-center">
         <div className="relative mb-6">

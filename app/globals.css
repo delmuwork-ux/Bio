@@ -125,11 +125,12 @@
     @apply bg-background text-foreground;
   }
 
-  /* translucent cards so background gradient shows through */
+  /* cards should be visibly distinct from the page background */
   .card, .bg-card, .bg-background-card {
-    background-color: rgba(8,8,12,0.6); /* translucent card */
-    backdrop-filter: blur(6px) saturate(1.1);
+    background-color: rgba(28,28,30,0.92); /* slightly lighter than body black */
+    backdrop-filter: blur(6px) saturate(1.05);
     border: 1px solid rgba(255,255,255,0.06);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
   }
 }
 
