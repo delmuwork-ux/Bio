@@ -67,6 +67,8 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
     }
 
     const handleUnlockAudio = () => {
+      // mark that the user requested music and ensure play happens
+      autoPlayRef.current = true
       handleInteraction()
     }
 

@@ -50,6 +50,7 @@ export default function Home() {
           className="fixed inset-0 z-[100] bg-black flex items-center justify-center cursor-pointer"
           onClick={() => {
             setShowHelloOverlay(false)
+            setShowMusicPlayer(true)
             window.dispatchEvent(new CustomEvent("unlockAudio"))
           }}
         >

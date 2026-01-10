@@ -43,6 +43,15 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
 
   const expanded = hovered && isVisible
 
+  // listen for overlay unlock event (fires inside the user's click) and play immediately
+  useEffect(() => {
+    const handler = () => {
+      player.play()
+    }
+    window.addEventListener("unlockAudio", handler)
+    return () => window.removeEventListener("unlockAudio", handler)
+  }, [player])
+
   return (
     <motion.div
       className="fixed bottom-8 left-1/2 z-50"
