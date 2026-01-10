@@ -125,10 +125,9 @@
     @apply bg-background text-foreground;
   }
 
-  /* cards should be visibly distinct from the page background */
+  /* cards should be visually solid and stand out from the page background */
   .card, .bg-card, .bg-background-card {
-    background-color: rgba(28,28,30,0.92); /* slightly lighter than body black */
-    backdrop-filter: blur(6px) saturate(1.05);
+    background-color: #0f0f11; /* opaque card background */
     border: 1px solid rgba(255,255,255,0.06);
     box-shadow: 0 8px 20px rgba(0,0,0,0.6);
   }
