@@ -1,46 +1,57 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Twitter, Instagram, Youtube, ArrowUpRight } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Twitter, Instagram, Youtube, ArrowUpRight, type LucideIcon } from "lucide-react"
+import { SOCIAL_LINKS, ANIMATION_CONFIG } from "@/lib/constants"
+import type { SocialLink } from "@/lib/types"
 
-const links = [
-  { name: "Twitter", icon: Twitter, href: "https://x.com/_Delmu", username: "@_Delmu", bio: "たまに動画作る厨二病のひと..." },
-  { name: "Instagram", icon: Instagram, href: "https://www.instagram.com/_delmu/", username: "@_delmu", bio: "品性の欠片も無いです。リョ..." },
-  { name: "YouTube", icon: Youtube, href: "https://www.youtube.com/@Delmu", username: "@Delmu", bio: "🇯🇵/20↑ All fiction. My delusion." },
-]
+const ICONS: Record<SocialLink["platform"], LucideIcon> = {
+  twitter: Twitter,
+  instagram: Instagram,
+  youtube: Youtube,
+  github: Twitter,
+  discord: Twitter,
+}
 
-type Phase = "hidden" | "sweep" | "done"
+const sweepVariants = {
+  hidden: { clipPath: "inset(0 100% 0 0)" },
+  visible: { clipPath: "inset(0 0 0 0)" },
+  exit: { clipPath: "inset(0 0 0 100%)" },
+}
 
 export function SocialLinks() {
   const [hovered, setHovered] = useState<number | null>(null)
-  const [phase, setPhase] = useState<Phase>("hidden")
   const [show, setShow] = useState(false)
 
   useEffect(() => {
-    const start = () => setPhase("sweep")
+    const start = () => setShow(true)
     window.addEventListener("startSocialAnimation", start)
     return () => window.removeEventListener("startSocialAnimation", start)
   }, [])
 
-  useEffect(() => {
-    if (phase !== "sweep") return
-    const t = setTimeout(() => { setPhase("done"); setShow(true) }, 500)
-    return () => clearTimeout(t)
-  }, [phase])
-
-  const clipPath = phase === "hidden" ? "inset(0 100% 0 0)" : phase === "sweep" ? "inset(0)" : "inset(0 0 0 100%)"
-
   return (
     <div className="relative p-6 card overflow-hidden">
-      <div
-        className="absolute inset-0 bg-white z-30 pointer-events-none"
-        style={{ clipPath, transition: "clip-path .5s cubic-bezier(.32,.72,0,1)" }}
-      />
+      <AnimatePresence>
+        {!show && (
+          <motion.div
+            className="absolute inset-0 bg-white z-30 pointer-events-none"
+            variants={sweepVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+            transition={ANIMATION_CONFIG.sweep}
+          />
+        )}
+      </AnimatePresence>
+
       <div className="space-y-1">
-        {links.map((link, i) => {
+        {SOCIAL_LINKS.map((link, i) => {
+          const Icon = ICONS[link.platform]
           const active = hovered === i
+
           return (
-            <a
+            <motion.a
               key={link.name}
               href={link.href}
               target="_blank"
@@ -48,50 +59,67 @@ export function SocialLinks() {
               className="group relative block overflow-hidden"
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
-              style={{
-                opacity: show ? 1 : 0,
-                transform: show ? "translateY(0)" : "translateY(10px)",
-                transition: "opacity .3s, transform .3s",
-                transitionDelay: `${i * 50}ms`,
-              }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: show ? 1 : 0, y: show ? 0 : 10 }}
+              transition={{ ...ANIMATION_CONFIG.fade, delay: i * 0.05 }}
             >
-              <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-0 bottom-0 left-0 bg-white" style={{ width: active ? "50%" : 0, transition: "width .35s cubic-bezier(.22,1,.36,1)" }} />
-                <div className="absolute top-0 bottom-0 right-0 bg-white" style={{ width: active ? "50%" : 0, transition: "width .35s cubic-bezier(.22,1,.36,1)" }} />
-              </div>
-
-              <div className="flex items-center gap-4 p-3 -mx-1 relative z-10" style={{ transition: "all .35s" }}>
-                <div
-                  className="w-10 h-10 flex items-center justify-center border flex-shrink-0"
-                  style={{
-                    backgroundColor: active ? "black" : "rgba(255,255,255,.05)",
-                    borderColor: active ? "black" : "rgba(255,255,255,.1)",
-                    transition: "all .35s",
-                  }}
-                >
-                  <link.icon className="w-4 h-4" style={{ color: active ? "white" : "rgba(255,255,255,.7)", transition: "color .35s" }} />
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <span className="text-sm block font-medium" style={{ color: active ? "black" : "rgba(255,255,255,.8)", transition: "color .35s" }}>
-                    {link.name}
-                  </span>
-                  <div className="overflow-hidden" style={{ maxHeight: active ? 40 : 0, opacity: active ? 1 : 0, transition: "max-height .4s cubic-bezier(.22,1,.36,1), opacity .25s" }}>
-                    <span className="text-xs text-black/60 block mt-0.5">{link.username}</span>
-                    <span className="text-[11px] text-black/40 block truncate">{link.bio}</span>
-                  </div>
-                </div>
-
-                <ArrowUpRight
-                  className="w-4 h-4 flex-shrink-0"
-                  style={{
-                    color: active ? "rgba(0,0,0,.6)" : "rgba(255,255,255,.2)",
-                    transform: active ? "translate(2px,-2px)" : "translate(0,0)",
-                    transition: "all .35s",
-                  }}
+              <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex">
+                <motion.div
+                  className="bg-white h-full"
+                  animate={{ width: active ? "50%" : "0%" }}
+                  transition={ANIMATION_CONFIG.fade}
+                />
+                <motion.div
+                  className="bg-white h-full ml-auto"
+                  animate={{ width: active ? "50%" : "0%" }}
+                  transition={ANIMATION_CONFIG.fade}
                 />
               </div>
-            </a>
+
+              <div className="flex items-center gap-4 p-3 -mx-1 relative z-10">
+                <motion.div
+                  className="w-10 h-10 flex items-center justify-center border flex-shrink-0"
+                  animate={{
+                    backgroundColor: active ? "black" : "rgba(255,255,255,.05)",
+                    borderColor: active ? "black" : "rgba(255,255,255,.1)",
+                  }}
+                  transition={ANIMATION_CONFIG.fade}
+                >
+                  <Icon
+                    className="w-4 h-4"
+                    style={{ color: active ? "white" : "rgba(255,255,255,.7)" }}
+                  />
+                </motion.div>
+
+                <div className="flex-1 min-w-0">
+                  <motion.span
+                    className="text-sm block font-medium"
+                    animate={{ color: active ? "black" : "rgba(255,255,255,.8)" }}
+                  >
+                    {link.name}
+                  </motion.span>
+                  <motion.div
+                    className="overflow-hidden"
+                    animate={{ height: active ? "auto" : 0, opacity: active ? 1 : 0 }}
+                    transition={ANIMATION_CONFIG.fade}
+                  >
+                    <span className="text-xs text-black/60 block mt-0.5">{link.username}</span>
+                    <span className="text-[11px] text-black/40 block truncate">{link.bio}</span>
+                  </motion.div>
+                </div>
+
+                <motion.div
+                  animate={{
+                    color: active ? "rgba(0,0,0,.6)" : "rgba(255,255,255,.2)",
+                    x: active ? 2 : 0,
+                    y: active ? -2 : 0,
+                  }}
+                  transition={ANIMATION_CONFIG.fade}
+                >
+                  <ArrowUpRight className="w-4 h-4" />
+                </motion.div>
+              </div>
+            </motion.a>
           )
         })}
       </div>
