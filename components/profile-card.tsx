@@ -8,6 +8,7 @@ import { getAssetPath } from "@/lib/utils"
 
 export function ProfileCard() {
   const nameControls = useAnimationControls()
+  const statsControls = useAnimationControls()
   const [showStats, setShowStats] = useState(false)
   const [nameVisible, setNameVisible] = useState(false)
 
@@ -22,12 +23,16 @@ export function ProfileCard() {
       
       setNameVisible(true)
       setShowStats(true)
+      
+      await statsControls.start({ x: "0%" })
+      await new Promise(r => setTimeout(r, 200))
+      await statsControls.start({ x: "100%" })
     }
 
     const handler = () => startAnimation()
     window.addEventListener("startNameAnimation", handler)
     return () => window.removeEventListener("startNameAnimation", handler)
-  }, [nameControls])
+  }, [nameControls, statsControls])
 
   return (
     <div className="relative p-8 card">
@@ -67,25 +72,34 @@ export function ProfileCard() {
           {PROFILE.bio}
         </p>
 
-        <motion.div 
-          className="flex gap-8 mt-6 pt-6 border-t border-white/10 w-full justify-center"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: showStats ? 1 : 0, y: showStats ? 0 : 20 }}
-          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-        >
+        <div className="flex gap-8 mt-6 pt-6 border-t border-white/10 w-full justify-center">
           {PROFILE_STATS.map((stat, i) => (
-            <motion.div 
-              key={stat.label} 
-              className="text-center"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: showStats ? 1 : 0, y: showStats ? 0 : 10 }}
-              transition={{ duration: 0.4, delay: i * 0.1, ease: "easeOut" }}
-            >
-              <p className="text-lg font-medium text-white">{stat.value}</p>
-              <p className="text-[11px] text-white/40 uppercase tracking-wider">{stat.label}</p>
-            </motion.div>
+            <div key={stat.label} className="text-center relative overflow-hidden">
+              <motion.div
+                className="absolute inset-0 bg-white z-10 pointer-events-none"
+                initial={{ x: "-100%" }}
+                animate={statsControls}
+                transition={{ ...ANIMATION_CONFIG.sweep, delay: i * 0.08 }}
+              />
+              <motion.p
+                className="text-lg font-medium text-white"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: showStats ? 1 : 0 }}
+                transition={{ duration: 0.3, delay: i * 0.08 }}
+              >
+                {stat.value}
+              </motion.p>
+              <motion.p
+                className="text-[11px] text-white/40 uppercase tracking-wider"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: showStats ? 1 : 0 }}
+                transition={{ duration: 0.3, delay: 0.05 + i * 0.08 }}
+              >
+                {stat.label}
+              </motion.p>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </div>
   )
