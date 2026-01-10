@@ -1,19 +1,4 @@
-@keyframes gradient-move {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}
 
-.animate-gradient-move {
-  animation: gradient-move 16s ease-in-out infinite;
-  transition: opacity 0.8s, filter 0.8s;
-}
 @import "tailwindcss";
 @import "tw-animate-css";
 

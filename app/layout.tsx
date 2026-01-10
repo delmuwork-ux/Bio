@@ -44,17 +44,6 @@ export default function RootLayout({
   return (
     <html lang="vi">
       <body className={`font-sans antialiased ${inter.className}`}>
-        {/* Animated Gradient Background */}
-        <div
-          aria-hidden="true"
-          className="fixed inset-0 -z-10 animate-gradient-move"
-          style={{
-            background: "linear-gradient(120deg, #00f2fe 0%, #4facfe 30%, #43e97b 60%, #fa709a 100%)",
-            backgroundSize: "200% 200%",
-            opacity: 0.95,
-            filter: "blur(32px) saturate(1.5)",
-          }}
-        />
         {children}
         <Analytics />
       </body>
