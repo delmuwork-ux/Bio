@@ -23,15 +23,15 @@ export function ProfileCard() {
       
       setNameVisible(true)
       // small pause so the name's blink finishes visually before stats sweep
-      await new Promise(r => setTimeout(r, 250))
+      await new Promise(r => setTimeout(r, 350))
 
-      // start the sweep, wait a very short moment, then show the text
+      // start the sweep, wait a bit longer before showing the text (strip slower)
       await statsControls.start({ x: "0%" })
-      await new Promise(r => setTimeout(r, 60))
+      await new Promise(r => setTimeout(r, 120))
       setShowStats(true)
 
-      // much shorter hold so the sweep finishes quickly
-      await new Promise(r => setTimeout(r, 120))
+      // keep the sweep visible for a longer moment while text fades in
+      await new Promise(r => setTimeout(r, 200))
       await statsControls.start({ x: "100%" })
     }
 
@@ -85,13 +85,13 @@ export function ProfileCard() {
                 className="absolute inset-0 bg-white z-10 pointer-events-none"
                 initial={{ x: "-100%" }}
                 animate={statsControls}
-                transition={{ ...ANIMATION_CONFIG.sweep, delay: i * 0.02, duration: 0.25 }}
+                transition={{ ...ANIMATION_CONFIG.sweep, delay: i * 0.04, duration: 0.45 }}
               />
               <motion.p
                 className="text-lg font-medium text-white"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: showStats ? 1 : 0 }}
-                transition={{ duration: 1.4, delay: i * 0.35 }}
+                transition={{ duration: 0.8, delay: i * 0.15 }}
               >
                 {stat.value}
               </motion.p>
@@ -99,7 +99,7 @@ export function ProfileCard() {
                 className="text-[11px] text-white/40 uppercase tracking-wider"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: showStats ? 1 : 0 }}
-                transition={{ duration: 1.4, delay: 0.6 + i * 0.35 }}
+                transition={{ duration: 0.8, delay: 0.3 + i * 0.15 }}
               >
                 {stat.label}
               </motion.p>
