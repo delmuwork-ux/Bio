@@ -62,7 +62,6 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
         animate={{
           width: expanded ? 340 : 180,
           height: expanded ? 80 + 32 + TRACKS.length * 52 : 48,
-          borderRadius: expanded ? 16 : 24,
         }}
         transition={ANIMATION_CONFIG.sweep}
         style={{
@@ -112,7 +111,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
               >
                 <motion.button
                   onClick={player.toggle}
-                  className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0 hover:scale-110 transition-transform"
+                  className="w-7 h-7 bg-white flex items-center justify-center flex-shrink-0 hover:scale-110 transition-transform"
                   whileTap={{ scale: 0.95 }}
                 >
                   {player.playing ? (
@@ -156,7 +155,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                   <div className="flex items-center gap-1">
                     <motion.button
                       onClick={player.prev}
-                      className="w-9 h-9 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                      className="w-9 h-9 text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
                       whileTap={{ scale: 0.9 }}
                     >
                       <SkipBack className="w-4 h-4" fill="currentColor" />
@@ -164,7 +163,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
 
                     <motion.button
                       onClick={player.toggle}
-                      className="w-11 h-11 rounded-full bg-white flex items-center justify-center hover:scale-105 transition-transform"
+                      className="w-11 h-11 bg-white flex items-center justify-center hover:scale-105 transition-transform"
                       whileTap={{ scale: 0.95 }}
                     >
                       {player.playing ? (
@@ -176,7 +175,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
 
                     <motion.button
                       onClick={player.next}
-                      className="w-9 h-9 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                      className="w-9 h-9 text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
                       whileTap={{ scale: 0.9 }}
                     >
                       <SkipForward className="w-4 h-4" fill="currentColor" />
