@@ -23,12 +23,12 @@ export function ProfileCard() {
       
       setNameVisible(true)
       // small pause so the name's blink finishes visually before stats appear
-      await new Promise(r => setTimeout(r, 350))
+      await new Promise(r => setTimeout(r, 650))
       setShowStats(true)
       
       await statsControls.start({ x: "0%" })
       // hold the sweep a bit longer so it feels deliberate
-      await new Promise(r => setTimeout(r, 400))
+      await new Promise(r => setTimeout(r, 800))
       await statsControls.start({ x: "100%" })
     }
 
@@ -82,13 +82,13 @@ export function ProfileCard() {
                 className="absolute inset-0 bg-white z-10 pointer-events-none"
                 initial={{ x: "-100%" }}
                 animate={statsControls}
-                transition={{ ...ANIMATION_CONFIG.sweep, delay: i * 0.15 }}
+                transition={{ ...ANIMATION_CONFIG.sweep, delay: i * 0.25 }}
               />
               <motion.p
                 className="text-lg font-medium text-white"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: showStats ? 1 : 0 }}
-                transition={{ duration: 0.45, delay: i * 0.15 }}
+                transition={{ duration: 0.7, delay: i * 0.25 }}
               >
                 {stat.value}
               </motion.p>
@@ -96,7 +96,7 @@ export function ProfileCard() {
                 className="text-[11px] text-white/40 uppercase tracking-wider"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: showStats ? 1 : 0 }}
-                transition={{ duration: 0.45, delay: 0.2 + i * 0.15 }}
+                transition={{ duration: 0.7, delay: 0.35 + i * 0.25 }}
               >
                 {stat.label}
               </motion.p>
