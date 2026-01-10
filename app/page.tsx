@@ -13,6 +13,7 @@ export default function Home() {
   const [showProfileCard, setShowProfileCard] = useState(false)
   const [showSocialCard, setShowSocialCard] = useState(false)
   const [showMusicPlayer, setShowMusicPlayer] = useState(false)
+  const [playerSweep, setPlayerSweep] = useState(false)
   const [showHelloOverlay, setShowHelloOverlay] = useState(true)
 
   useEffect(() => {
@@ -35,11 +36,36 @@ export default function Home() {
         setTimeout(() => {
           window.dispatchEvent(new CustomEvent("startSocialAnimation"))
         }, 1700)
-        setTimeout(() => setShowMusicPlayer(true), 2200)
+        // instead of showing player immediately, run a short sweep then reveal player (to match social card behavior)
+        setTimeout(() => {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          const SWEEP_MS =  Math.round((0.5) * 1000)
+          setPlayerSweep(true)
+          setTimeout(() => {
+            setPlayerSweep(false)
+            setShowMusicPlayer(true)
+          }, SWEEP_MS + 60)
+        }, 2200)
       }, 1500)
       return () => clearTimeout(timer)
     }
   }, [showHelloOverlay])
+
+  useEffect(() => {
+    const onMusicStarted = () => {
+      if (showMusicPlayer || playerSweep) return
+      setPlayerSweep(true)
+      const ms = Math.round((ANIMATION_CONFIG.sweep.duration || 0.5) * 1000) + 60
+      setTimeout(() => {
+        setPlayerSweep(false)
+        setShowMusicPlayer(true)
+      }, ms)
+    }
+
+    window.addEventListener("musicStarted", onMusicStarted)
+    return () => window.removeEventListener("musicStarted", onMusicStarted)
+  }, [showMusicPlayer, playerSweep])
 
   return (
     <main className="relative min-h-screen overflow-hidden">
@@ -119,6 +145,24 @@ export default function Home() {
               </div>
             </div>
           </div>
+
+          <AnimatePresence>
+            {playerSweep && (
+              <motion.div
+                className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 overflow-hidden"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                <motion.div
+                  className="bg-white h-12 w-44"
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '100%' }}
+                  transition={{ duration: ANIMATION_CONFIG.sweep.duration, ease: ANIMATION_CONFIG.sweep.ease }}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <MusicPlayer isVisible={showMusicPlayer} />
         </>
