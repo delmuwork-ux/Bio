@@ -4,13 +4,13 @@ import { useState, useEffect } from "react"
 import { Github, Twitter, Instagram, Youtube, MessageCircle, Music, ArrowUpRight } from "lucide-react"
 
 const socialLinks = [
-	// {
-	//   name: "GitHub",
-	//   icon: Github,
-	//   href: "https://github.com",
-	//   username: "@cyberuser",
-	//   bio: "Open source projects & code experiments",
-	// },
+	
+	
+	
+	
+	
+	
+	
 	{
 		name: "Twitter",
 		icon: Twitter,
@@ -32,20 +32,20 @@ const socialLinks = [
 		username: "@Delmu",
 		bio: "🇯🇵/20↑ All fiction. My delusion. ",
 	},
-	// {
-	//   name: "Discord",
-	//   icon: MessageCircle,
-	//   href: "https://discord.com",
-	//   username: "cyber#0001",
-	//   bio: "Join my community server",
-	// },
-	// {
-	//   name: "Spotify",
-	//   icon: Music,
-	//   href: "https://spotify.com",
-	//   username: "CyberBeats",
-	//   bio: "My playlists & favorite tracks",
-	// },
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 ]
 
 export function SocialLinks() {

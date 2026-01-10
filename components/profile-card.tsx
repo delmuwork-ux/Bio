@@ -50,7 +50,7 @@ export function ProfileCard({ onNameAnimationStart }: ProfileCardProps) {
       } else {
         setNameVisible(true)
         setNameBgPhase("done")
-        // Start stats animation after name is done
+        
         setTimeout(() => setStatsPhase("sweepIn"), 300)
       }
     }
@@ -69,7 +69,7 @@ export function ProfileCard({ onNameAnimationStart }: ProfileCardProps) {
 
   return (
     <div className="relative p-8 card">
-      {/* Avatar */}
+      {}
       <div className="flex flex-col items-center">
         <div className="relative mb-6">
            <div className="w-24 h-24 overflow-hidden border-2 border-white/20">
@@ -79,7 +79,7 @@ export function ProfileCard({ onNameAnimationStart }: ProfileCardProps) {
         </div>
 
         <div className="relative h-8 flex items-center justify-center overflow-hidden">
-          {/* Background trắng sweep từ trái qua phải */}
+          {}
           <div
             className="absolute inset-0 bg-white"
             style={{
@@ -89,7 +89,7 @@ export function ProfileCard({ onNameAnimationStart }: ProfileCardProps) {
             }}
           />
 
-          {/* Text */}
+          {}
           <h1
             className="text-xl font-medium tracking-tight relative z-10 px-3 py-1"
             style={{
@@ -102,15 +102,15 @@ export function ProfileCard({ onNameAnimationStart }: ProfileCardProps) {
           </h1>
         </div>
 
-        {/* Username */}
+        {}
         <p className="text-sm text-white/40 font-mono mt-1">@_Delmu</p>
 
-         {/* Bio */}
+         {}
          <p className="text-center text-white/60 mt-4 text-sm leading-relaxed max-w-[280px]">
            配慮無し。フォローお勧めしないよ‼️🥩GORE・NSFW🔞下ネタ😃.
          </p>
 
-        {/* Stats */}
+        {}
         <div className="flex gap-8 mt-6 pt-6 border-t border-white/10 w-full justify-center">
           {[
             { value: "21.1K+", label: "Followers" },

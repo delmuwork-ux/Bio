@@ -1,7 +1,4 @@
 import React from "react";
-/**
- * @param {{ isPlaying: boolean, isChanging: boolean }} props
- */
 export default function AnimatedRing(props: any) {
   const { isPlaying, isChanging } = props;
   const [scale, setScale] = React.useState(1);
@@ -10,7 +7,7 @@ export default function AnimatedRing(props: any) {
     let running = true;
     function animate() {
       const t = performance.now() / 1000;
-      // Pulse effect: scale up and down
+      
       const base = isPlaying ? (1 + 0.12 * Math.sin(t * 2.2)) : 1;
       setScale(base);
       if (running) raf = requestAnimationFrame(animate);

@@ -3,10 +3,10 @@
 export function CyberBackground() {
   return (
     <div className="fixed inset-0 z-0">
-      {/* Pure black base */}
+      {}
       <div className="absolute inset-0 bg-[#0a0a0a]" />
 
-      {/* Subtle noise texture */}
+      {}
       <div
         className="absolute inset-0 opacity-[0.03]"
         style={{

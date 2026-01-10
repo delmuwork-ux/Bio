@@ -5,9 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Minimal Black & White Theme */
-  --background: #000; /* solid black background */
-  --foreground: oklch(0.95 0 0);
+    --background: #000;   --foreground: oklch(0.95 0 0);
   --card: oklch(0.08 0 0);
   --card-foreground: oklch(0.95 0 0);
   --popover: oklch(0.08 0 0);
@@ -42,8 +40,7 @@
 }
 
 .dark {
-  --background: #000; /* dark mode solid black */
-  --foreground: oklch(0.985 0 0);
+  --background: #000;   --foreground: oklch(0.985 0 0);
   --card: oklch(0.145 0 0);
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.145 0 0);
@@ -125,15 +122,12 @@
     @apply bg-background text-foreground;
   }
 
-  /* cards should be visually solid and stand out from the page background */
-  .card, .bg-card, .bg-background-card {
-    background-color: #0f0f11; /* opaque card background */
-    border: 1px solid rgba(255,255,255,0.06);
+    .card, .bg-card, .bg-background-card {
+    background-color: #0f0f11;     border: 1px solid rgba(255,255,255,0.06);
     box-shadow: 0 8px 20px rgba(0,0,0,0.6);
   }
 }
 
-/* Minimal subtle animations */
 @keyframes subtle-pulse {
   0%,
   100% {
@@ -153,7 +147,6 @@
   }
 }
 
-/* Added loading bar animation for page load */
 @keyframes loading-bar {
   0% {
     width: 0%;
@@ -173,7 +166,6 @@
   animation: loading-bar 1.5s ease-in-out infinite;
 }
 
-/* Added glitch strip animation for white strip intro effect */
 @keyframes glitchStrip {
   0% {
     transform: translateX(0);

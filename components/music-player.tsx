@@ -49,7 +49,7 @@ export function MusicPlayer({ isVisible = false }: { isVisible?: boolean }) {
   const [displayTrack, setDisplayTrack] = useState(0)
   const [hasUserInteracted, setHasUserInteracted] = useState(false)
 
-  // Auto-play on mount if visible
+  
   useEffect(() => {
     if (isVisible) {
       setHasUserInteracted(true)
@@ -216,7 +216,7 @@ export function MusicPlayer({ isVisible = false }: { isVisible?: boolean }) {
           }}
         >
           <div className="flex items-center gap-3">
-              {/* Removed AnimatedRing visual */}
+              {}
 
 
             <div className="min-w-0 flex-1 relative overflow-hidden">
