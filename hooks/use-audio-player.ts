@@ -16,7 +16,7 @@ interface AudioPlayerState {
 export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptions) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [state, setState] = useState<AudioPlayerState>({
-    playing: autoPlay,
+    playing: false,
     trackIndex: 0,
     progress: 0,
     ready: false,
@@ -25,7 +25,13 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
   const currentTrack = tracks[state.trackIndex]
 
   useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current = null
+    }
+
     const audio = new Audio(currentTrack.src)
+    audio.preload = "auto"
     audioRef.current = audio
 
     const onTimeUpdate = () => {
@@ -35,41 +41,59 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
     }
 
     const onEnded = () => {
-      const nextIndex = (state.trackIndex + 1) % tracks.length
-      setState(s => ({ ...s, trackIndex: nextIndex, progress: 0 }))
+      setState(s => ({ ...s, trackIndex: (s.trackIndex + 1) % tracks.length, progress: 0 }))
+    }
+
+    const onCanPlay = () => {
+      if (state.ready && state.playing) {
+        audio.play().catch(() => {})
+      }
     }
 
     audio.addEventListener("timeupdate", onTimeUpdate)
     audio.addEventListener("ended", onEnded)
+    audio.addEventListener("canplay", onCanPlay)
+
+    if (state.ready && state.playing) {
+      audio.play().catch(() => {})
+    }
 
     return () => {
       audio.pause()
       audio.removeEventListener("timeupdate", onTimeUpdate)
       audio.removeEventListener("ended", onEnded)
+      audio.removeEventListener("canplay", onCanPlay)
     }
-  }, [state.trackIndex, tracks])
+  }, [state.trackIndex, currentTrack.src, tracks.length])
 
   useEffect(() => {
     const audio = audioRef.current
     if (!audio || !state.ready) return
     if (state.playing) {
-      audio.play().catch(() => setState(s => ({ ...s, playing: false })))
+      audio.play().catch(() => {})
     } else {
       audio.pause()
     }
-  }, [state.playing, state.ready, state.trackIndex])
+  }, [state.playing, state.ready])
 
   useEffect(() => {
     const unlock = () => {
-      setState(s => ({ ...s, ready: true, playing: autoPlay || s.playing }))
+      setState(s => {
+        if (s.ready) return s
+        const shouldPlay = autoPlay || s.playing
+        if (shouldPlay && audioRef.current) {
+          audioRef.current.play().catch(() => {})
+        }
+        return { ...s, ready: true, playing: shouldPlay }
+      })
     }
-    window.addEventListener("click", unlock, { once: true })
-    window.addEventListener("touchstart", unlock, { once: true })
-    window.addEventListener("keydown", unlock, { once: true })
+    document.addEventListener("click", unlock)
+    document.addEventListener("touchstart", unlock)
+    document.addEventListener("keydown", unlock)
     return () => {
-      window.removeEventListener("click", unlock)
-      window.removeEventListener("touchstart", unlock)
-      window.removeEventListener("keydown", unlock)
+      document.removeEventListener("click", unlock)
+      document.removeEventListener("touchstart", unlock)
+      document.removeEventListener("keydown", unlock)
     }
   }, [autoPlay])
 
