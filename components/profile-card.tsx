@@ -23,15 +23,15 @@ export function ProfileCard() {
       
       setNameVisible(true)
       // small pause so the name's blink finishes visually before stats sweep
-      await new Promise(r => setTimeout(r, 650))
+      await new Promise(r => setTimeout(r, 250))
 
-      // start the sweep, wait a short moment, then show the text (strip is faster now)
+      // start the sweep, wait a very short moment, then show the text
       await statsControls.start({ x: "0%" })
-      await new Promise(r => setTimeout(r, 120))
+      await new Promise(r => setTimeout(r, 60))
       setShowStats(true)
 
-      // shorter hold so the sweep finishes quickly
-      await new Promise(r => setTimeout(r, 300))
+      // much shorter hold so the sweep finishes quickly
+      await new Promise(r => setTimeout(r, 120))
       await statsControls.start({ x: "100%" })
     }
 
@@ -85,7 +85,7 @@ export function ProfileCard() {
                 className="absolute inset-0 bg-white z-10 pointer-events-none"
                 initial={{ x: "-100%" }}
                 animate={statsControls}
-                transition={{ ...ANIMATION_CONFIG.sweep, delay: i * 0.08 }}
+                transition={{ ...ANIMATION_CONFIG.sweep, delay: i * 0.02, duration: 0.25 }}
               />
               <motion.p
                 className="text-lg font-medium text-white"
