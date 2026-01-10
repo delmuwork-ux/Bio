@@ -6,121 +6,128 @@ interface UseAudioPlayerOptions {
   autoPlay?: boolean
 }
 
-interface AudioPlayerState {
-  playing: boolean
-  trackIndex: number
-  progress: number
-  ready: boolean
-}
-
 export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptions) {
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const [state, setState] = useState<AudioPlayerState>({
-    playing: false,
-    trackIndex: 0,
-    progress: 0,
-    ready: false,
-  })
+  const [playing, setPlaying] = useState(false)
+  const [trackIndex, setTrackIndex] = useState(0)
+  const [progress, setProgress] = useState(0)
+  const [ready, setReady] = useState(false)
+  const readyRef = useRef(false)
+  const autoPlayRef = useRef(autoPlay)
 
-  const currentTrack = tracks[state.trackIndex]
+  const currentTrack = tracks[trackIndex]
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current = null
-    }
-
     const audio = new Audio(currentTrack.src)
     audio.preload = "auto"
     audioRef.current = audio
 
-    const onTimeUpdate = () => {
+    audio.ontimeupdate = () => {
       if (audio.duration) {
-        setState(s => ({ ...s, progress: (audio.currentTime / audio.duration) * 100 }))
+        setProgress((audio.currentTime / audio.duration) * 100)
       }
     }
 
-    const onEnded = () => {
-      setState(s => ({ ...s, trackIndex: (s.trackIndex + 1) % tracks.length, progress: 0 }))
+    audio.onended = () => {
+      setTrackIndex(i => (i + 1) % tracks.length)
+      setProgress(0)
     }
 
-    const onCanPlay = () => {
-      if (state.ready && state.playing) {
+    audio.oncanplaythrough = () => {
+      if (readyRef.current) {
         audio.play().catch(() => {})
       }
     }
 
-    audio.addEventListener("timeupdate", onTimeUpdate)
-    audio.addEventListener("ended", onEnded)
-    audio.addEventListener("canplay", onCanPlay)
-
-    if (state.ready && state.playing) {
+    if (readyRef.current) {
       audio.play().catch(() => {})
+      setPlaying(true)
     }
 
     return () => {
       audio.pause()
-      audio.removeEventListener("timeupdate", onTimeUpdate)
-      audio.removeEventListener("ended", onEnded)
-      audio.removeEventListener("canplay", onCanPlay)
+      audio.ontimeupdate = null
+      audio.onended = null
+      audio.oncanplaythrough = null
     }
-  }, [state.trackIndex, currentTrack.src, tracks.length])
+  }, [trackIndex, currentTrack.src, tracks.length])
+
+  useEffect(() => {
+    const handleInteraction = () => {
+      if (readyRef.current) return
+      readyRef.current = true
+      setReady(true)
+      
+      const audio = audioRef.current
+      if (audio && autoPlayRef.current) {
+        audio.play().then(() => {
+          setPlaying(true)
+        }).catch(() => {})
+      }
+    }
+
+    document.addEventListener("click", handleInteraction)
+    document.addEventListener("touchstart", handleInteraction)
+    document.addEventListener("keydown", handleInteraction)
+    
+    return () => {
+      document.removeEventListener("click", handleInteraction)
+      document.removeEventListener("touchstart", handleInteraction)
+      document.removeEventListener("keydown", handleInteraction)
+    }
+  }, [])
 
   useEffect(() => {
     const audio = audioRef.current
-    if (!audio || !state.ready) return
-    if (state.playing) {
-      audio.play().catch(() => {})
+    if (!audio) return
+    
+    if (playing && readyRef.current) {
+      audio.play().catch(() => setPlaying(false))
     } else {
       audio.pause()
     }
-  }, [state.playing, state.ready])
+  }, [playing])
 
-  useEffect(() => {
-    const unlock = () => {
-      setState(s => {
-        if (s.ready) return s
-        const shouldPlay = autoPlay || s.playing
-        if (shouldPlay && audioRef.current) {
-          audioRef.current.play().catch(() => {})
-        }
-        return { ...s, ready: true, playing: shouldPlay }
-      })
-    }
-    document.addEventListener("click", unlock)
-    document.addEventListener("touchstart", unlock)
-    document.addEventListener("keydown", unlock)
-    return () => {
-      document.removeEventListener("click", unlock)
-      document.removeEventListener("touchstart", unlock)
-      document.removeEventListener("keydown", unlock)
-    }
-  }, [autoPlay])
+  const play = useCallback(() => {
+    readyRef.current = true
+    setReady(true)
+    setPlaying(true)
+  }, [])
 
-  const play = useCallback(() => setState(s => ({ ...s, playing: true, ready: true })), [])
-  const pause = useCallback(() => setState(s => ({ ...s, playing: false })), [])
-  const toggle = useCallback(() => setState(s => ({ ...s, playing: !s.playing, ready: true })), [])
+  const pause = useCallback(() => setPlaying(false), [])
+  
+  const toggle = useCallback(() => {
+    readyRef.current = true
+    setReady(true)
+    setPlaying(p => !p)
+  }, [])
 
-  const setTrack = useCallback((index: number) => {
+  const changeTrack = useCallback((index: number) => {
     if (index < 0 || index >= tracks.length) return
-    setState(s => ({ ...s, trackIndex: index, progress: 0 }))
+    setTrackIndex(index)
+    setProgress(0)
   }, [tracks.length])
 
   const next = useCallback(() => {
-    setState(s => ({ ...s, trackIndex: (s.trackIndex + 1) % tracks.length, progress: 0 }))
+    setTrackIndex(i => (i + 1) % tracks.length)
+    setProgress(0)
   }, [tracks.length])
 
   const prev = useCallback(() => {
-    setState(s => ({ ...s, trackIndex: (s.trackIndex - 1 + tracks.length) % tracks.length, progress: 0 }))
+    setTrackIndex(i => (i - 1 + tracks.length) % tracks.length)
+    setProgress(0)
   }, [tracks.length])
 
   return {
-    ...state,
+    playing,
+    trackIndex,
+    progress,
+    ready,
     currentTrack,
     play,
     pause,
     toggle,
-    setTrack,
+    setTrack: changeTrack,
     next,
     prev,
   }
