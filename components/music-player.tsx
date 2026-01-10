@@ -2,13 +2,36 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Play, Pause, SkipBack, SkipForward } from "lucide-react"
+import { Play, Pause, SkipBack, SkipForward, Music2 } from "lucide-react"
 import { useAudioPlayer } from "@/hooks/use-audio-player"
 import { TRACKS, ANIMATION_CONFIG } from "@/lib/constants"
 import { getAssetPath } from "@/lib/utils"
 
 interface MusicPlayerProps {
   isVisible?: boolean
+}
+
+function AudioBars({ playing }: { playing: boolean }) {
+  return (
+    <div className="flex items-end gap-[2px] h-3">
+      {[0, 1, 2, 3].map(i => (
+        <motion.div
+          key={i}
+          className="w-[3px] bg-white rounded-full origin-bottom"
+          animate={playing ? {
+            scaleY: [0.3, 1, 0.5, 0.8, 0.3],
+          } : { scaleY: 0.3 }}
+          transition={playing ? {
+            duration: 0.8,
+            repeat: Infinity,
+            delay: i * 0.1,
+            ease: "easeInOut",
+          } : { duration: 0.2 }}
+          style={{ height: 12 }}
+        />
+      ))}
+    </div>
+  )
 }
 
 export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
@@ -35,16 +58,17 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
       onMouseLeave={() => setHovered(false)}
     >
       <motion.div
-        className="bg-[#0a0a0a] border border-white/10 overflow-hidden backdrop-blur-xl relative"
+        className="bg-[#0a0a0a]/95 border border-white/10 overflow-hidden backdrop-blur-xl relative"
         animate={{
-          width: expanded ? 340 : 200,
-          height: expanded ? 80 + 32 + TRACKS.length * 52 : 56,
+          width: expanded ? 340 : 180,
+          height: expanded ? 80 + 32 + TRACKS.length * 52 : 48,
+          borderRadius: expanded ? 16 : 24,
         }}
         transition={ANIMATION_CONFIG.sweep}
         style={{
           boxShadow: expanded
             ? "0 0 0 1px rgba(255,255,255,.1), 0 20px 50px -10px rgba(0,0,0,.8)"
-            : "0 0 0 1px rgba(255,255,255,.05), 0 4px 20px -5px rgba(0,0,0,.5)",
+            : "0 0 40px rgba(255,255,255,.05), 0 4px 20px -5px rgba(0,0,0,.5)",
         }}
       >
         <AnimatePresence>
@@ -54,70 +78,114 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0 0 100%)" }}
               transition={{ duration: 1, ease: ANIMATION_CONFIG.sweep.ease }}
+              style={{ borderRadius: "inherit" }}
             />
           )}
         </AnimatePresence>
 
-        <div className="h-[2px] bg-white/5 relative overflow-hidden">
+        <motion.div
+          className="h-[2px] bg-white/5 relative overflow-hidden"
+          animate={{ opacity: expanded ? 1 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
           <motion.div
             className="absolute inset-y-0 left-0 bg-white"
             animate={{ width: `${player.progress}%` }}
             transition={{ duration: 0.1 }}
           />
-        </div>
+        </motion.div>
 
         <motion.div
-          animate={{ padding: expanded ? 16 : 12 }}
+          className="h-full"
+          animate={{ padding: expanded ? 16 : 10 }}
           transition={ANIMATION_CONFIG.sweep}
         >
-          <div className="flex items-center gap-3">
-            <div className="min-w-0 flex-1 relative overflow-hidden">
-              <motion.p
-                className="font-medium text-white truncate leading-tight"
-                animate={{ fontSize: expanded ? 15 : 13 }}
+          <AnimatePresence mode="wait">
+            {!expanded ? (
+              <motion.div
+                key="compact"
+                className="flex items-center gap-3 h-full"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
               >
-                {player.currentTrack.title}
-              </motion.p>
-              <motion.p
-                className="text-white/50 truncate"
-                animate={{ fontSize: expanded ? 12 : 11, marginTop: expanded ? 2 : 0 }}
-              >
-                {player.currentTrack.artist}
-              </motion.p>
-            </div>
+                <motion.button
+                  onClick={player.toggle}
+                  className="w-7 h-7 rounded-full bg-white flex items-center justify-center flex-shrink-0 hover:scale-110 transition-transform"
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {player.playing ? (
+                    <Pause className="text-black w-3 h-3" fill="currentColor" />
+                  ) : (
+                    <Play className="text-black w-3 h-3 ml-0.5" fill="currentColor" />
+                  )}
+                </motion.button>
 
-            <div className="flex items-center">
-              <motion.button
-                onClick={player.prev}
-                className="text-white/50 hover:text-white transition-colors flex items-center justify-center"
-                animate={{ width: expanded ? 36 : 0, opacity: expanded ? 1 : 0 }}
-                style={{ height: 36, overflow: "hidden" }}
-              >
-                <SkipBack className="w-4 h-4" fill="currentColor" />
-              </motion.button>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[11px] font-medium text-white truncate leading-tight">
+                    {player.currentTrack.title}
+                  </p>
+                  <p className="text-[10px] text-white/40 truncate">
+                    {player.currentTrack.artist}
+                  </p>
+                </div>
 
-              <motion.button
-                onClick={player.toggle}
-                className="bg-white flex items-center justify-center hover:bg-white/90"
-                animate={{ width: expanded ? 44 : 32, height: expanded ? 44 : 32 }}
+                <AudioBars playing={player.playing} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="expanded"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
               >
-                {player.playing ? (
-                  <Pause className="text-black w-4 h-4" fill="currentColor" />
-                ) : (
-                  <Play className="text-black w-4 h-4 ml-0.5" fill="currentColor" />
-                )}
-              </motion.button>
+                <div className="flex items-center gap-3">
+                  <div className="min-w-0 flex-1 relative overflow-hidden">
+                    <motion.p
+                      className="font-medium text-white truncate leading-tight text-[15px]"
+                    >
+                      {player.currentTrack.title}
+                    </motion.p>
+                    <p className="text-white/50 truncate text-xs mt-0.5">
+                      {player.currentTrack.artist}
+                    </p>
+                  </div>
 
-              <motion.button
-                onClick={player.next}
-                className="text-white/50 hover:text-white transition-colors flex items-center justify-center"
-                animate={{ width: expanded ? 36 : 0, opacity: expanded ? 1 : 0 }}
-                style={{ height: 36, overflow: "hidden" }}
-              >
-                <SkipForward className="w-4 h-4" fill="currentColor" />
-              </motion.button>
-            </div>
-          </div>
+                  <div className="flex items-center gap-1">
+                    <motion.button
+                      onClick={player.prev}
+                      className="w-9 h-9 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <SkipBack className="w-4 h-4" fill="currentColor" />
+                    </motion.button>
+
+                    <motion.button
+                      onClick={player.toggle}
+                      className="w-11 h-11 rounded-full bg-white flex items-center justify-center hover:scale-105 transition-transform"
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {player.playing ? (
+                        <Pause className="text-black w-4 h-4" fill="currentColor" />
+                      ) : (
+                        <Play className="text-black w-4 h-4 ml-0.5" fill="currentColor" />
+                      )}
+                    </motion.button>
+
+                    <motion.button
+                      onClick={player.next}
+                      className="w-9 h-9 rounded-full text-white/50 hover:text-white hover:bg-white/10 transition-all flex items-center justify-center"
+                      whileTap={{ scale: 0.9 }}
+                    >
+                      <SkipForward className="w-4 h-4" fill="currentColor" />
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           <motion.div
             animate={{ height: expanded ? "auto" : 0, marginTop: expanded ? 16 : 0, opacity: expanded ? 1 : 0 }}
