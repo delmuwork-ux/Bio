@@ -2,7 +2,7 @@ import React from "react";
 /**
  * @param {{ isPlaying: boolean, isChanging: boolean }} props
  */
-export default function AnimatedRing(props) {
+export default function AnimatedRing(props: any) {
   const { isPlaying, isChanging } = props;
   const [scale, setScale] = React.useState(1);
   React.useEffect(() => {
