@@ -73,7 +73,7 @@ export function ProfileCard({ onNameAnimationStart }: ProfileCardProps) {
       <div className="flex flex-col items-center">
         <div className="relative mb-6">
            <div className="w-24 h-24 overflow-hidden border-2 border-white/20">
-             <Image src="/test/avatar/avatar.png" alt="Avatar" fill className="object-cover" />
+             <Image src="/Bio/avatar/avatar.png" alt="Avatar" fill className="object-cover" />
            </div>
           <div className="absolute bottom-1 right-1 w-3 h-3 bg-white border-2 border-[#111]" />
         </div>

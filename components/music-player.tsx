@@ -8,19 +8,19 @@ const tracks = [
     title: "超学生ぴんく @歌ってみた",
     artist: "超学生",
     duration: "3:50",
-    src: "/test/music/超学生ぴんく @歌ってみた.mp3",
+    src: "/Bio/music/超学生ぴんく @歌ってみた.mp3",
   },
   {
     title: "黒塗り世界宛て書簡",
     artist: "Unknown",
     duration: "2:09",
-    src: "/test/music/黒塗り世界宛て書簡.mp3",
+    src: "/Bio/music/黒塗り世界宛て書簡.mp3",
   },
   {
     title: "Psychotrance",
     artist: "Baby Jane",
     duration: "2:30",
-    src: "/test/music/Baby Jane - Psychotrance (Official Video).mp3",
+    src: "/Bio/music/Baby Jane - Psychotrance (Official Video).mp3",
   },
 ]
 
