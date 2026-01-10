@@ -113,7 +113,7 @@ export function ProfileCard({ onNameAnimationStart }: ProfileCardProps) {
         {/* Stats */}
         <div className="flex gap-8 mt-6 pt-6 border-t border-white/10 w-full justify-center">
           {[
-            { value: "21.1", label: "Followers" },
+            { value: "21.1K+", label: "Followers" },
             { value: "95", label: "Following" },
             { value: "idk ¯\_(ツ)_/¯", label: "Post" },
           ].map((stat, index) => (
