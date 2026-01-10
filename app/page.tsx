@@ -50,12 +50,10 @@ export default function Home() {
           className="fixed inset-0 z-[100] bg-black flex items-center justify-center cursor-pointer"
           onClick={() => {
             setShowHelloOverlay(false)
-            // mark request and mount player; dispatch after a short tick so MusicPlayer can mount and attach listeners
-            // also keep a global request flag in case event fires before listeners attach
+            // mark that audio was requested; dispatch unlock so hook will honor it when it mounts
             // eslint-disable-next-line @typescript-eslint/ban-ts-comment
             // @ts-ignore
             window.__audioUnlockRequested = true
-            setShowMusicPlayer(true)
             requestAnimationFrame(() => requestAnimationFrame(() => window.dispatchEvent(new CustomEvent("unlockAudio"))))
           }}
         >
