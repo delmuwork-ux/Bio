@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 import { ProfileCard } from "@/components/profile-card"
 import { SocialLinks } from "@/components/social-links"
 import { MusicPlayer } from "@/components/music-player"
