@@ -6,6 +6,7 @@ import { ProfileCard } from "@/components/profile-card"
 import { SocialLinks } from "@/components/social-links"
 import { MusicPlayer } from "@/components/music-player"
 import { CyberBackground } from "@/components/cyber-background"
+import { ANIMATION_CONFIG } from "@/lib/constants"
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true)
