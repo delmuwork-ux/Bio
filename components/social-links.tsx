@@ -45,7 +45,7 @@ export function SocialLinks() {
         )}
       </AnimatePresence>
 
-      <div className="space-y-1">
+      <div className="space-y-2">
         {SOCIAL_LINKS.map((link, i) => {
           const Icon = ICONS[link.platform]
           const active = hovered === i
@@ -56,67 +56,99 @@ export function SocialLinks() {
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative block overflow-hidden"
+              className="group relative block"
               onMouseEnter={() => setHovered(i)}
               onMouseLeave={() => setHovered(null)}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: show ? 1 : 0, y: show ? 0 : 10 }}
               transition={{ ...ANIMATION_CONFIG.fade, delay: i * 0.05 }}
             >
-              <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden flex">
-                <motion.div
-                  className="bg-white h-full"
-                  animate={{ width: active ? "50%" : "0%" }}
-                  transition={ANIMATION_CONFIG.fade}
-                />
-                <motion.div
-                  className="bg-white h-full ml-auto"
-                  animate={{ width: active ? "50%" : "0%" }}
-                  transition={ANIMATION_CONFIG.fade}
-                />
-              </div>
+              <motion.div
+                className="absolute inset-0 z-0 pointer-events-none"
+                animate={{
+                  backgroundColor: active ? "rgba(255,255,255,1)" : "rgba(255,255,255,0)",
+                  scale: active ? 1 : 0.98,
+                }}
+                transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              />
 
-              <div className="flex items-center gap-4 p-3 -mx-1 relative z-10">
+              <motion.div
+                className="absolute inset-0 z-0 pointer-events-none border"
+                animate={{
+                  borderColor: active ? "rgba(255,255,255,.3)" : "rgba(255,255,255,.06)",
+                  boxShadow: active 
+                    ? "0 8px 32px rgba(255,255,255,.15), inset 0 1px 0 rgba(255,255,255,.1)" 
+                    : "none",
+                }}
+                transition={{ duration: 0.25 }}
+              />
+
+              <div className="flex items-center gap-4 p-4 relative z-10">
                 <motion.div
-                  className="w-10 h-10 flex items-center justify-center border flex-shrink-0"
+                  className="w-10 h-10 flex items-center justify-center flex-shrink-0 relative overflow-hidden"
                   animate={{
-                    backgroundColor: active ? "black" : "rgba(255,255,255,.05)",
-                    borderColor: active ? "black" : "rgba(255,255,255,.1)",
+                    backgroundColor: active ? "#000" : "rgba(255,255,255,.05)",
                   }}
-                  transition={ANIMATION_CONFIG.fade}
+                  transition={{ duration: 0.2 }}
                 >
-                  <Icon
-                    className="w-4 h-4"
-                    style={{ color: active ? "white" : "rgba(255,255,255,.7)" }}
+                  <motion.div
+                    className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent"
+                    animate={{ opacity: active ? 0 : 0.5 }}
                   />
+                  <motion.div
+                    animate={{ 
+                      scale: active ? 1.1 : 1,
+                      rotate: active ? -5 : 0,
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                  >
+                    <Icon
+                      className="w-4 h-4 relative z-10"
+                      style={{ color: active ? "white" : "rgba(255,255,255,.7)" }}
+                    />
+                  </motion.div>
                 </motion.div>
 
                 <div className="flex-1 min-w-0">
                   <motion.span
-                    className="text-sm block font-medium"
-                    animate={{ color: active ? "black" : "rgba(255,255,255,.8)" }}
+                    className="text-sm block font-medium tracking-wide"
+                    animate={{ 
+                      color: active ? "#000" : "rgba(255,255,255,.85)",
+                      x: active ? 4 : 0,
+                    }}
+                    transition={{ duration: 0.2 }}
                   >
                     {link.name}
                   </motion.span>
-                  <motion.div
-                    className="overflow-hidden"
-                    animate={{ height: active ? "auto" : 0, opacity: active ? 1 : 0 }}
-                    transition={ANIMATION_CONFIG.fade}
+                  <motion.span
+                    className="text-xs block mt-0.5"
+                    animate={{ 
+                      color: active ? "rgba(0,0,0,.5)" : "rgba(255,255,255,.4)",
+                      x: active ? 4 : 0,
+                    }}
+                    transition={{ duration: 0.2, delay: 0.02 }}
                   >
-                    <span className="text-xs text-black/60 block mt-0.5">{link.username}</span>
-                    <span className="text-[11px] text-black/40 block truncate">{link.bio}</span>
-                  </motion.div>
+                    {link.username}
+                  </motion.span>
                 </div>
 
                 <motion.div
+                  className="relative"
                   animate={{
-                    color: active ? "rgba(0,0,0,.6)" : "rgba(255,255,255,.2)",
-                    x: active ? 2 : 0,
-                    y: active ? -2 : 0,
+                    color: active ? "#000" : "rgba(255,255,255,.25)",
+                    x: active ? 4 : 0,
                   }}
-                  transition={ANIMATION_CONFIG.fade}
+                  transition={{ duration: 0.2 }}
                 >
-                  <ArrowUpRight className="w-4 h-4" />
+                  <motion.div
+                    animate={{
+                      rotate: active ? 45 : 0,
+                      scale: active ? 1.2 : 1,
+                    }}
+                    transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  >
+                    <ArrowUpRight className="w-5 h-5" />
+                  </motion.div>
                 </motion.div>
               </div>
             </motion.a>
