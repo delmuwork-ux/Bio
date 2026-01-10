@@ -11,19 +11,19 @@ export const TRACKS: Track[] = [
     title: "超学生ぴんく @歌ってみた",
     artist: "超学生",
     duration: "3:50",
-    src: "/music/超学生ぴんく @歌ってみた.mp3",
+    src: "/music/track1.mp3",
   },
   {
     title: "黒塗り世界宛て書簡",
     artist: "Unknown",
     duration: "2:09",
-    src: "/music/黒塗り世界宛て書簡.mp3",
+    src: "/music/track2.mp3",
   },
   {
     title: "Psychotrance",
     artist: "Baby Jane",
     duration: "2:30",
-    src: "/music/Baby Jane - Psychotrance (Official Video).mp3",
+    src: "/music/track3.mp3",
   },
 ]
 

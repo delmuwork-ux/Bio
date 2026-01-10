@@ -52,18 +52,26 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
   useEffect(() => {
     const audio = audioRef.current
     if (!audio || !state.ready) return
-    state.playing ? audio.play().catch(() => {}) : audio.pause()
-  }, [state.playing, state.ready])
+    if (state.playing) {
+      audio.play().catch(() => setState(s => ({ ...s, playing: false })))
+    } else {
+      audio.pause()
+    }
+  }, [state.playing, state.ready, state.trackIndex])
 
   useEffect(() => {
-    const unlock = () => setState(s => ({ ...s, ready: true }))
+    const unlock = () => {
+      setState(s => ({ ...s, ready: true, playing: autoPlay || s.playing }))
+    }
     window.addEventListener("click", unlock, { once: true })
+    window.addEventListener("touchstart", unlock, { once: true })
     window.addEventListener("keydown", unlock, { once: true })
     return () => {
       window.removeEventListener("click", unlock)
+      window.removeEventListener("touchstart", unlock)
       window.removeEventListener("keydown", unlock)
     }
-  }, [])
+  }, [autoPlay])
 
   const play = useCallback(() => setState(s => ({ ...s, playing: true, ready: true })), [])
   const pause = useCallback(() => setState(s => ({ ...s, playing: false })), [])
