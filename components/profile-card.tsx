@@ -2,40 +2,32 @@
 
 import Image from "next/image"
 import { motion, useAnimationControls } from "framer-motion"
-import { useEffect } from "react"
+import { useState, useEffect } from "react"
 import { PROFILE, PROFILE_STATS, ANIMATION_CONFIG } from "@/lib/constants"
 import { getAssetPath } from "@/lib/utils"
 
-const sweepVariants = {
-  hidden: { clipPath: "inset(0 100% 0 0)" },
-  visible: { clipPath: "inset(0 0 0 0)" },
-  exit: { clipPath: "inset(0 0 0 100%)" },
-}
-
-const statVariants = {
-  hidden: { x: "-100%" },
-  visible: { x: "0%" },
-  exit: { x: "100%" },
-}
-
 export function ProfileCard() {
   const nameControls = useAnimationControls()
-  const statsControls = useAnimationControls()
+  const [showStats, setShowStats] = useState(false)
+  const [nameVisible, setNameVisible] = useState(false)
 
   useEffect(() => {
     const startAnimation = async () => {
-      await nameControls.start("visible")
-      await new Promise(r => setTimeout(r, 100))
-      await nameControls.start("exit")
-      statsControls.start("visible")
-      await new Promise(r => setTimeout(r, 400))
-      statsControls.start("exit")
+      await nameControls.start({ clipPath: "inset(0 0 0 0)" })
+      
+      for (let i = 0; i < 3; i++) {
+        await nameControls.start({ opacity: 0.3 }, { duration: 0.1 })
+        await nameControls.start({ opacity: 1 }, { duration: 0.1 })
+      }
+      
+      setNameVisible(true)
+      setShowStats(true)
     }
 
     const handler = () => startAnimation()
     window.addEventListener("startNameAnimation", handler)
     return () => window.removeEventListener("startNameAnimation", handler)
-  }, [nameControls, statsControls])
+  }, [nameControls])
 
   return (
     <div className="relative p-8 card">
@@ -55,16 +47,15 @@ export function ProfileCard() {
         <div className="relative h-8 flex items-center justify-center overflow-hidden">
           <motion.div
             className="absolute inset-0 bg-white"
-            variants={sweepVariants}
-            initial="hidden"
+            initial={{ clipPath: "inset(0 100% 0 0)" }}
             animate={nameControls}
             transition={ANIMATION_CONFIG.sweep}
           />
           <motion.h1
-            className="text-xl font-medium tracking-tight relative z-10 px-3 py-1 text-black"
+            className="text-xl font-medium tracking-tight relative z-10 px-3 py-1"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 0.1 }}
+            animate={{ opacity: nameVisible ? 1 : 0, color: nameVisible ? "#000" : "#fff" }}
+            transition={{ duration: 0.2 }}
           >
             {PROFILE.name}
           </motion.h1>
@@ -76,35 +67,25 @@ export function ProfileCard() {
           {PROFILE.bio}
         </p>
 
-        <div className="flex gap-8 mt-6 pt-6 border-t border-white/10 w-full justify-center">
+        <motion.div 
+          className="flex gap-8 mt-6 pt-6 border-t border-white/10 w-full justify-center"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: showStats ? 1 : 0, y: showStats ? 0 : 20 }}
+          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
+        >
           {PROFILE_STATS.map((stat, i) => (
-            <div key={stat.label} className="text-center relative overflow-hidden">
-              <motion.div
-                className="absolute inset-0 bg-white z-10 pointer-events-none"
-                variants={statVariants}
-                initial="hidden"
-                animate={statsControls}
-                transition={{ ...ANIMATION_CONFIG.sweep, delay: i * 0.08 }}
-              />
-              <motion.p
-                className="text-lg font-medium text-white"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 + i * 0.08, duration: 0.3 }}
-              >
-                {stat.value}
-              </motion.p>
-              <motion.p
-                className="text-[11px] text-white/40 uppercase tracking-wider"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.85 + i * 0.08, duration: 0.3 }}
-              >
-                {stat.label}
-              </motion.p>
-            </div>
+            <motion.div 
+              key={stat.label} 
+              className="text-center"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: showStats ? 1 : 0, y: showStats ? 0 : 10 }}
+              transition={{ duration: 0.4, delay: i * 0.1, ease: "easeOut" }}
+            >
+              <p className="text-lg font-medium text-white">{stat.value}</p>
+              <p className="text-[11px] text-white/40 uppercase tracking-wider">{stat.label}</p>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </div>
   )

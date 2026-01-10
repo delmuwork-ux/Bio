@@ -66,14 +66,20 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       }
     }
 
+    const handleUnlockAudio = () => {
+      handleInteraction()
+    }
+
     document.addEventListener("click", handleInteraction)
     document.addEventListener("touchstart", handleInteraction)
     document.addEventListener("keydown", handleInteraction)
+    window.addEventListener("unlockAudio", handleUnlockAudio)
     
     return () => {
       document.removeEventListener("click", handleInteraction)
       document.removeEventListener("touchstart", handleInteraction)
       document.removeEventListener("keydown", handleInteraction)
+      window.removeEventListener("unlockAudio", handleUnlockAudio)
     }
   }, [])
 
