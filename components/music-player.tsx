@@ -111,6 +111,14 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
   }, [isVisible])
 
   const displayed = TRACKS[displayedIndex] ?? player.currentTrack
+  const queueRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const el = queueRef.current
+    if (!el) return
+    const top = player.trackIndex * 48
+    el.scrollTo({ top, behavior: "smooth" })
+  }, [player.trackIndex])
 
 
   return (
@@ -309,7 +317,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                 </p>
               </div>
 
-              <div className="relative" style={{ height: TRACKS.length * 48 }}>
+              <div className="relative overflow-y-auto" ref={queueRef} style={{ maxHeight: (TRACKS.length * 48) > (48 * 4) ? (48 * 4) : TRACKS.length * 48 }}>
                 <motion.div
                   className="absolute left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-2"
                   animate={{ top: player.trackIndex * 48 }}
