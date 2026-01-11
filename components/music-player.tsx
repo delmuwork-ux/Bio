@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence, useAnimationControls } from "framer-motion"
-import { Play, Pause, SkipBack, SkipForward, Music2, Volume } from "lucide-react"
+import { Play, Pause, SkipBack, SkipForward, Music2 } from "lucide-react"
 import { useAudioPlayer } from "@/hooks/use-audio-player"
 import { TRACKS, ANIMATION_CONFIG } from "@/lib/constants"
 import { getAssetPath } from "@/lib/utils"
@@ -283,26 +283,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
             )}
           </AnimatePresence>
 
-          {/* Centered volume card between header and playlist (expanded only) */}
-          {expanded && (
-            <div className="mx-auto mt-3 w-full max-w-[300px]">
-              <div className="w-full h-10 bg-[#0a0a0a]/95 border border-white/10 rounded flex items-center gap-3 px-3">
-                <button onClick={player.toggleMute} className="text-white/60 hover:text-white">
-                  <Volume className="w-4 h-4" />
-                </button>
-                <input
-                  aria-label="Volume"
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.01}
-                  value={player.volume}
-                  onChange={(e) => player.setVolume(Number(e.target.value))}
-                  className="w-full h-1 bg-white/10 appearance-none rounded-lg overflow-hidden"
-                />
-              </div>
-            </div>
-          )}
+
 
           <motion.div
             animate={{ height: expanded ? "auto" : 0, marginTop: expanded ? 16 : 0, opacity: expanded ? 1 : 0 }}
