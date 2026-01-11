@@ -166,16 +166,13 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                     )}
                   </AnimatePresence>
 
-                  <motion.p
-                    className="text-[11px] font-medium truncate leading-tight relative z-10"
-                    animate={{ color: nameSweep ? "#000" : "#fff" }}
-                  >
+                  <p className="text-[11px] font-medium text-white truncate leading-tight relative z-10">
                     {player.currentTrack.title}
-                  </motion.p>
+                  </p>
 
-                  <motion.p className="text-[10px] text-white/40 truncate relative z-10" animate={{ opacity: nameSweep ? 0.95 : 1 }}>
+                  <p className="text-[10px] text-white/40 truncate relative z-10">
                     {player.currentTrack.artist}
-                  </motion.p>
+                  </p>
                 </div>
 
                 <AudioBars playing={player.playing} />
@@ -203,15 +200,10 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                         )}
                       </AnimatePresence>
 
-                      <motion.p
-                        className="font-medium truncate leading-tight text-[15px] relative z-10"
-                        animate={{ color: nameSweep ? "#000" : "#fff" }}
-                      >
+                      <p className="font-medium text-white truncate leading-tight text-[15px] relative z-10">
                         {player.currentTrack.title}
-                      </motion.p>
-                      <motion.p className="text-white/50 truncate text-xs mt-0.5 relative z-10" animate={{ opacity: nameSweep ? 0.95 : 1 }}>
-                        {player.currentTrack.artist}
-                      </motion.p>
+                      </p>
+                      <p className="text-white/50 truncate text-xs mt-0.5 relative z-10">{player.currentTrack.artist}</p>
                     </div>
                   </div>
 
