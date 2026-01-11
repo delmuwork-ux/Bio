@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion"
 import { Play, Pause, SkipBack, SkipForward, Music2 } from "lucide-react"
 import { useAudioPlayer } from "@/hooks/use-audio-player"
 import { TRACKS, ANIMATION_CONFIG } from "@/lib/constants"
@@ -45,13 +45,37 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
   const [visibleNow, setVisibleNow] = useState(isVisible)
   const [nameSweep, setNameSweep] = useState(false)
 
+  const nameControls = useAnimationControls()
+
   // trigger a short white sweep over the track title when the track changes
   useEffect(() => {
-    const ms = Math.round(((ANIMATION_CONFIG.sweep.duration || 0.5)) * 1000)
+    // kick off the sequence; actual timeline handled by nameControls
     setNameSweep(true)
-    const t = setTimeout(() => setNameSweep(false), ms + 120)
-    return () => clearTimeout(t)
   }, [player.trackIndex])
+
+  // sequence the sweep manually so we can pause at center reliably
+  useEffect(() => {
+    if (!nameSweep) return
+    const D = (ANIMATION_CONFIG.sweep.duration || 0.5)
+    const half = D / 2
+
+    let mounted = true
+
+    nameControls.set({ x: "-100%" })
+    nameControls
+      .start({ x: "0%", transition: { duration: half, ease: ANIMATION_CONFIG.sweep.ease } })
+      .then(() => new Promise<void>(r => setTimeout(r, 100))) // pause 100ms at center
+      .then(() => nameControls.start({ x: "100%", transition: { duration: half, ease: ANIMATION_CONFIG.sweep.ease } }))
+      .finally(() => {
+        if (!mounted) return
+        setNameSweep(false)
+      })
+
+    return () => {
+      mounted = false
+      nameControls.stop()
+    }
+  }, [nameSweep, nameControls])
 
   // listen for overlay unlock event (fires inside the user's click) and play immediately
   useEffect(() => {
@@ -159,20 +183,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                       <motion.div
                         className="absolute inset-0 bg-white z-0 pointer-events-none"
                         initial={{ x: "-100%" }}
-                        animate={["-100%", "0%", "0%", "100%"]}
-                        exit={{ x: "100%" }}
-                        transition={{
-                          duration: (ANIMATION_CONFIG.sweep.duration || 0.5) + 0.1,
-                          ease: ANIMATION_CONFIG.sweep.ease,
-                          times: (() => {
-                            const D = (ANIMATION_CONFIG.sweep.duration || 0.5)
-                            const H = 0.1
-                            const total = D + H
-                            const t1 = (D / 2) / total
-                            const t2 = (D / 2 + H) / total
-                            return [0, t1, t2, 1]
-                          })(),
-                        }}
+                        animate={nameControls}
                       />
                     )}
                   </AnimatePresence>
@@ -204,20 +215,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                           <motion.div
                             className="absolute inset-0 bg-white z-0 pointer-events-none"
                             initial={{ x: "-100%" }}
-                            animate={["-100%", "0%", "0%", "100%"]}
-                            exit={{ x: "100%" }}
-                            transition={{
-                              duration: (ANIMATION_CONFIG.sweep.duration || 0.5) + 0.1,
-                              ease: ANIMATION_CONFIG.sweep.ease,
-                              times: (() => {
-                                const D = (ANIMATION_CONFIG.sweep.duration || 0.5)
-                                const H = 0.1
-                                const total = D + H
-                                const t1 = (D / 2) / total
-                                const t2 = (D / 2 + H) / total
-                                return [0, t1, t2, 1]
-                              })(),
-                            }}
+                            animate={nameControls}
                           />
                         )}
                       </AnimatePresence>
