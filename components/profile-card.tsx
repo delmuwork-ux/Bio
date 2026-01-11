@@ -11,9 +11,11 @@ export function ProfileCard() {
   const statsControls = useAnimationControls()
   const bioControls = useAnimationControls()
   const avatarControls = useAnimationControls()
+  const usernameControls = useAnimationControls()
   const [showStats, setShowStats] = useState(false)
   const [showBio, setShowBio] = useState(false)
   const [showAvatar, setShowAvatar] = useState(false)
+  const [showUsername, setShowUsername] = useState(false)
   const [nameVisible, setNameVisible] = useState(false)
 
   useEffect(() => {
@@ -34,8 +36,17 @@ export function ProfileCard() {
       }
       
       setNameVisible(true)
-      // small pause so the name's blink finishes visually before the bio sweep
-      await new Promise(r => setTimeout(r, 350))
+      // short pause so the name's blink finishes before username sweep
+      await new Promise(r => setTimeout(r, 200))
+
+      // USERNAME sweep (left → right): reveal at center, then finish
+      await usernameControls.start({ x: "0%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
+      await new Promise(r => setTimeout(r, 100))
+      setShowUsername(true)
+      await usernameControls.start({ x: "100%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
+
+      // small pause before bio sweep
+      await new Promise(r => setTimeout(r, 150))
 
       // BIO sweep: reveal overlay, wait, then show bio text, then finish sweep
       await bioControls.start({ x: "0%" })
@@ -100,7 +111,23 @@ export function ProfileCard() {
           </motion.h1>
         </div>
 
-        <p className="text-sm text-white/40 font-mono mt-1">{PROFILE.username}</p>
+        <div className="relative mt-1 h-5 overflow-hidden">
+          <motion.div
+            className="absolute inset-0 bg-white z-10 pointer-events-none"
+            initial={{ x: "-100%" }}
+            animate={usernameControls}
+            transition={{ ...ANIMATION_CONFIG.sweep, duration: 0.45 }}
+            style={{ borderRadius: "inherit" }}
+          />
+          <motion.p
+            className="text-sm text-white/40 font-mono relative z-10 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: showUsername ? 1 : 0 }}
+            transition={{ duration: 0.45, delay: 0.06 }}
+          >
+            {PROFILE.username}
+          </motion.p>
+        </div>
 
         <div className="relative mt-4 overflow-hidden" style={{ borderRadius: "inherit" }}>
           <motion.div
