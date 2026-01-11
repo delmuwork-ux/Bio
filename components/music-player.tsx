@@ -43,6 +43,15 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
 
   const expanded = hovered && isVisible
   const [visibleNow, setVisibleNow] = useState(isVisible)
+  const [nameSweep, setNameSweep] = useState(false)
+
+  // trigger a short white sweep over the track title when the track changes
+  useEffect(() => {
+    const ms = Math.round(((ANIMATION_CONFIG.sweep.duration || 0.5)) * 1000)
+    setNameSweep(true)
+    const t = setTimeout(() => setNameSweep(false), ms + 120)
+    return () => clearTimeout(t)
+  }, [player.trackIndex])
 
   // listen for overlay unlock event (fires inside the user's click) and play immediately
   useEffect(() => {
@@ -99,7 +108,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
               className="absolute inset-0 bg-white z-30 pointer-events-none"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0 0 100%)" }}
-              transition={{ duration: 1, ease: ANIMATION_CONFIG.sweep.ease }}
+              transition={{ duration: (ANIMATION_CONFIG.sweep.duration || 0.5) * 1.8, ease: ANIMATION_CONFIG.sweep.ease }}
               style={{ borderRadius: "inherit" }}
             />
           )}
@@ -144,13 +153,29 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                   )}
                 </motion.button>
 
-                <div className="min-w-0 flex-1">
-                  <p className="text-[11px] font-medium text-white truncate leading-tight">
+                <div className="min-w-0 flex-1 relative">
+                  <AnimatePresence>
+                    {nameSweep && (
+                      <motion.div
+                        className="absolute inset-0 bg-white z-0 pointer-events-none"
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "100%" }}
+                        exit={{ x: "100%" }}
+                        transition={{ duration: ANIMATION_CONFIG.sweep.duration, ease: ANIMATION_CONFIG.sweep.ease }}
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  <motion.p
+                    className="text-[11px] font-medium truncate leading-tight relative z-10"
+                    animate={{ color: nameSweep ? "#000" : "#fff" }}
+                  >
                     {player.currentTrack.title}
-                  </p>
-                  <p className="text-[10px] text-white/40 truncate">
+                  </motion.p>
+
+                  <motion.p className="text-[10px] text-white/40 truncate relative z-10" animate={{ opacity: nameSweep ? 0.95 : 1 }}>
                     {player.currentTrack.artist}
-                  </p>
+                  </motion.p>
                 </div>
 
                 <AudioBars playing={player.playing} />
@@ -165,14 +190,29 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
               >
                 <div className="flex items-center gap-3">
                   <div className="min-w-0 flex-1 relative overflow-hidden">
-                    <motion.p
-                      className="font-medium text-white truncate leading-tight text-[15px]"
-                    >
-                      {player.currentTrack.title}
-                    </motion.p>
-                    <p className="text-white/50 truncate text-xs mt-0.5">
-                      {player.currentTrack.artist}
-                    </p>
+                    <div className="relative">
+                      <AnimatePresence>
+                        {nameSweep && (
+                          <motion.div
+                            className="absolute inset-0 bg-white z-0 pointer-events-none"
+                            initial={{ x: "-100%" }}
+                            animate={{ x: "100%" }}
+                            exit={{ x: "100%" }}
+                            transition={{ duration: ANIMATION_CONFIG.sweep.duration, ease: ANIMATION_CONFIG.sweep.ease }}
+                          />
+                        )}
+                      </AnimatePresence>
+
+                      <motion.p
+                        className="font-medium truncate leading-tight text-[15px] relative z-10"
+                        animate={{ color: nameSweep ? "#000" : "#fff" }}
+                      >
+                        {player.currentTrack.title}
+                      </motion.p>
+                      <motion.p className="text-white/50 truncate text-xs mt-0.5 relative z-10" animate={{ opacity: nameSweep ? 0.95 : 1 }}>
+                        {player.currentTrack.artist}
+                      </motion.p>
+                    </div>
                   </div>
 
                   <div className="flex items-center gap-1">
