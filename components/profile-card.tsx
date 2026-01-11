@@ -10,12 +10,18 @@ export function ProfileCard() {
   const nameControls = useAnimationControls()
   const statsControls = useAnimationControls()
   const bioControls = useAnimationControls()
+  const avatarControls = useAnimationControls()
   const [showStats, setShowStats] = useState(false)
   const [showBio, setShowBio] = useState(false)
   const [nameVisible, setNameVisible] = useState(false)
 
   useEffect(() => {
     const startAnimation = async () => {
+      // avatar top-down sweep
+      await avatarControls.start({ y: "0%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5) / 2, ease: ANIMATION_CONFIG.sweep.ease } })
+      await new Promise(r => setTimeout(r, 120))
+      await avatarControls.start({ y: "100%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5) / 2, ease: ANIMATION_CONFIG.sweep.ease } })
+
       await nameControls.start({ clipPath: "inset(0 0 0 0)" })
       
       for (let i = 0; i < 3; i++) {
@@ -53,7 +59,14 @@ export function ProfileCard() {
     <div className="relative p-8 card">
       <div className="flex flex-col items-center">
         <div className="relative mb-6">
-          <div className="w-24 h-24 overflow-hidden border-2 border-white/20">
+          <div className="w-24 h-24 overflow-hidden border-2 border-white/20 relative" style={{ borderRadius: "inherit" }}>
+            <motion.div
+              className="absolute inset-0 bg-white z-10 pointer-events-none"
+              initial={{ y: "-100%" }}
+              animate={avatarControls}
+              transition={{ duration: (ANIMATION_CONFIG.sweep.duration || 0.5) / 2, ease: ANIMATION_CONFIG.sweep.ease }}
+              style={{ borderRadius: "inherit" }}
+            />
             <Image
               src={getAssetPath(PROFILE.avatar)}
               alt="Avatar"
