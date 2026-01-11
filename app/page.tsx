@@ -22,33 +22,43 @@ export default function Home() {
     if (!showHelloOverlay) {
       const timer = setTimeout(() => {
         setIsLoading(false)
+
+        // start vertical-to-full white strip
         setTimeout(() => {
           setShowWhiteStrip(true)
           setStripPhase("vertical")
         }, 100)
+
         setTimeout(() => setStripPhase("full"), 500)
+
+        // show profile card first for a strong visual anchor
         setTimeout(() => setShowProfileCard(true), 700)
-        setTimeout(() => setShowSocialCard(true), 1200)
-        setTimeout(() => setStripPhase("horizontal"), 900)
+
+        // begin horizontal reveal and finish the strip, then start the name animation
+        setTimeout(() => setStripPhase("horizontal"), 1000)
         setTimeout(() => {
           setStripPhase("done")
           setShowWhiteStrip(false)
           window.dispatchEvent(new CustomEvent("startNameAnimation"))
-        }, 1400)
+        }, 1250)
+
+        // show social card after the profile name animation begins
         setTimeout(() => {
+          setShowSocialCard(true)
           window.dispatchEvent(new CustomEvent("startSocialAnimation"))
-        }, 1700)
-        // instead of showing player immediately, run a short sweep then reveal player (to match social card behavior)
+        }, 1500)
+
+        // player: run a short sweep then reveal player, keeping rhythm with the other cards
         setTimeout(() => {
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
-          const SWEEP_MS =  Math.round((0.5) * 1000)
+          const SWEEP_MS = Math.round((ANIMATION_CONFIG.sweep.duration || 0.5) * 1000)
           setPlayerSweep(true)
           setTimeout(() => {
             setPlayerSweep(false)
             setShowMusicPlayer(true)
           }, SWEEP_MS + 60)
-        }, 2200)
+        }, 1900)
       }, 1500)
       return () => clearTimeout(timer)
     }
