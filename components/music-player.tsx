@@ -159,9 +159,20 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                       <motion.div
                         className="absolute inset-0 bg-white z-0 pointer-events-none"
                         initial={{ x: "-100%" }}
-                        animate={{ x: "100%" }}
+                        animate={["-100%", "0%", "0%", "100%"]}
                         exit={{ x: "100%" }}
-                        transition={{ duration: ANIMATION_CONFIG.sweep.duration, ease: ANIMATION_CONFIG.sweep.ease }}
+                        transition={{
+                          duration: (ANIMATION_CONFIG.sweep.duration || 0.5) + 0.1,
+                          ease: ANIMATION_CONFIG.sweep.ease,
+                          times: (() => {
+                            const D = (ANIMATION_CONFIG.sweep.duration || 0.5)
+                            const H = 0.1
+                            const total = D + H
+                            const t1 = (D / 2) / total
+                            const t2 = (D / 2 + H) / total
+                            return [0, t1, t2, 1]
+                          })(),
+                        }}
                       />
                     )}
                   </AnimatePresence>
@@ -193,9 +204,20 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                           <motion.div
                             className="absolute inset-0 bg-white z-0 pointer-events-none"
                             initial={{ x: "-100%" }}
-                            animate={{ x: "100%" }}
+                            animate={["-100%", "0%", "0%", "100%"]}
                             exit={{ x: "100%" }}
-                            transition={{ duration: ANIMATION_CONFIG.sweep.duration, ease: ANIMATION_CONFIG.sweep.ease }}
+                            transition={{
+                              duration: (ANIMATION_CONFIG.sweep.duration || 0.5) + 0.1,
+                              ease: ANIMATION_CONFIG.sweep.ease,
+                              times: (() => {
+                                const D = (ANIMATION_CONFIG.sweep.duration || 0.5)
+                                const H = 0.1
+                                const total = D + H
+                                const t1 = (D / 2) / total
+                                const t2 = (D / 2 + H) / total
+                                return [0, t1, t2, 1]
+                              })(),
+                            }}
                           />
                         )}
                       </AnimatePresence>
