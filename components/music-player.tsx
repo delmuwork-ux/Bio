@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence, useAnimationControls } from "framer-motion"
 import { Play, Pause, SkipBack, SkipForward, Music2 } from "lucide-react"
 import { useAudioPlayer } from "@/hooks/use-audio-player"
@@ -44,12 +44,15 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
   const expanded = hovered && isVisible
   const [visibleNow, setVisibleNow] = useState(isVisible)
   const [nameSweep, setNameSweep] = useState(false)
+  const [displayedIndex, setDisplayedIndex] = useState(player.trackIndex)
+  const pendingIndex = useRef<number>(player.trackIndex)
 
   const nameControls = useAnimationControls()
 
   // trigger a short white sweep over the track title when the track changes
   useEffect(() => {
-    // kick off the sequence; actual timeline handled by nameControls
+    // store the requested index (may change quickly) then kick off the sweep
+    pendingIndex.current = player.trackIndex
     setNameSweep(true)
   }, [player.trackIndex])
 
@@ -65,7 +68,11 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
     nameControls
       .start({ x: "0%", transition: { duration: half, ease: ANIMATION_CONFIG.sweep.ease } })
       .then(() => new Promise<void>(r => setTimeout(r, 100))) // pause 100ms at center
-      .then(() => nameControls.start({ x: "100%", transition: { duration: half, ease: ANIMATION_CONFIG.sweep.ease } }))
+      .then(() => {
+        // after the center pause, update the displayed title/artist to the pending index
+        if (mounted) setDisplayedIndex(pendingIndex.current)
+        return nameControls.start({ x: "100%", transition: { duration: half, ease: ANIMATION_CONFIG.sweep.ease } })
+      })
       .finally(() => {
         if (!mounted) return
         setNameSweep(false)
@@ -98,6 +105,9 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
   useEffect(() => {
     if (!isVisible) setVisibleNow(false)
   }, [isVisible])
+
+  const displayed = TRACKS[displayedIndex] ?? player.currentTrack
+
 
   return (
     <motion.div
@@ -189,11 +199,11 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                   </AnimatePresence>
 
                   <p className="text-[11px] font-medium text-white truncate leading-tight relative z-10">
-                    {player.currentTrack.title}
+                    {displayed.title}
                   </p>
 
                   <p className="text-[10px] text-white/40 truncate relative z-10">
-                    {player.currentTrack.artist}
+                    {displayed.artist}
                   </p>
                 </div>
 
@@ -221,9 +231,9 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                       </AnimatePresence>
 
                       <p className="font-medium text-white truncate leading-tight text-[15px] relative z-10">
-                        {player.currentTrack.title}
+                        {displayed.title}
                       </p>
-                      <p className="text-white/50 truncate text-xs mt-0.5 relative z-10">{player.currentTrack.artist}</p>
+                      <p className="text-white/50 truncate text-xs mt-0.5 relative z-10">{displayed.artist}</p>
                     </div>
                   </div>
 
