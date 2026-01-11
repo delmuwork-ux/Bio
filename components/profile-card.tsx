@@ -13,14 +13,18 @@ export function ProfileCard() {
   const avatarControls = useAnimationControls()
   const [showStats, setShowStats] = useState(false)
   const [showBio, setShowBio] = useState(false)
+  const [showAvatar, setShowAvatar] = useState(false)
   const [nameVisible, setNameVisible] = useState(false)
 
   useEffect(() => {
     const startAnimation = async () => {
-      // avatar top-down sweep
+      // avatar top-down sweep — keep avatar hidden until sweep finishes
+      setShowAvatar(false)
       await avatarControls.start({ y: "0%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5) / 2, ease: ANIMATION_CONFIG.sweep.ease } })
       await new Promise(r => setTimeout(r, 120))
       await avatarControls.start({ y: "100%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5) / 2, ease: ANIMATION_CONFIG.sweep.ease } })
+      // reveal avatar only after the sweep fully completed
+      setShowAvatar(true)
 
       await nameControls.start({ clipPath: "inset(0 0 0 0)" })
       
@@ -67,12 +71,14 @@ export function ProfileCard() {
               transition={{ duration: (ANIMATION_CONFIG.sweep.duration || 0.5) / 2, ease: ANIMATION_CONFIG.sweep.ease }}
               style={{ borderRadius: "inherit" }}
             />
-            <Image
-              src={getAssetPath(PROFILE.avatar)}
-              alt="Avatar"
-              fill
-              className="object-cover"
-            />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: showAvatar ? 1 : 0 }} transition={{ duration: 0.18 }} className="absolute inset-0">
+              <Image
+                src={getAssetPath(PROFILE.avatar)}
+                alt="Avatar"
+                fill
+                className="object-cover"
+              />
+            </motion.div>
           </div>
           <div className="absolute bottom-1 right-1 w-3 h-3 bg-white border-2 border-[#111]" />
         </div>
