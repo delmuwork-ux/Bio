@@ -146,7 +146,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
               className="absolute inset-0 bg-white z-30 pointer-events-none"
               initial={{ clipPath: "inset(0 100% 0 0)" }}
               animate={{ clipPath: "inset(0 0 0 100%)" }}
-              transition={{ duration: (ANIMATION_CONFIG.sweep.duration || 0.5) * 1.8, ease: ANIMATION_CONFIG.sweep.ease }}
+              transition={{ duration: (ANIMATION_CONFIG.sweep.duration || 0.5) * 2.5, ease: ANIMATION_CONFIG.sweep.ease }}
               style={{ borderRadius: "inherit" }}
             />
           )}
