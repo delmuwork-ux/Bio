@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence, useAnimationControls } from "framer-motion"
-import { Play, Pause, SkipBack, SkipForward, Music2 } from "lucide-react"
+import { Play, Pause, SkipBack, SkipForward, Music2, Volume } from "lucide-react"
 import { useAudioPlayer } from "@/hooks/use-audio-player"
 import { TRACKS, ANIMATION_CONFIG } from "@/lib/constants"
 import { getAssetPath } from "@/lib/utils"
@@ -212,6 +212,14 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                 </div>
 
                 <AudioBars playing={player.playing} />
+
+                <motion.button
+                  onClick={player.toggleMute}
+                  className="w-7 h-7 bg-white/5 flex items-center justify-center flex-shrink-0 hover:bg-white/10 transition-all"
+                  aria-label="Toggle mute"
+                >
+                  <Volume className={`w-3 h-3 ${player.volume === 0 ? "text-white/40" : "text-white"}`} />
+                </motion.button>
               </motion.div>
             ) : (
               <motion.div
@@ -269,6 +277,23 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                     >
                       <SkipForward className="w-4 h-4" fill="currentColor" />
                     </motion.button>
+
+                    {/* Volume control styled like the player card */}
+                    <div className="ml-3 w-36 h-9 bg-[#0a0a0a]/95 border border-white/10 rounded flex items-center gap-2 px-2">
+                      <button onClick={player.toggleMute} className="text-white/60 hover:text-white">
+                        <Volume className="w-4 h-4" />
+                      </button>
+                      <input
+                        aria-label="Volume"
+                        type="range"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={player.volume}
+                        onChange={(e) => player.setVolume(Number(e.target.value))}
+                        className="w-full h-1 bg-white/10 appearance-none rounded-lg overflow-hidden"
+                      />
+                    </div>
                   </div>
                 </div>
               </motion.div>

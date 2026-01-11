@@ -15,6 +15,10 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
   const readyRef = useRef(false)
   const autoPlayRef = useRef(autoPlay)
 
+  // volume and mute
+  const [volume, setVolumeState] = useState<number>(1)
+  const lastVolumeRef = useRef<number>(1)
+
   const currentTrack = tracks[trackIndex]
 
   useEffect(() => {
@@ -27,6 +31,9 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
         setProgress((audio.currentTime / audio.duration) * 100)
       }
     }
+
+    // apply currently set volume
+    audio.volume = volume
 
     audio.onended = () => {
       setTrackIndex(i => (i + 1) % tracks.length)
@@ -52,7 +59,7 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       audio.onended = null
       audio.oncanplaythrough = null
     }
-  }, [trackIndex, currentTrack.src, tracks.length])
+  }, [trackIndex, currentTrack.src, tracks.length, volume])
 
   useEffect(() => {
     const handleInteraction = () => {
@@ -109,17 +116,37 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
     const audio = audioRef.current
     if (!audio) return
     
+    // sync volume when changed
+    audio.volume = volume
+
     if (playing && readyRef.current) {
       audio.play().catch(() => setPlaying(false))
     } else {
       audio.pause()
     }
-  }, [playing])
+  }, [playing, volume])
 
   const play = useCallback(() => {
     readyRef.current = true
     setReady(true)
     setPlaying(true)
+  }, [])
+
+  const setVolume = useCallback((v: number) => {
+    const clamped = Math.max(0, Math.min(1, v))
+    setVolumeState(clamped)
+    if (clamped > 0) lastVolumeRef.current = clamped
+    const audio = audioRef.current
+    if (audio) audio.volume = clamped
+  }, [])
+
+  const toggleMute = useCallback(() => {
+    setVolumeState(v => {
+      const newV = v > 0 ? 0 : (lastVolumeRef.current || 1)
+      const audio = audioRef.current
+      if (audio) audio.volume = newV
+      return newV
+    })
   }, [])
 
   const pause = useCallback(() => setPlaying(false), [])
@@ -158,5 +185,9 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
     setTrack: changeTrack,
     next,
     prev,
+    // volume controls
+    volume,
+    setVolume,
+    toggleMute,
   }
 }
