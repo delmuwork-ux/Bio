@@ -9,7 +9,9 @@ import { getAssetPath } from "@/lib/utils"
 export function ProfileCard() {
   const nameControls = useAnimationControls()
   const statsControls = useAnimationControls()
+  const bioControls = useAnimationControls()
   const [showStats, setShowStats] = useState(false)
+  const [showBio, setShowBio] = useState(false)
   const [nameVisible, setNameVisible] = useState(false)
 
   useEffect(() => {
@@ -22,10 +24,17 @@ export function ProfileCard() {
       }
       
       setNameVisible(true)
-      // small pause so the name's blink finishes visually before stats sweep
+      // small pause so the name's blink finishes visually before the bio sweep
       await new Promise(r => setTimeout(r, 350))
 
-      // start the sweep, wait a bit longer before showing the text (strip slower)
+      // BIO sweep: reveal overlay, wait, then show bio text, then finish sweep
+      await bioControls.start({ x: "0%" })
+      await new Promise(r => setTimeout(r, 120))
+      setShowBio(true)
+      await new Promise(r => setTimeout(r, 200))
+      await bioControls.start({ x: "100%" })
+
+      // start the stats sweep after bio completes
       await statsControls.start({ x: "0%" })
       await new Promise(r => setTimeout(r, 120))
       setShowStats(true)
@@ -74,9 +83,22 @@ export function ProfileCard() {
 
         <p className="text-sm text-white/40 font-mono mt-1">{PROFILE.username}</p>
 
-        <p className="text-center text-white/60 mt-4 text-sm leading-relaxed max-w-[280px]">
-          {PROFILE.bio}
-        </p>
+        <div className="relative mt-4">
+          <motion.div
+            className="absolute inset-0 bg-white z-10 pointer-events-none"
+            initial={{ x: "-100%" }}
+            animate={bioControls}
+            transition={{ ...ANIMATION_CONFIG.sweep, duration: 0.45 }}
+          />
+          <motion.p
+            className="text-center text-white/60 text-sm leading-relaxed max-w-[280px] mx-auto"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: showBio ? 1 : 0 }}
+            transition={{ duration: 0.8, delay: 0.12 }}
+          >
+            {PROFILE.bio}
+          </motion.p>
+        </div>
 
         <div className="flex gap-8 mt-6 pt-6 border-t border-white/10 w-full justify-center">
           {PROFILE_STATS.map((stat, i) => (
