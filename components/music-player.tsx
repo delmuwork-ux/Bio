@@ -49,40 +49,44 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
 
   const nameControls = useAnimationControls()
 
-  // trigger a short white sweep over the track title when the track changes
-  useEffect(() => {
-    // store the requested index (may change quickly) then kick off the sweep
-    pendingIndex.current = player.trackIndex
-    setNameSweep(true)
-  }, [player.trackIndex])
+  const sweepToken = useRef(0)
 
-  // sequence the sweep manually so we can pause at center reliably
-  useEffect(() => {
-    if (!nameSweep) return
+  // start a sweep animation; aborts any previous sweep when retriggered
+  const runSweep = async (requestedIndex: number) => {
+    const myToken = ++sweepToken.current
+    // show the sweep overlay
+    setNameSweep(true)
+
+    // stop any running animation and set start position
+    nameControls.stop()
+    nameControls.set({ x: "-100%" })
+
     const D = (ANIMATION_CONFIG.sweep.duration || 0.5)
     const half = D / 2
 
-    let mounted = true
+    try {
+      await nameControls.start({ x: "0%", transition: { duration: half, ease: ANIMATION_CONFIG.sweep.ease } })
+      // pause at center
+      await new Promise<void>(r => setTimeout(r, 100))
 
-    nameControls.set({ x: "-100%" })
-    nameControls
-      .start({ x: "0%", transition: { duration: half, ease: ANIMATION_CONFIG.sweep.ease } })
-      .then(() => new Promise<void>(r => setTimeout(r, 100))) // pause 100ms at center
-      .then(() => {
-        // after the center pause, update the displayed title/artist to the pending index
-        if (mounted) setDisplayedIndex(pendingIndex.current)
-        return nameControls.start({ x: "100%", transition: { duration: half, ease: ANIMATION_CONFIG.sweep.ease } })
-      })
-      .finally(() => {
-        if (!mounted) return
-        setNameSweep(false)
-      })
+      // if another sweep started meanwhile, abort this one
+      if (myToken !== sweepToken.current) return
 
-    return () => {
-      mounted = false
-      nameControls.stop()
+      // update displayed text to the requested index
+      setDisplayedIndex(requestedIndex)
+
+      await nameControls.start({ x: "100%", transition: { duration: half, ease: ANIMATION_CONFIG.sweep.ease } })
+    } finally {
+      // only hide the overlay if we are the active sweep
+      if (myToken === sweepToken.current) setNameSweep(false)
     }
-  }, [nameSweep, nameControls])
+  }
+
+  useEffect(() => {
+    // store the requested index and start a fresh sweep; this will cancel any prior sweep
+    pendingIndex.current = player.trackIndex
+    runSweep(player.trackIndex)
+  }, [player.trackIndex])
 
   // listen for overlay unlock event (fires inside the user's click) and play immediately
   useEffect(() => {
