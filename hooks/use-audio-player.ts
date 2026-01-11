@@ -19,6 +19,9 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
   const [volume, setVolumeState] = useState<number>(1)
   const lastVolumeRef = useRef<number>(1)
 
+  // track load errors map
+  const [loadErrors, setLoadErrors] = useState<Record<number, boolean>>({})
+
   const currentTrack = tracks[trackIndex]
 
   useEffect(() => {
@@ -41,9 +44,16 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
     }
 
     audio.oncanplaythrough = () => {
+      // clear any previous error for this track
+      setLoadErrors(prev => ({ ...prev, [trackIndex]: false }))
       if (readyRef.current) {
         audio.play().catch(() => {})
       }
+    }
+
+    audio.onerror = () => {
+      console.error("Failed to load audio:", currentTrack.src)
+      setLoadErrors(prev => ({ ...prev, [trackIndex]: true }))
     }
 
     if (readyRef.current) {
@@ -189,5 +199,7 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
     volume,
     setVolume,
     toggleMute,
+    // load error state
+    loadErrors,
   }
 }

@@ -322,7 +322,7 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
 
                 {TRACKS.map((track, i) => (
                   <button
-                    key={track.title}
+                    key={`${track.title}-${i}`}
                     onClick={() => player.setTrack(i)}
                     className={`w-full flex items-center gap-3 px-6 text-left transition-all duration-300 ${
                       player.trackIndex === i ? "bg-white/5" : "hover:bg-white/5"
@@ -332,13 +332,18 @@ export function MusicPlayer({ isVisible = false }: MusicPlayerProps) {
                     <span className="text-[10px] font-mono text-white/30 w-4">
                       {String(i + 1).padStart(2, "0")}
                     </span>
+
                     <span
                       className={`text-sm flex-1 truncate text-center transition-colors ${
                         player.trackIndex === i ? "text-white" : "text-white/50"
                       }`}
                     >
                       {track.title}
+                      {player.loadErrors && player.loadErrors[i] && (
+                        <span className="ml-2 text-[10px] text-rose-400">(file missing)</span>
+                      )}
                     </span>
+
                     <span className="text-[10px] font-mono text-white/30">{track.duration}</span>
                   </button>
                 ))}
