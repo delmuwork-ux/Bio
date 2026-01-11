@@ -83,12 +83,13 @@ export function ProfileCard() {
 
         <p className="text-sm text-white/40 font-mono mt-1">{PROFILE.username}</p>
 
-        <div className="relative mt-4">
+        <div className="relative mt-4 overflow-hidden" style={{ borderRadius: "inherit" }}>
           <motion.div
             className="absolute inset-0 bg-white z-10 pointer-events-none"
             initial={{ x: "-100%" }}
             animate={bioControls}
             transition={{ ...ANIMATION_CONFIG.sweep, duration: 0.45 }}
+            style={{ borderRadius: "inherit" }}
           />
           <motion.p
             className="text-center text-white/60 text-sm leading-relaxed max-w-[280px] mx-auto"
