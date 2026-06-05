@@ -189,7 +189,6 @@ export default function Home() {
                 )}
 
                 <motion.div
-                  className="cursor-pointer"
                   style={{ transformOrigin: "center center" }}
                   initial={{ opacity: 0, scale: 0.75 }}
                   animate={{

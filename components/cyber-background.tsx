@@ -55,33 +55,51 @@ export function CyberBackground() {
       })
     }
 
-    // Function to draw 5-pointed star
+    // Function to draw pixelated star
     const drawStar = (x: number, y: number, size: number, opacity: number) => {
       ctx.save()
-      ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`
-      ctx.lineWidth = 2.5
-      ctx.lineCap = "round"
-      ctx.lineJoin = "round"
-
-      ctx.beginPath()
-      for (let i = 0; i < 5; i++) {
-        const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2
-        const x1 = x + size * Math.cos(angle)
-        const y1 = y + size * Math.sin(angle)
-
-        if (i === 0) {
-          ctx.moveTo(x1, y1)
-        } else {
-          ctx.lineTo(x1, y1)
-        }
-
-        const angle2 = ((i + 1) * 4 * Math.PI) / 5 - Math.PI / 2 - Math.PI / 5
-        const x2 = x + (size * 0.4) * Math.cos(angle2)
-        const y2 = y + (size * 0.4) * Math.sin(angle2)
-        ctx.lineTo(x2, y2)
-      }
-      ctx.closePath()
-      ctx.stroke()
+      ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`
+      
+      const pixelSize = size / 5
+      
+      // Create a simple pixelated 5-pointed star pattern
+      // Using a grid-based approach
+      const starPattern = [
+        [0, 1, 0],
+        [1, 1, 1],
+        [0, 1, 0],
+      ]
+      
+      // Draw center and main points
+      ctx.fillRect(x - pixelSize / 2, y - pixelSize / 2, pixelSize, pixelSize)
+      
+      // Top point
+      ctx.fillRect(x - pixelSize / 2, y - size, pixelSize, pixelSize)
+      
+      // Bottom point
+      ctx.fillRect(x - pixelSize / 2, y + size, pixelSize, pixelSize)
+      
+      // Left point
+      ctx.fillRect(x - size, y - pixelSize / 2, pixelSize, pixelSize)
+      
+      // Right point
+      ctx.fillRect(x + size, y - pixelSize / 2, pixelSize, pixelSize)
+      
+      // Diagonal points for 5-pointed star
+      const diagonalOffset = size * 0.6
+      
+      // Top-right
+      ctx.fillRect(x + diagonalOffset - pixelSize / 2, y - diagonalOffset - pixelSize / 2, pixelSize, pixelSize)
+      
+      // Top-left
+      ctx.fillRect(x - diagonalOffset - pixelSize / 2, y - diagonalOffset - pixelSize / 2, pixelSize, pixelSize)
+      
+      // Bottom-right
+      ctx.fillRect(x + diagonalOffset - pixelSize / 2, y + diagonalOffset - pixelSize / 2, pixelSize, pixelSize)
+      
+      // Bottom-left
+      ctx.fillRect(x - diagonalOffset - pixelSize / 2, y + diagonalOffset - pixelSize / 2, pixelSize, pixelSize)
+      
       ctx.restore()
     }
 
