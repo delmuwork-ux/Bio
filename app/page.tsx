@@ -1,184 +1,209 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useAnimationControls } from "framer-motion"
 import { ProfileCard } from "@/components/profile-card"
-import { SocialLinks } from "@/components/social-links"
-import { MusicPlayer } from "@/components/music-player"
+import { DraggableMusicPlayer } from "@/components/draggable-music-player"
 import { CyberBackground } from "@/components/cyber-background"
 import { ANIMATION_CONFIG } from "@/lib/constants"
 
 export default function Home() {
-  const [isLoading, setIsLoading] = useState(true)
   const [showWhiteStrip, setShowWhiteStrip] = useState(false)
   const [stripPhase, setStripPhase] = useState<"vertical" | "full" | "horizontal" | "done">("vertical")
   const [showProfileCard, setShowProfileCard] = useState(false)
-  const [showSocialCard, setShowSocialCard] = useState(false)
   const [showMusicPlayer, setShowMusicPlayer] = useState(false)
-  const [playerSweep, setPlayerSweep] = useState(false)
-  const [showHelloOverlay, setShowHelloOverlay] = useState(true)
+  const [profileAnimationComplete, setProfileAnimationComplete] = useState(false)
+  const [musicPlayerExpanded, setMusicPlayerExpanded] = useState(false)
+  const [musicPlayerX, setMusicPlayerX] = useState(0)
+  const [showPlaylistButton, setShowPlaylistButton] = useState(false)
+  const playlistSweepControls = useAnimationControls()
 
   useEffect(() => {
-    if (!showHelloOverlay) {
-      const timer = setTimeout(() => {
-        setIsLoading(false)
+    const timer = setTimeout(() => {
+      // start vertical-to-full white strip
+      setTimeout(() => {
+        setShowWhiteStrip(true)
+        setStripPhase("vertical")
+      }, 100)
 
-        // start vertical-to-full white strip
-        setTimeout(() => {
-          setShowWhiteStrip(true)
-          setStripPhase("vertical")
-        }, 100)
+      setTimeout(() => setStripPhase("full"), 500)
 
-        setTimeout(() => setStripPhase("full"), 500)
+      // begin horizontal reveal and finish the strip, then start the name animation
+      setTimeout(() => setStripPhase("horizontal"), 1000)
+      
+      // show profile card so sweep animation is visible
+      setTimeout(() => setShowProfileCard(true), 900)
+      
+      setTimeout(() => {
+        setStripPhase("done")
+        setShowWhiteStrip(false)
+        window.dispatchEvent(new CustomEvent("startNameAnimation"))
+      }, 1250)
 
-        // show profile card first for a strong visual anchor
-        setTimeout(() => setShowProfileCard(true), 700)
-
-        // begin horizontal reveal and finish the strip, then start the name animation
-        setTimeout(() => setStripPhase("horizontal"), 1000)
-        setTimeout(() => {
-          setStripPhase("done")
-          setShowWhiteStrip(false)
-          window.dispatchEvent(new CustomEvent("startNameAnimation"))
-        }, 1250)
-
-        // show social card after the profile name animation begins
-        setTimeout(() => {
-          setShowSocialCard(true)
-          window.dispatchEvent(new CustomEvent("startSocialAnimation"))
-        }, 1500)
-
-        // player: run a short sweep then reveal player, keeping rhythm with the other cards
-        setTimeout(() => {
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore
-          const SWEEP_MS = Math.round((ANIMATION_CONFIG.sweep.duration || 0.5) * 1000)
-          setPlayerSweep(true)
-          setTimeout(() => {
-            setPlayerSweep(false)
-            setShowMusicPlayer(true)
-          }, SWEEP_MS + 60)
-        }, 1900)
-      }, 1500)
-      return () => clearTimeout(timer)
+      // unlock audio on mount
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      window.__audioUnlockRequested = true
+      requestAnimationFrame(() => requestAnimationFrame(() => window.dispatchEvent(new CustomEvent("unlockAudio"))))
+    }, 0)
+    
+    // Calculate music player X position
+    if (typeof window !== "undefined") {
+      setMusicPlayerX(window.innerWidth / 2 - 210)
     }
-  }, [showHelloOverlay])
+    
+    return () => clearTimeout(timer)
+  }, [])
 
   useEffect(() => {
     const onMusicStarted = () => {
-      if (showMusicPlayer || playerSweep) return
-      setPlayerSweep(true)
-      const ms = Math.round((ANIMATION_CONFIG.sweep.duration || 0.5) * 1000) + 60
-      setTimeout(() => {
-        setPlayerSweep(false)
-        setShowMusicPlayer(true)
-      }, ms)
+      if (showMusicPlayer) return
+      setShowMusicPlayer(true)
     }
 
     window.addEventListener("musicStarted", onMusicStarted)
     return () => window.removeEventListener("musicStarted", onMusicStarted)
-  }, [showMusicPlayer, playerSweep])
+  }, [showMusicPlayer])
+
+  useEffect(() => {
+    const onProfileAnimationComplete = () => {
+      setProfileAnimationComplete(true)
+      
+      // Show playlist button after profile animation completes
+      setShowPlaylistButton(true)
+      
+      // Show music player after profile animation completes
+      setTimeout(() => {
+        setShowMusicPlayer(true)
+      }, 100)
+    }
+
+    window.addEventListener("profileAnimationComplete", onProfileAnimationComplete)
+    return () => window.removeEventListener("profileAnimationComplete", onProfileAnimationComplete)
+  }, [showMusicPlayer])
+
+  useEffect(() => {
+    if (!showPlaylistButton) return
+
+    const runPlaylistSweep = async () => {
+      // Stage 1: Sweep covers từ trái sang phải (scaleX 0 -> 1)
+      await playlistSweepControls.start({
+        scaleX: 1,
+        transformOrigin: "left",
+        transition: {
+          duration: ANIMATION_CONFIG.sweep.duration || 0.5,
+          ease: ANIMATION_CONFIG.sweep.ease,
+        },
+      })
+      
+      // Stage 2: Sweep biến mất từ phải sang trái (scaleX 1 -> 0)
+      await playlistSweepControls.start({
+        scaleX: 0,
+        transformOrigin: "right",
+        transition: {
+          duration: ANIMATION_CONFIG.sweep.duration || 0.5,
+          ease: ANIMATION_CONFIG.sweep.ease,
+        },
+      })
+    }
+
+    runPlaylistSweep()
+  }, [showPlaylistButton, playlistSweepControls])
 
   return (
-    <main className="relative min-h-screen overflow-hidden">
+    <main className="relative min-h-screen overflow-hidden w-screen">
       <CyberBackground />
 
-      {showHelloOverlay && (
-        <div
-          className="fixed inset-0 z-[100] bg-black flex items-center justify-center cursor-pointer"
-          onClick={() => {
-            setShowHelloOverlay(false)
-            // mark that audio was requested; dispatch unlock so hook will honor it when it mounts
-            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-            // @ts-ignore
-            window.__audioUnlockRequested = true
-            requestAnimationFrame(() => requestAnimationFrame(() => window.dispatchEvent(new CustomEvent("unlockAudio"))))
-          }}
-        >
-          <h1 className="text-white text-4xl font-bold">こんにちは</h1>
-          <p className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/60 text-sm">Click anywhere to enter</p>
-        </div>
-      )}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 pb-40">
+        {/* Profile Card */}
+        <AnimatePresence>
+          {showProfileCard && (
+            <div className="flex items-start justify-center relative">
+              <div className="w-full max-w-sm space-y-4 relative flex-shrink-0">
+                {showWhiteStrip && stripPhase !== "done" && (
+                  <div className="absolute inset-0 z-20 overflow-hidden pointer-events-none">
+                    <div
+                      className="absolute bg-white left-0 right-0"
+                      style={{
+                        top: 0,
+                        height: stripPhase === "vertical" ? "0%" : "50%",
+                        left: stripPhase === "horizontal" ? "50%" : "0%",
+                        right: stripPhase === "horizontal" ? "50%" : "0%",
+                        transition: "all 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+                      }}
+                    />
+                    <div
+                      className="absolute bg-white left-0 right-0"
+                      style={{
+                        bottom: 0,
+                        height: stripPhase === "vertical" ? "0%" : "50%",
+                        left: stripPhase === "horizontal" ? "50%" : "0%",
+                        right: stripPhase === "horizontal" ? "50%" : "0%",
+                        transition: "all 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
+                      }}
+                    />
+                  </div>
+                )}
 
-      {!showHelloOverlay && (
-        <>
-          {isLoading && (
-            <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
-              <div className="flex flex-col items-center gap-6">
-                <div className="w-48 h-0.5 bg-white/10 overflow-hidden">
-                  <div className="h-full bg-white animate-loading-bar" />
-                </div>
-                <p className="text-[10px] text-white/40 uppercase tracking-[0.3em] font-mono">Loading</p>
-              </div>
-            </div>
-          )}
-
-          <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 pb-40">
-            <div className="w-full max-w-sm space-y-4 relative">
-              {showWhiteStrip && stripPhase !== "done" && (
-                <div className="absolute inset-0 z-20 overflow-hidden pointer-events-none">
-                  <div
-                    className="absolute bg-white left-0 right-0"
-                    style={{
-                      top: 0,
-                      height: stripPhase === "vertical" ? "0%" : "50%",
-                      left: stripPhase === "horizontal" ? "50%" : "0%",
-                      right: stripPhase === "horizontal" ? "50%" : "0%",
-                      transition: "all 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
-                    }}
-                  />
-                  <div
-                    className="absolute bg-white left-0 right-0"
-                    style={{
-                      bottom: 0,
-                      height: stripPhase === "vertical" ? "0%" : "50%",
-                      left: stripPhase === "horizontal" ? "50%" : "0%",
-                      right: stripPhase === "horizontal" ? "50%" : "0%",
-                      transition: "all 0.4s cubic-bezier(0.32, 0.72, 0, 1)",
-                    }}
-                  />
-                </div>
-              )}
-
-              <div
-                className={`transition-all duration-500 ease-out
-                           ${showProfileCard ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
-                style={{ transformOrigin: "center center" }}
-              >
-                <ProfileCard />
-              </div>
-
-              <div
-                className={`transition-all duration-500 ease-out
-                           ${showSocialCard ? "opacity-100 scale-100" : "opacity-0 scale-75"}`}
-                style={{ transformOrigin: "center center" }}
-              >
-                <SocialLinks />
-              </div>
-            </div>
-          </div>
-
-          <AnimatePresence>
-            {playerSweep && (
-              <motion.div
-                className="fixed bottom-8 left-1/2 z-50 -translate-x-1/2 overflow-hidden"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              >
                 <motion.div
-                  className="bg-white h-12 w-44"
-                  initial={{ x: '-100%' }}
-                  animate={{ x: '100%' }}
-                  transition={{ duration: ANIMATION_CONFIG.sweep.duration, ease: ANIMATION_CONFIG.sweep.ease }}
+                  className="cursor-pointer"
+                  style={{ transformOrigin: "center center" }}
+                  initial={{ opacity: 0, scale: 0.75 }}
+                  animate={{
+                    scale: 1,
+                    opacity: 1,
+                  }}
+                  transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}
+                >
+                  <ProfileCard />
+                </motion.div>
+              </div>
+
+              {/* MyPlaylist Button - Horizontal Bar Above ProfileCard */}
+              <motion.button
+                className="h-10 px-6 flex items-center justify-center text-white font-medium text-sm tracking-tight cursor-pointer z-30 whitespace-nowrap overflow-hidden"
+                style={{
+                  position: "absolute",
+                  top: "-48px",
+                  left: "0px",
+                  background: "#0f0f11",
+                  border: "1px solid rgba(255,255,255,.06)",
+                  boxShadow: "0 8px 20px rgba(0,0,0,.6)",
+                  opacity: showPlaylistButton ? 1 : 0,
+                  pointerEvents: showPlaylistButton ? "auto" : "none",
+                }}
+                onClick={() => setMusicPlayerExpanded(true)}
+              >
+                {/* Sweep overlay */}
+                <motion.div
+                  className="absolute inset-0 bg-white pointer-events-none"
+                  initial={{ scaleX: 0, transformOrigin: "left" }}
+                  animate={playlistSweepControls}
+                  style={{ 
+                    transformOrigin: "left",
+                    zIndex: 50,
+                  }}
                 />
-              </motion.div>
+                {/* Text - always visible */}
+                <span className="relative z-10">My playlist&lt;3</span>
+              </motion.button>
+            </div>
             )}
           </AnimatePresence>
+        </div>
 
-          <MusicPlayer isVisible={showMusicPlayer} />
-        </>
-      )}
+      {/* Music Player - Draggable */}
+      <AnimatePresence>
+        {musicPlayerExpanded && (
+          <DraggableMusicPlayer
+            isVisible={musicPlayerExpanded}
+            onClose={() => setMusicPlayerExpanded(false)}
+            defaultX={musicPlayerX}
+            defaultY={100}
+          />
+        )}
+      </AnimatePresence>
+
     </main>
   )
 }

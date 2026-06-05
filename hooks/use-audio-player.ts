@@ -22,6 +22,11 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
   const currentTrack = tracks[trackIndex]
 
   useEffect(() => {
+    // Don't set up audio if no tracks are available
+    if (!currentTrack) {
+      return
+    }
+
     const audio = new Audio(currentTrack.src)
     audio.preload = "auto"
     audioRef.current = audio
@@ -65,7 +70,7 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       audio.onended = null
       audio.oncanplaythrough = null
     }
-  }, [trackIndex, currentTrack.src, tracks.length])
+  }, [trackIndex, currentTrack, tracks.length])
 
   useEffect(() => {
     const handleInteraction = () => {
