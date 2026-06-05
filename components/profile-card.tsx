@@ -18,7 +18,7 @@ export function ProfileCard() {
   const [nameVisible, setNameVisible] = useState(false)
 
   useEffect(() => {
-    const startAnimation = async () => {
+    const   startAnimation = async () => {
       // avatar top-down sweep
       setShowAvatar(false)
       await avatarControls.start({ y: "0%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5) / 2, ease: ANIMATION_CONFIG.sweep.ease } })
@@ -36,10 +36,13 @@ export function ProfileCard() {
       await usernameControls.start({ x: "0%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
       await new Promise(r => setTimeout(r, 3))
       setShowUsername(true)
-      await usernameControls.start({ x: "100%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
-
-      // BIO sweep (starts immediately after username sweep completes)
-      await bioControls.start({ x: "0%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
+      
+      // USERNAME & BIO sweep at the same time
+      await Promise.all([
+        usernameControls.start({ x: "100%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } }),
+        bioControls.start({ x: "0%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
+      ])
+      
       setShowBio(true)
       await bioControls.start({ x: "100%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
 

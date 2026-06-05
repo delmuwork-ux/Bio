@@ -52,14 +52,14 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ]
 
 export const PROFILE_STATS: ProfileStat[] = [
-  { value: "21.1K+", label: "Followers" },
-  { value: "95", label: "Following" },
-  { value: "idk ¯\\_(ツ)_/¯", label: "Post" },
+  { value: "Discord", label: "tof4z" },
+  { value: "Osu", label: "Delmu" },
+  { value: "Valorant", label: "ăn cháo đá cứt#1299" },
 ]
 
 export const PROFILE = {
   name: "- やめとけ -",
-  username: "@_Delmu",
-  bio: "配慮無し。フォローお勧めしないよ‼️🥩GORE・NSFW🔞下ネタ😃.",
+  username: "@Tofu",
+  bio: "This is just a placeholder text to show how the bio will look on the profile card. ♡ ૮꒰ ˶• ༝ •˶꒱ა",
   avatar: "/avatar/avatar.png",
 }

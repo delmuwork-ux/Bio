@@ -56,6 +56,7 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
   const expanded = isVisible
   const [visibleNow, setVisibleNow] = useState(isVisible)
   const [displayedIndex, setDisplayedIndex] = useState(player.trackIndex)
+  const [isClosing, setIsClosing] = useState(false)
   const pendingIndex = useRef<number>(player.trackIndex)
   
   // Sweep animation controls
@@ -90,20 +91,35 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
     if (!isVisible) setVisibleNow(false)
   }, [isVisible])
 
-  // Sweep animation sequence when player expands
+  // Handle close button click with animation
   useEffect(() => {
-    if (!expanded) {
-      setPlayerVisible(false)
-      return
-    }
+    if (!isClosing) return
 
     let isMounted = true
 
-    const runSweepAnimation = async () => {
+    const runCloseAnimation = async () => {
       try {
-        // Giai đoạn 1: Sweep từ trên xuống bao phủ toàn bộ (0.5s) - expand từ 0% đến 100%
+        // Sweep from bottom up to cover everything
         await sweepControls.start({
           scaleY: 1,
+          transformOrigin: "bottom",
+          transition: {
+            duration: ANIMATION_CONFIG.sweep.duration,
+            ease: ANIMATION_CONFIG.sweep.ease,
+          },
+        })
+        if (!isMounted) return
+
+        // Hide player content
+        setPlayerVisible(false)
+        
+        // Wait for player card to be hidden before continuing animation
+        await new Promise(resolve => setTimeout(resolve, 50))
+        if (!isMounted) return
+
+        // Sweep continues up and disappears
+        await sweepControls.start({
+          scaleY: 0,
           transformOrigin: "top",
           transition: {
             duration: ANIMATION_CONFIG.sweep.duration,
@@ -112,18 +128,87 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
         })
         if (!isMounted) return
 
-        // Giai đoạn 2: Khi sweep bao phủ 100%, show player content (đã pre-render nên không lag)
-        setPlayerVisible(true)
+        // Call onClose after animation completes
+        if (onClose) onClose()
+      } catch (error) {
+        // Animation interrupted, still call onClose
+        if (onClose) onClose()
+      }
+      setIsClosing(false)
+    }
 
-        // Giai đoạn 3: Sweep tiếp tục đi xuống biến mất (0.5s) - shrink từ 100% xuống 0%
-        await sweepControls.start({
-          scaleY: 0,
-          transformOrigin: "bottom",
-          transition: {
-            duration: ANIMATION_CONFIG.sweep.duration,
-            ease: ANIMATION_CONFIG.sweep.ease,
-          },
-        })
+    runCloseAnimation()
+
+    return () => {
+      isMounted = false
+    }
+  }, [isClosing, sweepControls, onClose])
+
+  const displayed = tracks[displayedIndex] ?? player.currentTrack
+
+  // Sweep animation sequence when player expands or collapses
+  useEffect(() => {
+    let isMounted = true
+
+    const runSweepAnimation = async () => {
+      try {
+        if (expanded) {
+          // Reset sweep to initial state first
+          await sweepControls.set({
+            scaleY: 0,
+            transformOrigin: "top",
+          })
+
+          // Opening animation
+          // Giai đoạn 1: Sweep từ trên xuống bao phủ toàn bộ (0.5s) - expand từ 0% đến 100%
+          await sweepControls.start({
+            scaleY: 1,
+            transformOrigin: "top",
+            transition: {
+              duration: ANIMATION_CONFIG.sweep.duration,
+              ease: ANIMATION_CONFIG.sweep.ease,
+            },
+          })
+          if (!isMounted) return
+
+          // Giai đoạn 2: Khi sweep bao phủ 100%, show player content (đã pre-render nên không lag)
+          setPlayerVisible(true)
+
+          // Giai đoạn 3: Sweep tiếp tục đi xuống biến mất (0.5s) - shrink từ 100% xuống 0%
+          await sweepControls.start({
+            scaleY: 0,
+            transformOrigin: "bottom",
+            transition: {
+              duration: ANIMATION_CONFIG.sweep.duration,
+              ease: ANIMATION_CONFIG.sweep.ease,
+            },
+          })
+        } else {
+          // Closing animation - same as opening but reversed
+          // Hide player content first
+          setPlayerVisible(false)
+          
+          // Sweep from bottom up to cover everything
+          await sweepControls.start({
+            scaleY: 1,
+            transformOrigin: "bottom",
+            transition: {
+              duration: ANIMATION_CONFIG.sweep.duration,
+              ease: ANIMATION_CONFIG.sweep.ease,
+            },
+          })
+          if (!isMounted) return
+
+          // Sweep continues up and disappears
+          await sweepControls.start({
+            scaleY: 0,
+            transformOrigin: "top",
+            transition: {
+              duration: ANIMATION_CONFIG.sweep.duration,
+              ease: ANIMATION_CONFIG.sweep.ease,
+            },
+          })
+        }
       } catch (error) {
         // Animation interrupted
       }
@@ -136,26 +221,16 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
     }
   }, [expanded, sweepControls])
 
-  const displayed = tracks[displayedIndex] ?? player.currentTrack
-  const queueRef = useRef<HTMLDivElement | null>(null)
-
-  useEffect(() => {
-    const el = queueRef.current
-    if (!el) return
-    const top = player.trackIndex * 48
-    el.scrollTo({ top, behavior: "smooth" })
-  }, [player.trackIndex])
-
 
   return (
     <div
-      className="w-[380px]"
+      className="w-[320px]"
       style={{ height: "fit-content" }}
     >
       {/* Sweep overlay - always visible to animate from start */}
       {expanded && (
         <motion.div
-          className="absolute inset-0 bg-white z-50 pointer-events-none w-[380px]"
+          className="absolute inset-0 bg-white z-50 pointer-events-none w-[320px]"
           initial={{ scaleY: 0, transformOrigin: "top" }}
           animate={sweepControls}
         />
@@ -190,10 +265,13 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
             <>
               {/* Header */}
               <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-0 flex-shrink-0">
-                <p className="text-sm font-medium text-white">Now Playing</p>
+                <div className="flex items-center gap-1">
+                  <p className="text-sm font-medium text-white">Now</p>
+                  <p className="text-sm font-medium text-black bg-white px-1.5 py-0.5">Playing</p>
+                </div>
                 {onClose && (
                   <button
-                    onClick={onClose}
+                    onClick={() => setIsClosing(true)}
                     className="text-white/50 hover:text-white transition-colors"
                   >
                     ✕
@@ -217,6 +295,23 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
 
               {/* Main content + queue */}
               <div className="flex-1 p-4 relative z-0 overflow-hidden flex flex-col">
+                {/* Album cover */}
+              <div className="mb-4 flex justify-center flex-shrink-0">
+                {displayed.cover ? (
+                  <img
+                    src={displayed.cover}
+                    alt={displayed.title}
+                    className="w-56 h-56 object-cover"
+                  />
+                ) : (
+                  <div className="w-56 h-56 bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
+                    <div className="text-center">
+                      <p className="text-white/40 text-sm">♪</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
                 {/* Now playing content */}
                 <AnimatePresence mode="wait">
                   {expanded && (
@@ -232,26 +327,27 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
                         <div className="min-w-0 flex-1 relative overflow-hidden">
                           <div className="relative">
                             <p 
-                              className="font-medium text-white leading-tight text-[15px] relative z-10"
+                              className="font-medium text-black leading-tight text-[15px] relative z-10 bg-white px-1.5 py-0.5 truncate inline-block"
                               style={{
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
                                 whiteSpace: "nowrap",
+                                maxWidth: "120px",
                               }}
                             >
                               {displayed.title}
                             </p>
-                            <p 
-                              className="text-white/50 text-xs mt-0.5 relative z-10"
-                              style={{
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                whiteSpace: "nowrap",
-                              }}
-                            >
-                              {displayed.artist}
-                            </p>
                           </div>
+                          <p 
+                            className="text-white/50 text-xs mt-0.5 relative z-10"
+                            style={{
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {displayed.artist}
+                          </p>
                         </div>
 
                         <div className="flex items-center gap-1">
@@ -285,60 +381,7 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
                   )}
                 </AnimatePresence>
 
-                {/* Queue section */}
-                <div style={{ marginTop: 16, overflow: "hidden", flex: "1 1 auto", display: "flex", flexDirection: "column" }}>
-                  <div className="border-t border-white/10 pt-4 flex-1 flex flex-col overflow-hidden">
-                    <div className="flex items-center justify-between mb-3 flex-shrink-0">
-                      <p className="text-[10px] text-white/40 uppercase tracking-[.15em] font-medium">Queue</p>
-                      <p className="text-[10px] text-white/30 font-mono">
-                        {player.trackIndex + 1}/{tracks.length}
-                      </p>
-                    </div>
 
-                    <div className="relative overflow-y-auto flex-1" ref={queueRef} style={{ minHeight: 0 }}>
-                      <div
-                        className="absolute left-0 right-0 flex items-center justify-between pointer-events-none z-10 px-2"
-                        style={{ top: `${player.trackIndex * 48}px`, height: 48 }}
-                      >
-                        <span className="text-white text-sm font-mono">&gt;</span>
-                        <span className="text-white text-sm font-mono">&lt;</span>
-                      </div>
-
-                      {tracks.map((track, i) => (
-                        <button
-                          key={`${track.title}-${i}`}
-                          onClick={() => player.setTrack(i)}
-                          className={`w-full flex items-center gap-3 px-6 text-left transition-all duration-300 ${
-                            player.trackIndex === i ? "bg-white/5" : "hover:bg-white/5"
-                          }`}
-                          style={{ height: 48 }}
-                        >
-                          <span className="text-[10px] font-mono text-white/30 w-4">
-                            {String(i + 1).padStart(2, "0")}
-                          </span>
-
-                          <span
-                            className={`text-sm flex-1 text-center transition-colors ${
-                              player.trackIndex === i ? "text-white" : "text-white/50"
-                            }`}
-                            style={{
-                              overflow: "hidden",
-                              textOverflow: "ellipsis",
-                              whiteSpace: "nowrap",
-                            }}
-                          >
-                            {track.title}
-                            {player.loadErrors && player.loadErrors[i] && (
-                              <span className="ml-2 text-[10px] text-rose-400">(file missing)</span>
-                            )}
-                          </span>
-
-                          <span className="text-[10px] font-mono text-white/30">{track.duration}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
               </div>
             </>
           )}

@@ -5,9 +5,11 @@ import { motion, AnimatePresence, useAnimationControls } from "framer-motion"
 import { ProfileCard } from "@/components/profile-card"
 import { DraggableMusicPlayer } from "@/components/draggable-music-player"
 import { CyberBackground } from "@/components/cyber-background"
+import { SplashScreen } from "@/components/splash-screen"
 import { ANIMATION_CONFIG } from "@/lib/constants"
 
 export default function Home() {
+  const [showSplash, setShowSplash] = useState(true)
   const [showWhiteStrip, setShowWhiteStrip] = useState(false)
   const [stripPhase, setStripPhase] = useState<"vertical" | "full" | "horizontal" | "done">("vertical")
   const [showProfileCard, setShowProfileCard] = useState(false)
@@ -15,45 +17,80 @@ export default function Home() {
   const [profileAnimationComplete, setProfileAnimationComplete] = useState(false)
   const [musicPlayerExpanded, setMusicPlayerExpanded] = useState(false)
   const [musicPlayerX, setMusicPlayerX] = useState(0)
+  const [musicPlayerY, setMusicPlayerY] = useState(0)
   const [showPlaylistButton, setShowPlaylistButton] = useState(false)
   const playlistSweepControls = useAnimationControls()
 
+  // Initialize website and audio when user enters from splash screen
+  const handleSplashEnter = () => {
+    setShowSplash(false)
+    
+    // start vertical-to-full white strip
+    setTimeout(() => {
+      setShowWhiteStrip(true)
+      setStripPhase("vertical")
+    }, 100)
+
+    setTimeout(() => setStripPhase("full"), 500)
+
+    // begin horizontal reveal and finish the strip, then start the name animation
+    setTimeout(() => setStripPhase("horizontal"), 1000)
+    
+    // show profile card so sweep animation is visible
+    setTimeout(() => setShowProfileCard(true), 900)
+    
+    setTimeout(() => {
+      setStripPhase("done")
+      setShowWhiteStrip(false)
+      window.dispatchEvent(new CustomEvent("startNameAnimation"))
+    }, 1250)
+
+    // unlock audio and play music after user interaction
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    window.__audioUnlockRequested = true
+    requestAnimationFrame(() => requestAnimationFrame(() => window.dispatchEvent(new CustomEvent("unlockAudio"))))
+  }
+
+  // Calculate position below "My playlist" button when player expands for the first time
   useEffect(() => {
-    const timer = setTimeout(() => {
-      // start vertical-to-full white strip
-      setTimeout(() => {
-        setShowWhiteStrip(true)
-        setStripPhase("vertical")
-      }, 100)
-
-      setTimeout(() => setStripPhase("full"), 500)
-
-      // begin horizontal reveal and finish the strip, then start the name animation
-      setTimeout(() => setStripPhase("horizontal"), 1000)
-      
-      // show profile card so sweep animation is visible
-      setTimeout(() => setShowProfileCard(true), 900)
-      
-      setTimeout(() => {
-        setStripPhase("done")
-        setShowWhiteStrip(false)
-        window.dispatchEvent(new CustomEvent("startNameAnimation"))
-      }, 1250)
-
-      // unlock audio on mount
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
-      window.__audioUnlockRequested = true
-      requestAnimationFrame(() => requestAnimationFrame(() => window.dispatchEvent(new CustomEvent("unlockAudio"))))
-    }, 0)
-    
-    // Calculate music player X position
-    if (typeof window !== "undefined") {
-      setMusicPlayerX(window.innerWidth / 2 - 210)
+    if (musicPlayerExpanded && (musicPlayerX === 0 && musicPlayerY === 0)) {
+      // Wait a frame to ensure DOM is rendered
+      requestAnimationFrame(() => {
+        // Find profile card by looking for card that contains the profile text
+        const allCards = Array.from(document.querySelectorAll('.card'))
+        let profileCard = null
+        
+        // Profile card contains avatar and bio text - find it by looking for specific content
+        for (const card of allCards) {
+          if (card.textContent?.includes('@Tofu')) {
+            profileCard = card
+            break
+          }
+        }
+        
+        // Fallback: use first card if found
+        if (!profileCard && allCards.length > 0) {
+          profileCard = allCards[0]
+        }
+        
+        if (profileCard) {
+          const rect = profileCard.getBoundingClientRect()
+          // Position player to the right of profile card
+          const x = Math.max(10, rect.right + window.scrollX + 20)
+          // Center vertically with profile card or position higher if needed
+          const y = Math.max(10, rect.top + window.scrollY + (rect.height - 420) / 2)
+          
+          setMusicPlayerX(x)
+          setMusicPlayerY(y)
+        } else if (typeof window !== "undefined") {
+          // Fallback: center position
+          setMusicPlayerX(Math.max(10, (window.innerWidth - 380) / 2))
+          setMusicPlayerY(Math.max(10, (window.innerHeight - 400) / 2))
+        }
+      })
     }
-    
-    return () => clearTimeout(timer)
-  }, [])
+  }, [musicPlayerExpanded, musicPlayerX, musicPlayerY])
 
   useEffect(() => {
     const onMusicStarted = () => {
@@ -111,7 +148,13 @@ export default function Home() {
   }, [showPlaylistButton, playlistSweepControls])
 
   return (
-    <main className="relative min-h-screen overflow-hidden w-screen">
+    <>
+      {/* Splash Screen - Show before main content */}
+      <AnimatePresence>
+        {showSplash && <SplashScreen onEnter={handleSplashEnter} />}
+      </AnimatePresence>
+
+      <main className="relative min-h-screen overflow-hidden w-screen">
       <CyberBackground />
 
       <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4 py-20 pb-40">
@@ -192,18 +235,15 @@ export default function Home() {
           </AnimatePresence>
         </div>
 
-      {/* Music Player - Draggable */}
-      <AnimatePresence>
-        {musicPlayerExpanded && (
-          <DraggableMusicPlayer
-            isVisible={musicPlayerExpanded}
-            onClose={() => setMusicPlayerExpanded(false)}
-            defaultX={musicPlayerX}
-            defaultY={100}
-          />
-        )}
-      </AnimatePresence>
+      {/* Music Player - Draggable - Always mounted to keep audio playing */}
+      <DraggableMusicPlayer
+        isVisible={musicPlayerExpanded}
+        onClose={() => setMusicPlayerExpanded(false)}
+        defaultX={musicPlayerX}
+        defaultY={musicPlayerY}
+      />
 
     </main>
+    </>
   )
 }

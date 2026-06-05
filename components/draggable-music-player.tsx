@@ -18,9 +18,18 @@ export function DraggableMusicPlayer({
 }: DraggableMusicPlayerProps) {
   const [position, setPosition] = useState({ x: defaultX, y: defaultY })
   const [isDragging, setIsDragging] = useState(false)
+  const hasInitialized = useRef(false)
   const dragOffsetRef = useRef({ x: 0, y: 0 })
   const containerRef = useRef<HTMLDivElement>(null)
   const headerRef = useRef<HTMLDivElement>(null)
+
+  // Update position only on first mount with new defaultX/defaultY
+  useEffect(() => {
+    if (!isDragging && !hasInitialized.current && defaultX > 0) {
+      setPosition({ x: defaultX, y: defaultY })
+      hasInitialized.current = true
+    }
+  }, [defaultX, defaultY, isDragging])
 
   const handleHeaderMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     // Only start drag if clicking on the header itself, not on buttons
@@ -67,6 +76,9 @@ export function DraggableMusicPlayer({
         left: `${position.x}px`,
         top: `${position.y}px`,
         width: "380px",
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? "auto" : "none",
+        transition: "opacity 0.2s ease",
       }}
       onMouseDown={handleHeaderMouseDown}
     >

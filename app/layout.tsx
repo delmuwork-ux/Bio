@@ -1,11 +1,11 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Inter, JetBrains_Mono } from "next/font/google"
+import { Pixelify_Sans, M_PLUS_Rounded_1c } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-const inter = Inter({ subsets: ["latin"] })
-const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"] })
+const pixelifySans = Pixelify_Sans({ subsets: ["latin"] })
+const mPlusRounded = M_PLUS_Rounded_1c({ weight: "400", subsets: ["latin", "japanese"] })
 
 export const metadata: Metadata = {
   title: "Bio | Minimal",
@@ -43,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={`font-sans antialiased ${inter.className}`}>
+      <body className={`font-sans ${pixelifySans.className}`} style={{ "--font-jp": mPlusRounded.style.fontFamily } as React.CSSProperties}>
         {children}
         <Analytics />
       </body>

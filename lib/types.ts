@@ -3,6 +3,7 @@ export interface Track {
   artist: string
   duration: string
   src: string
+  cover?: string
 }
 
 export interface SocialLink {

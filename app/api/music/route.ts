@@ -1,4 +1,4 @@
-import { readdirSync } from "fs"
+import { readdirSync, existsSync } from "fs"
 import { extname, parse, join } from "path"
 import type { Track } from "@/lib/types"
 
@@ -12,7 +12,7 @@ export async function GET() {
     try {
       files = readdirSync(musicDir).filter((file) => {
         const ext = extname(file).toLowerCase()
-        return [".mp3", ".m4a", ".wav", ".ogg", ".flac"].includes(ext)
+        return [".mp3", ".m4a", ".wav", ".ogg", ".flac", ".mka"].includes(ext)
       })
     } catch (err) {
       console.warn("Could not read music directory:", err)
@@ -35,11 +35,17 @@ export async function GET() {
         title = parts.slice(1).join(" - ").trim()
       }
 
+      // Check if a corresponding .png thumbnail exists
+      const coverPath = join(musicDir, `${filename}.png`)
+      const hasCover = existsSync(coverPath)
+      const cover = hasCover ? `/music/${encodeURIComponent(filename)}.png` : undefined
+
       return {
         title,
         artist,
         duration: "0:00", // Will be updated by audio element
         src: `/api/audio/${encodeURIComponent(file)}`,
+        cover,
       }
     })
 
