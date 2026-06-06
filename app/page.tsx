@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useLayoutEffect } from "react"
 import { motion, AnimatePresence, useAnimationControls, useMotionValue } from "framer-motion"
 import { ProfileCard } from "@/components/profile-card"
 import { DraggableMusicPlayer } from "@/components/draggable-music-player"
@@ -23,6 +23,8 @@ export default function Home() {
   const [showNowPlayingButtonText, setShowNowPlayingButtonText] = useState(false)
   const [hoveredStatLabel, setHoveredStatLabel] = useState<string | null>(null)
   const [currentTrackTitle, setCurrentTrackTitle] = useState<string>("Now Playing")
+  const [tooltipWidth, setTooltipWidth] = useState(0)
+  const tooltipTextRef = useRef<HTMLSpanElement>(null)
   const playlistSweepControls = useAnimationControls()
   const nowPlayingSweepControls = useAnimationControls()
   
@@ -73,36 +75,10 @@ export default function Home() {
     if (musicPlayerX === 0 && musicPlayerY === 0) {
       // Wait a frame to ensure DOM is rendered
       requestAnimationFrame(() => {
-        // Find profile card by looking for card that contains the profile text
-        const allCards = Array.from(document.querySelectorAll('.card'))
-        let profileCard = null
-        
-        // Profile card contains avatar and bio text - find it by looking for specific content
-        for (const card of allCards) {
-          if (card.textContent?.includes('@Tofu')) {
-            profileCard = card
-            break
-          }
-        }
-        
-        // Fallback: use first card if found
-        if (!profileCard && allCards.length > 0) {
-          profileCard = allCards[0]
-        }
-        
-        if (profileCard) {
-          const rect = profileCard.getBoundingClientRect()
-          // Position player to the right of profile card
-          const x = Math.max(10, rect.right + window.scrollX + 20)
-          // Center vertically with profile card or position higher if needed
-          const y = Math.max(10, rect.top + window.scrollY + (rect.height - 420) / 2)
-          
-          setMusicPlayerX(x)
-          setMusicPlayerY(y)
-        } else if (typeof window !== "undefined") {
-          // Fallback: center position
+        if (typeof window !== "undefined") {
+          // Center position on screen
           setMusicPlayerX(Math.max(10, (window.innerWidth - 380) / 2))
-          setMusicPlayerY(Math.max(10, (window.innerHeight - 400) / 2))
+          setMusicPlayerY(Math.max(10, (window.innerHeight - 420) / 2))
         }
       })
     }
@@ -247,12 +223,18 @@ export default function Home() {
       setHoveredStatLabel(customEvent.detail.label)
     }
 
+    const handleThumbnailHover = (e: Event) => {
+      const customEvent = e as CustomEvent<{ label: string | null }>
+      setHoveredStatLabel(customEvent.detail.label)
+    }
+
     window.addEventListener("statHover", handleStatHover)
     window.addEventListener("closeButtonHover", handleCloseButtonHover)
     window.addEventListener("trackChange", handleTrackChange)
     window.addEventListener("nowPlayingHover", handleNowPlayingHover)
     window.addEventListener("playlistButtonHover", handlePlaylistButtonHover)
     window.addEventListener("rectangleHover", handleRectangleHover)
+    window.addEventListener("thumbnailHover", handleThumbnailHover)
     return () => {
       window.removeEventListener("statHover", handleStatHover)
       window.removeEventListener("closeButtonHover", handleCloseButtonHover)
@@ -260,8 +242,27 @@ export default function Home() {
       window.removeEventListener("nowPlayingHover", handleNowPlayingHover)
       window.removeEventListener("playlistButtonHover", handlePlaylistButtonHover)
       window.removeEventListener("rectangleHover", handleRectangleHover)
+      window.removeEventListener("thumbnailHover", handleThumbnailHover)
     }
   }, [])
+
+  // Measure tooltip text width using ResizeObserver - reacts to any size change
+  useEffect(() => {
+    if (!tooltipTextRef.current || !hoveredStatLabel) return
+
+    const resizeObserver = new ResizeObserver(() => {
+      const width = tooltipTextRef.current?.offsetWidth
+      if (width && width > 0) {
+        setTooltipWidth(width + 16)
+      }
+    })
+
+    resizeObserver.observe(tooltipTextRef.current)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [hoveredStatLabel])
 
   return (
     <>
@@ -278,23 +279,24 @@ export default function Home() {
           zIndex: 100,
           x: mouseXMotion,
           y: mouseYMotion,
-          height: 20,
+          height: 32,
           pointerEvents: "auto",
           cursor: "pointer",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+          overflow: "hidden",
         }}
         onMouseEnter={() => window.dispatchEvent(new CustomEvent("rectangleHover", { detail: { label: "Wana see it?" } }))}
         onMouseLeave={() => window.dispatchEvent(new CustomEvent("rectangleHover", { detail: { label: null } }))}
         animate={{
-          width: hoveredStatLabel ? Math.max(60, hoveredStatLabel.length * 8.5 + 40) : 0,
+          width: hoveredStatLabel ? Math.max(70, tooltipWidth) : 0,
         }}
         transition={{
-          width: { type: "spring", stiffness: 80, damping: 15, mass: 1 }
+          width: { type: "tween", duration: 0.3, ease: "easeOut" }
         }}
       >
         <AnimatePresence mode="wait">
           {hoveredStatLabel && (
-            <motion.span 
-              className="text-xs font-bold text-black whitespace-nowrap px-2"
+            <motion.span               ref={tooltipTextRef}              className="text-sm font-bold text-black whitespace-nowrap px-2"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}

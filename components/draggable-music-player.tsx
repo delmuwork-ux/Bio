@@ -45,6 +45,21 @@ export function DraggableMusicPlayer({
     setIsDragging(true)
   }
 
+  const handleHeaderTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    // Only start drag if touching the header itself, not on buttons
+    const target = e.target as HTMLElement
+    if (target.closest("button")) {
+      return
+    }
+
+    const touch = e.touches[0]
+    dragOffsetRef.current = {
+      x: touch.clientX - position.x,
+      y: touch.clientY - position.y,
+    }
+    setIsDragging(true)
+  }
+
   useEffect(() => {
     if (!isDragging) return
 
@@ -59,12 +74,28 @@ export function DraggableMusicPlayer({
       setIsDragging(false)
     }
 
+    const handleTouchMove = (e: TouchEvent) => {
+      const touch = e.touches[0]
+      setPosition({
+        x: touch.clientX - dragOffsetRef.current.x,
+        y: touch.clientY - dragOffsetRef.current.y,
+      })
+    }
+
+    const handleTouchEnd = () => {
+      setIsDragging(false)
+    }
+
     window.addEventListener("mousemove", handleMouseMove)
     window.addEventListener("mouseup", handleMouseUp)
+    window.addEventListener("touchmove", handleTouchMove, { passive: false })
+    window.addEventListener("touchend", handleTouchEnd)
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove)
       window.removeEventListener("mouseup", handleMouseUp)
+      window.removeEventListener("touchmove", handleTouchMove)
+      window.removeEventListener("touchend", handleTouchEnd)
     }
   }, [isDragging])
 
@@ -81,6 +112,7 @@ export function DraggableMusicPlayer({
         transition: "opacity 0.2s ease",
       }}
       onMouseDown={handleHeaderMouseDown}
+      onTouchStart={handleHeaderTouchStart}
     >
       <div
         ref={headerRef}
