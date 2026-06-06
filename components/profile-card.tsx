@@ -17,6 +17,16 @@ export function ProfileCard() {
   const [showUsername, setShowUsername] = useState(false)
   const [nameVisible, setNameVisible] = useState(false)
 
+  const handleStatClick = async (stat: (typeof PROFILE_STATS)[0]) => {
+    if (stat.value === "Discord" || stat.value === "Osu" || stat.value === "Valorant") {
+      try {
+        await navigator.clipboard.writeText(stat.label)
+      } catch (err) {
+        console.error("Failed to copy:", err)
+      }
+    }
+  }
+
   useEffect(() => {
     const   startAnimation = async () => {
       // avatar top-down sweep
@@ -145,7 +155,20 @@ export function ProfileCard() {
 
         <div className="flex gap-8 mt-6 pt-6 border-t border-white/10 w-full justify-center relative">
           {PROFILE_STATS.map((stat, i) => (
-            <div key={stat.label} className="text-center relative">
+            <div 
+              key={stat.label} 
+              className="text-center relative"
+              onClick={() => handleStatClick(stat)}
+              onMouseEnter={() => {
+                window.dispatchEvent(new CustomEvent("statHover", { detail: { label: stat.label } }))
+              }}
+              onMouseLeave={() => {
+                window.dispatchEvent(new CustomEvent("statHover", { detail: { label: null } }))
+              }}
+              style={{ 
+                cursor: (stat.value === "Discord" || stat.value === "Osu" || stat.value === "Valorant") ? "pointer" : "default",
+              }}
+            >
               <motion.div
                 className="absolute inset-0 bg-white z-10 pointer-events-none"
                 style={{ left: "-10px", right: "-10px" }}
@@ -153,10 +176,14 @@ export function ProfileCard() {
                 animate={statsControls}
                 transition={{ ...ANIMATION_CONFIG.sweep, duration: 0.45 }}
               />
+              
               <motion.p
                 className="text-lg font-medium relative z-20"
                 initial={{ opacity: 0, color: "#fff" }}
-                animate={{ opacity: showStats ? 1 : 0, color: showStats ? "#000" : "#fff" }}
+                animate={{ 
+                  opacity: showStats ? 1 : 0, 
+                  color: showStats ? "#000" : "#fff"
+                }}
                 transition={{ duration: 0.3 }}
               >
                 {stat.value}
@@ -164,7 +191,10 @@ export function ProfileCard() {
               <motion.p
                 className="text-[11px] uppercase tracking-wider relative z-20"
                 initial={{ opacity: 0, color: "rgba(255,255,255,0.4)" }}
-                animate={{ opacity: showStats ? 1 : 0, color: showStats ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.4)" }}
+                animate={{ 
+                  opacity: showStats ? 1 : 0, 
+                  color: showStats ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.4)"
+                }}
                 transition={{ duration: 0.3 }}
               >
                 {stat.label}

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence, useAnimationControls } from "framer-motion"
+import { useState, useEffect, useRef } from "react"
+import { motion, AnimatePresence, useAnimationControls, useMotionValue } from "framer-motion"
 import { ProfileCard } from "@/components/profile-card"
 import { DraggableMusicPlayer } from "@/components/draggable-music-player"
 import { CyberBackground } from "@/components/cyber-background"
@@ -19,7 +19,16 @@ export default function Home() {
   const [musicPlayerX, setMusicPlayerX] = useState(0)
   const [musicPlayerY, setMusicPlayerY] = useState(0)
   const [showPlaylistButton, setShowPlaylistButton] = useState(false)
+  const [showPlaylistButtonText, setShowPlaylistButtonText] = useState(false)
+  const [showNowPlayingButtonText, setShowNowPlayingButtonText] = useState(false)
+  const [hoveredStatLabel, setHoveredStatLabel] = useState<string | null>(null)
+  const [currentTrackTitle, setCurrentTrackTitle] = useState<string>("Now Playing")
   const playlistSweepControls = useAnimationControls()
+  const nowPlayingSweepControls = useAnimationControls()
+  
+  // Motion values for cursor follower - no re-renders on mouse move
+  const mouseXMotion = useMotionValue(0)
+  const mouseYMotion = useMotionValue(0)
 
   // Initialize website and audio when user enters from splash screen
   const handleSplashEnter = () => {
@@ -54,7 +63,14 @@ export default function Home() {
 
   // Calculate position below "My playlist" button when player expands for the first time
   useEffect(() => {
-    if (musicPlayerExpanded && (musicPlayerX === 0 && musicPlayerY === 0)) {
+    if (!musicPlayerExpanded) {
+      // Reset position when player is closed
+      setMusicPlayerX(0)
+      setMusicPlayerY(0)
+      return
+    }
+
+    if (musicPlayerX === 0 && musicPlayerY === 0) {
       // Wait a frame to ensure DOM is rendered
       requestAnimationFrame(() => {
         // Find profile card by looking for card that contains the profile text
@@ -90,7 +106,7 @@ export default function Home() {
         }
       })
     }
-  }, [musicPlayerExpanded, musicPlayerX, musicPlayerY])
+  }, [musicPlayerExpanded])
 
   useEffect(() => {
     const onMusicStarted = () => {
@@ -120,10 +136,14 @@ export default function Home() {
   }, [showMusicPlayer])
 
   useEffect(() => {
-    if (!showPlaylistButton) return
-
     const runPlaylistSweep = async () => {
-      // Stage 1: Sweep covers từ trái sang phải (scaleX 0 -> 1)
+      // Reset initial state
+      await playlistSweepControls.set({
+        scaleX: 0,
+        transformOrigin: "left",
+      })
+
+      // Stage 1: Sweep covers từ trái sang phải (scaleX 0 -> 1) để cover content
       await playlistSweepControls.start({
         scaleX: 1,
         transformOrigin: "left",
@@ -132,6 +152,9 @@ export default function Home() {
           ease: ANIMATION_CONFIG.sweep.ease,
         },
       })
+      
+      // Show text khi sweep lấp đầy 100%
+      setShowPlaylistButtonText(true)
       
       // Stage 2: Sweep biến mất từ phải sang trái (scaleX 1 -> 0)
       await playlistSweepControls.start({
@@ -144,8 +167,101 @@ export default function Home() {
       })
     }
 
-    runPlaylistSweep()
-  }, [showPlaylistButton, playlistSweepControls])
+    const runNowPlayingSweep = async () => {
+      // Reset initial state
+      await nowPlayingSweepControls.set({
+        scaleX: 0,
+        transformOrigin: "left",
+      })
+
+      // Stage 1: Sweep covers từ trái sang phải (scaleX 0 -> 1) để cover content
+      await nowPlayingSweepControls.start({
+        scaleX: 1,
+        transformOrigin: "left",
+        transition: {
+          duration: ANIMATION_CONFIG.sweep.duration || 0.5,
+          ease: ANIMATION_CONFIG.sweep.ease,
+        },
+      })
+      
+      // Show text khi sweep lấp đầy 100%
+      setShowNowPlayingButtonText(true)
+      
+      // Stage 2: Sweep biến mất từ phải sang trái (scaleX 1 -> 0)
+      await nowPlayingSweepControls.start({
+        scaleX: 0,
+        transformOrigin: "right",
+        transition: {
+          duration: ANIMATION_CONFIG.sweep.duration || 0.5,
+          ease: ANIMATION_CONFIG.sweep.ease,
+        },
+      })
+    }
+
+    if (showPlaylistButton) {
+      setShowPlaylistButtonText(false)
+      setShowNowPlayingButtonText(false)
+      runPlaylistSweep()
+      runNowPlayingSweep()
+    }
+  }, [showPlaylistButton, playlistSweepControls, nowPlayingSweepControls])
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      mouseXMotion.set(e.clientX + 20)
+      mouseYMotion.set(e.clientY - 30)
+    }
+
+    window.addEventListener("mousemove", handleMouseMove, { passive: true })
+    return () => window.removeEventListener("mousemove", handleMouseMove)
+  }, [mouseXMotion, mouseYMotion])
+
+  useEffect(() => {
+    const handleStatHover = (e: Event) => {
+      const customEvent = e as CustomEvent<{ label: string | null }>
+      setHoveredStatLabel(customEvent.detail.label)
+    }
+
+    const handleCloseButtonHover = (e: Event) => {
+      const customEvent = e as CustomEvent<{ label: string | null }>
+      setHoveredStatLabel(customEvent.detail.label)
+    }
+
+    const handleTrackChange = (e: Event) => {
+      const customEvent = e as CustomEvent<{ title: string }>
+      setCurrentTrackTitle(customEvent.detail.title)
+    }
+
+    const handleNowPlayingHover = (e: Event) => {
+      const customEvent = e as CustomEvent<{ label: string | null }>
+      setHoveredStatLabel(customEvent.detail.label)
+    }
+
+    const handlePlaylistButtonHover = (e: Event) => {
+      const customEvent = e as CustomEvent<{ label: string | null }>
+      setHoveredStatLabel(customEvent.detail.label)
+    }
+
+    const handleRectangleHover = (e: Event) => {
+      const customEvent = e as CustomEvent<{ label: string | null }>
+      setHoveredStatLabel(customEvent.detail.label)
+    }
+
+    window.addEventListener("statHover", handleStatHover)
+    window.addEventListener("closeButtonHover", handleCloseButtonHover)
+    window.addEventListener("trackChange", handleTrackChange)
+    window.addEventListener("nowPlayingHover", handleNowPlayingHover)
+    window.addEventListener("playlistButtonHover", handlePlaylistButtonHover)
+    window.addEventListener("rectangleHover", handleRectangleHover)
+    return () => {
+      window.removeEventListener("statHover", handleStatHover)
+      window.removeEventListener("closeButtonHover", handleCloseButtonHover)
+      window.removeEventListener("trackChange", handleTrackChange)
+      window.removeEventListener("nowPlayingHover", handleNowPlayingHover)
+      window.removeEventListener("playlistButtonHover", handlePlaylistButtonHover)
+      window.removeEventListener("rectangleHover", handleRectangleHover)
+    }
+  }, [])
 
   return (
     <>
@@ -153,6 +269,43 @@ export default function Home() {
       <AnimatePresence>
         {showSplash && <SplashScreen onEnter={handleSplashEnter} />}
       </AnimatePresence>
+
+      {/* Mouse Following White Rectangle - Optimized with MotionValues */}
+      <motion.div
+        className="fixed flex items-center justify-center"
+        style={{
+          backgroundColor: "white",
+          zIndex: 100,
+          x: mouseXMotion,
+          y: mouseYMotion,
+          height: 20,
+          pointerEvents: "auto",
+          cursor: "pointer",
+        }}
+        onMouseEnter={() => window.dispatchEvent(new CustomEvent("rectangleHover", { detail: { label: "Wana see it?" } }))}
+        onMouseLeave={() => window.dispatchEvent(new CustomEvent("rectangleHover", { detail: { label: null } }))}
+        animate={{
+          width: hoveredStatLabel ? Math.max(60, hoveredStatLabel.length * 8.5 + 40) : 0,
+        }}
+        transition={{
+          width: { type: "spring", stiffness: 80, damping: 15, mass: 1 }
+        }}
+      >
+        <AnimatePresence mode="wait">
+          {hoveredStatLabel && (
+            <motion.span 
+              className="text-xs font-bold text-black whitespace-nowrap px-2"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              key={hoveredStatLabel}
+            >
+              {hoveredStatLabel}
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       <main className="relative min-h-screen overflow-hidden w-screen">
       <CyberBackground />
@@ -215,6 +368,8 @@ export default function Home() {
                   pointerEvents: showPlaylistButton ? "auto" : "none",
                 }}
                 onClick={() => setMusicPlayerExpanded(true)}
+                onMouseEnter={() => window.dispatchEvent(new CustomEvent("playlistButtonHover", { detail: { label: "Wana see it?" } }))}
+                onMouseLeave={() => window.dispatchEvent(new CustomEvent("playlistButtonHover", { detail: { label: null } }))}
               >
                 {/* Sweep overlay */}
                 <motion.div
@@ -226,9 +381,46 @@ export default function Home() {
                     zIndex: 50,
                   }}
                 />
-                {/* Text - always visible */}
-                <span className="relative z-10">My playlist&lt;3</span>
+                {/* Text - always visible, opacity controlled */}
+                <span className="relative z-10" style={{ opacity: showPlaylistButtonText ? 1 : 0 }}>
+                  My playlist&lt;3
+                </span>
               </motion.button>
+
+              {/* Now Playing Display - Horizontal Bar Above ProfileCard */}
+              <motion.div
+                className="h-10 px-6 flex items-center justify-center text-white font-medium text-sm tracking-tight z-30 whitespace-nowrap overflow-hidden relative"
+                style={{
+                  position: "absolute",
+                  top: "-48px",
+                  left: "140px",
+                  background: "#0f0f11",
+                  border: "1px solid rgba(255,255,255,.06)",
+                  boxShadow: "0 8px 20px rgba(0,0,0,.6)",
+                  opacity: showPlaylistButton ? 1 : 0,
+                  pointerEvents: "auto",
+                  minWidth: "218px",
+                  maxWidth: "218px",
+                  cursor: "pointer",
+                }}
+                onMouseEnter={() => window.dispatchEvent(new CustomEvent("nowPlayingHover", { detail: { label: currentTrackTitle } }))}
+                onMouseLeave={() => window.dispatchEvent(new CustomEvent("nowPlayingHover", { detail: { label: null } }))}
+              >
+                {/* Sweep overlay */}
+                <motion.div
+                  className="absolute inset-0 bg-white pointer-events-none"
+                  initial={{ scaleX: 0, transformOrigin: "left" }}
+                  animate={nowPlayingSweepControls}
+                  style={{ 
+                    transformOrigin: "left",
+                    zIndex: 50,
+                  }}
+                />
+                {/* Text - always visible, opacity controlled with truncation */}
+                <span className="truncate relative z-10" style={{ opacity: showNowPlayingButtonText ? 1 : 0 }}>
+                  Now Playing: {currentTrackTitle}
+                </span>
+              </motion.div>
             </div>
             )}
           </AnimatePresence>
@@ -237,7 +429,9 @@ export default function Home() {
       {/* Music Player - Draggable - Always mounted to keep audio playing */}
       <DraggableMusicPlayer
         isVisible={musicPlayerExpanded}
-        onClose={() => setMusicPlayerExpanded(false)}
+        onClose={() => {
+          setMusicPlayerExpanded(false)
+        }}
         defaultX={musicPlayerX}
         defaultY={musicPlayerY}
       />

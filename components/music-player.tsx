@@ -67,7 +67,13 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
     // update displayed track index
     pendingIndex.current = player.trackIndex
     setDisplayedIndex(player.trackIndex)
-  }, [player.trackIndex])
+    
+    // Dispatch track change event
+    const currentTrack = tracks[player.trackIndex]
+    if (currentTrack) {
+      window.dispatchEvent(new CustomEvent("trackChange", { detail: { title: currentTrack.title } }))
+    }
+  }, [player.trackIndex, tracks])
 
   // listen for overlay unlock event (fires inside the user's click) and play immediately
   useEffect(() => {
@@ -110,12 +116,8 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
         })
         if (!isMounted) return
 
-        // Hide player content
+        // Hide player content immediately without delay
         setPlayerVisible(false)
-        
-        // Wait for player card to be hidden before continuing animation
-        await new Promise(resolve => setTimeout(resolve, 50))
-        if (!isMounted) return
 
         // Sweep continues up and disappears
         await sweepControls.start({
@@ -272,6 +274,8 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
                 {onClose && (
                   <button
                     onClick={() => setIsClosing(true)}
+                    onMouseEnter={() => window.dispatchEvent(new CustomEvent("closeButtonHover", { detail: { label: "Close?" } }))}
+                    onMouseLeave={() => window.dispatchEvent(new CustomEvent("closeButtonHover", { detail: { label: null } }))}
                     className="text-white/50 hover:text-white transition-colors"
                   >
                     ✕
