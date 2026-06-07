@@ -8,9 +8,9 @@ const pixelifySans = Pixelify_Sans({ subsets: ["latin"] })
 const mPlusRounded = M_PLUS_Rounded_1c({ weight: "400", subsets: ["latin", "japanese"] })
 
 export const metadata: Metadata = {
-  title: "Bio | Minimal",
-  description: "Welcome to my digital space",
-  generator: "v0.app",
+  title: "Tofu ( ⓛ ω ⓛ *)",
+  description: "hello gays <3",
+  generator: "Holaaaaaaaaa",
   icons: {
     icon: [
       {
