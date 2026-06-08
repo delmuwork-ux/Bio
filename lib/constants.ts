@@ -52,7 +52,7 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ]
 
 export const PROFILE_STATS: ProfileStat[] = [
-  { value: "Discord", label: "tof4z" },
+  { value: "Discord", label: "akumoooon" },
   { value: "X", label: "@_Delmu" },
   { value: "Facebook", label: "δあくむ" },
 ]
