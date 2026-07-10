@@ -181,6 +181,10 @@ export default function Home() {
   const [showSplash, setShowSplash] = useState(true)
   const showSplashRef = useRef(true)
   const musicStartedRef = useRef(false)
+  const timelineTriggeredRef = useRef<Record<string, boolean>>({})
+  const virtualTimeRef = useRef(0)
+  const lastFrameTimeRef = useRef<number | null>(null)
+  const timelineLoopActiveRef = useRef(false)
   const [showObj1, setShowObj1] = useState(false)
   const [showObj2, setShowObj2] = useState(false)
   const [showObj3, setShowObj3] = useState(false)
@@ -233,44 +237,182 @@ export default function Home() {
 
   const sequenceTriggeredRef = useRef(false)
 
+  // Drives the timeline logic using virtualTimeRef (synced with actual audio currentTime or virtual clock)
+  const processTimeline = (time: number) => {
+    const triggered = timelineTriggeredRef.current
+
+    // Set camera initially to centered normal view at start
+    if (time >= 0 && !triggered.initCam) {
+      triggered.initCam = true
+      cameraControls.set({ scale: 1, x: "0vw", y: "0vh" })
+      bgControls.set({ scale: 1, x: "0vw", y: "0vh" })
+    }
+
+    // Obj 1 & Camera 1 (Bottom-Left)
+    if (time >= 0.23 && !triggered.cam1) {
+      triggered.cam1 = true
+      cameraControls.start({
+        scale: 2.2,
+        x: "60vw",
+        y: "-60vh",
+        transition: { duration: 0.28, ease: "easeOut" }
+      })
+      bgControls.start({
+        scale: 1.05,
+        x: "6vw",
+        y: "-6vh",
+        transition: { duration: 0.28, ease: "easeOut" }
+      })
+    }
+    if (time >= 0.31 && !triggered.obj1) {
+      triggered.obj1 = true
+      setShowObj1(true)
+    }
+
+    // Obj 2 & Camera 2 (Bottom-Right)
+    if (time >= 0.51 && !triggered.cam2) {
+      triggered.cam2 = true
+      cameraControls.start({
+        x: "-60vw",
+        y: "-60vh",
+        scale: 2.2,
+        transition: { duration: 0.32, ease: "easeInOut" }
+      })
+      bgControls.start({
+        x: "-6vw",
+        y: "-6vh",
+        scale: 1.05,
+        transition: { duration: 0.32, ease: "easeInOut" }
+      })
+    }
+    if (time >= 0.59 && !triggered.obj2) {
+      triggered.obj2 = true
+      setShowObj2(true)
+    }
+
+    // Obj 3 & Camera 3 (Top-Left)
+    if (time >= 0.83 && !triggered.cam3) {
+      triggered.cam3 = true
+      cameraControls.start({
+        x: "60vw",
+        y: "60vh",
+        scale: 2.2,
+        transition: { duration: 0.32, ease: "easeInOut" }
+      })
+      bgControls.start({
+        x: "6vw",
+        y: "6vh",
+        scale: 1.05,
+        transition: { duration: 0.32, ease: "easeInOut" }
+      })
+    }
+    if (time >= 0.91 && !triggered.obj3) {
+      triggered.obj3 = true
+      setShowObj3(true)
+    }
+
+    // Obj 4 & Camera 4 (Top-Right)
+    if (time >= 1.15 && !triggered.cam4) {
+      triggered.cam4 = true
+      cameraControls.start({
+        x: "-60vw",
+        y: "60vh",
+        scale: 2.2,
+        transition: { duration: 0.32, ease: "easeInOut" }
+      })
+      bgControls.start({
+        x: "-6vw",
+        y: "6vh",
+        scale: 1.05,
+        transition: { duration: 0.32, ease: "easeInOut" }
+      })
+    }
+    if (time >= 1.23 && !triggered.obj4) {
+      triggered.obj4 = true
+      setShowObj4(true)
+    }
+
+    // Zoom back out & start White Strip (Vertical)
+    if (time >= 1.78 && !triggered.cam5) {
+      triggered.cam5 = true
+      cameraControls.start({
+        x: "0vw",
+        y: "0vh",
+        scale: 1,
+        transition: { duration: 0.65, ease: [0.25, 1, 0.5, 1] }
+      })
+      bgControls.start({
+        x: "0vw",
+        y: "0vh",
+        scale: 1,
+        transition: { duration: 0.65, ease: [0.25, 1, 0.5, 1] }
+      })
+
+      setShowWhiteStrip(true)
+      setStripPhase("vertical")
+    }
+
+    // White Strip Full
+    if (time >= 1.83 && !triggered.stripFull) {
+      triggered.stripFull = true
+      setStripPhase("full")
+    }
+
+    // Reveal Profile Card & Split Horizontally
+    if (time >= 2.18 && !triggered.cardReveal) {
+      triggered.cardReveal = true
+      setShowProfileCard(true)
+      setStripPhase("horizontal")
+    }
+
+    // Complete Strip Phase & Character Name Entrance
+    if (time >= 2.53 && !triggered.stripDone) {
+      triggered.stripDone = true
+      setStripPhase("done")
+      setShowWhiteStrip(false)
+      window.dispatchEvent(new CustomEvent("startNameAnimation"))
+    }
+
+    // Hide Chibis
+    if (time >= 3.13 && !triggered.chibisHide) {
+      triggered.chibisHide = true
+      setShowObj1(false)
+      setShowObj2(false)
+      setShowObj3(false)
+      setShowObj4(false)
+      timelineLoopActiveRef.current = false
+    }
+  }
+
+  // Animation frame loop driving timeline via virtualTimeRef (as a fallback or lockstep clock)
+  const startTimelineLoop = () => {
+    if (timelineLoopActiveRef.current) return
+    timelineLoopActiveRef.current = true
+    lastFrameTimeRef.current = performance.now()
+
+    const tick = (now: number) => {
+      if (!timelineLoopActiveRef.current) return
+
+      const delta = (now - (lastFrameTimeRef.current ?? now)) / 1000
+      lastFrameTimeRef.current = now
+
+      // Increment virtual time by delta
+      virtualTimeRef.current += delta
+
+      // Execute timeline tick checks
+      processTimeline(virtualTimeRef.current)
+
+      requestAnimationFrame(tick)
+    }
+    requestAnimationFrame(tick)
+  }
+
   const triggerRevealSequence = () => {
     if (sequenceTriggeredRef.current) return
     sequenceTriggeredRef.current = true
 
     setShowMusicPlayer(true)
-
-    // start vertical-to-full white strip 1.55s after trigger/music starts (plus 230ms settle delay)
-    setTimeout(() => {
-      setShowWhiteStrip(true)
-      setStripPhase("vertical")
-    }, 1780)
-
-    // Fills vertically (takes 280ms, completes at 2110ms)
-    setTimeout(() => setStripPhase("full"), 1830)
-
-    // Splits horizontally (takes 280ms, completes at 2460ms)
-    // Reveal profile card at the exact start of horizontal split so it reveals behind the expanding strip
-    setTimeout(() => {
-      setShowProfileCard(true)
-      setStripPhase("horizontal")
-    }, 2180)
-    
-    // Hide all corner chibis exactly 3.13s after trigger
-    // This lets the user see all 4 chibis together in the corners of the centered screen
-    // before they slide out
-    setTimeout(() => {
-      setShowObj1(false)
-      setShowObj2(false)
-      setShowObj3(false)
-      setShowObj4(false)
-    }, 3130)
-
-    // Complete the strip phase and trigger character name entrance animation
-    setTimeout(() => {
-      setStripPhase("done")
-      setShowWhiteStrip(false)
-      window.dispatchEvent(new CustomEvent("startNameAnimation"))
-    }, 2530)
+    startTimelineLoop()
   }
 
   // Initialize website and audio when user enters from splash screen
@@ -354,137 +496,25 @@ export default function Home() {
   }, [])
 
   useEffect(() => {
-    // Only trigger the corner chibis sequential entry once the splash screen is fully faded out
-    // and the music player is active (meaning music has started playing)
-    if (!showSplash && showMusicPlayer) {
-      // Set camera initially to centered normal view
-      cameraControls.set({
-        scale: 1,
-        x: "0vw",
-        y: "0vh"
-      })
-      bgControls.set({
-        scale: 1,
-        x: "0vw",
-        y: "0vh"
-      })
-
-      // Settle delay allows the browser to stabilize layout before launching heavy pans
-      const settleDelay = 230;
-
-      // Smoothly zoom in to obj 1 (Bottom-Left)
-      const t_cam1 = setTimeout(() => {
-        cameraControls.start({
-          scale: 2.2,
-          x: "60vw",
-          y: "-60vh",
-          transition: { duration: 0.28, ease: "easeOut" }
-        })
-        bgControls.start({
-          scale: 1.05,
-          x: "6vw",
-          y: "-6vh",
-          transition: { duration: 0.28, ease: "easeOut" }
-        })
-      }, settleDelay)
-
-      // Show obj 1 at 80ms (mid-zoom)
-      const t_obj1 = setTimeout(() => {
-        setShowObj1(true)
-      }, 80 + settleDelay)
-
-      // Camera starts pan to Bottom-Right at 280ms (exactly as zoom-in completes, zero pause)
-      const t_cam2 = setTimeout(() => {
-        cameraControls.start({
-          x: "-60vw",
-          y: "-60vh",
-          scale: 2.2,
-          transition: { duration: 0.32, ease: "easeInOut" }
-        })
-        bgControls.start({
-          x: "-6vw",
-          y: "-6vh",
-          scale: 1.05,
-          transition: { duration: 0.32, ease: "easeInOut" }
-        })
-      }, 280 + settleDelay)
-
-      // Show obj 2 at 360ms (mid-pan)
-      const t_obj2 = setTimeout(() => {
-        setShowObj2(true)
-      }, 360 + settleDelay)
-
-      // Camera starts pan to Top-Left at 600ms (exactly as pan 2 completes, zero pause)
-      const t_cam3 = setTimeout(() => {
-        cameraControls.start({
-          x: "60vw",
-          y: "60vh",
-          scale: 2.2,
-          transition: { duration: 0.32, ease: "easeInOut" }
-        })
-        bgControls.start({
-          x: "6vw",
-          y: "6vh",
-          scale: 1.05,
-          transition: { duration: 0.32, ease: "easeInOut" }
-        })
-      }, 600 + settleDelay)
-
-      // Show obj 3 at 680ms (mid-pan)
-      const t_obj3 = setTimeout(() => {
-        setShowObj3(true)
-      }, 680 + settleDelay)
-
-      // Camera starts pan to Top-Right at 920ms (exactly as pan 3 completes, zero pause)
-      const t_cam4 = setTimeout(() => {
-        cameraControls.start({
-          x: "-60vw",
-          y: "60vh",
-          scale: 2.2,
-          transition: { duration: 0.32, ease: "easeInOut" }
-        })
-        bgControls.start({
-          x: "-6vw",
-          y: "6vh",
-          scale: 1.05,
-          transition: { duration: 0.32, ease: "easeInOut" }
-        })
-      }, 920 + settleDelay)
-
-      // Show obj 4 at 1000ms (mid-pan)
-      const t_obj4 = setTimeout(() => {
-        setShowObj4(true)
-      }, 1000 + settleDelay)
-
-      // Zoom back out to normal view at 1550ms (310ms pause at obj 4 to show it off)
-      const t_cam5 = setTimeout(() => {
-        cameraControls.start({
-          x: "0vw",
-          y: "0vh",
-          scale: 1,
-          transition: { duration: 0.65, ease: [0.25, 1, 0.5, 1] }
-        })
-        bgControls.start({
-          x: "0vw",
-          y: "0vh",
-          scale: 1,
-          transition: { duration: 0.65, ease: [0.25, 1, 0.5, 1] }
-        })
-      }, 1550 + settleDelay)
-
-      return () => {
-        clearTimeout(t_cam1)
-        clearTimeout(t_obj1)
-        clearTimeout(t_cam2)
-        clearTimeout(t_obj2)
-        clearTimeout(t_cam3)
-        clearTimeout(t_obj3)
-        clearTimeout(t_cam4)
-        clearTimeout(t_obj4)
-        clearTimeout(t_cam5)
+    const handleTimeUpdate = (e: Event) => {
+      const audioTime = (e as CustomEvent<{ currentTime: number }>).detail.currentTime
+      
+      // Update virtualTime to stay completely locked to actual audio currentTime
+      virtualTimeRef.current = audioTime
+      lastFrameTimeRef.current = performance.now()
+      
+      // Make sure the timeline loop is active if music is actively running
+      if (sequenceTriggeredRef.current) {
+        startTimelineLoop()
       }
     }
-  }, [showSplash, showMusicPlayer, cameraControls, bgControls])
+    
+    window.addEventListener("audioTimeUpdate", handleTimeUpdate)
+    return () => {
+      window.removeEventListener("audioTimeUpdate", handleTimeUpdate)
+      timelineLoopActiveRef.current = false
+    }
+  }, [])
 
   useEffect(() => {
     const onProfileAnimationComplete = () => {

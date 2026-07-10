@@ -83,6 +83,9 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       const beatValue = 1.0 + (bassAverage / 255) * 0.16
       
       window.dispatchEvent(new CustomEvent("musicBeat", { detail: { beatValue } }))
+      window.dispatchEvent(new CustomEvent("audioTimeUpdate", {
+        detail: { currentTime: audioRef.current.currentTime }
+      }))
       
       animationFrameIdRef.current = requestAnimationFrame(analyze)
     }
@@ -120,6 +123,9 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       if (audio.duration) {
         setProgress((audio.currentTime / audio.duration) * 100)
       }
+      window.dispatchEvent(new CustomEvent("audioTimeUpdate", {
+        detail: { currentTime: audio.currentTime }
+      }))
     }
 
     audio.onended = () => {
