@@ -1135,34 +1135,30 @@ export default function Home() {
           </AnimatePresence>
         </div>
         <div className="absolute inset-0 pointer-events-none z-10 overflow-hidden">
-          {!showSplash && (
-            <>
-              <CornerOrnament 
-                corner={3} 
-                src="/img website/obj 1.png" 
-                visible={showObj1}
-                customTransition={{ type: "tween", duration: 0.22, ease: "easeOut" }} 
-              />
-              <CornerOrnament 
-                corner={2} 
-                src="/img website/obj 2.png" 
-                visible={showObj2}
-                customTransition={{ type: "tween", duration: 0.5, ease: "easeOut" }} 
-              />
-              <CornerOrnament 
-                corner={0} 
-                src="/img website/obj 3.png" 
-                visible={showObj3}
-                customTransition={{ type: "tween", duration: 0.5, ease: "easeOut" }} 
-              />
-              <CornerOrnament 
-                corner={1} 
-                src="/img website/obj 4.png" 
-                visible={showObj4}
-                customTransition={{ type: "tween", duration: 0.5, ease: "easeOut" }} 
-              />
-            </>
-          )}
+          <CornerOrnament 
+            corner={3} 
+            src="/img website/obj 1.png" 
+            visible={!showSplash && showObj1}
+            customTransition={{ type: "tween", duration: 0.22, ease: "easeOut" }} 
+          />
+          <CornerOrnament 
+            corner={2} 
+            src="/img website/obj 2.png" 
+            visible={!showSplash && showObj2}
+            customTransition={{ type: "tween", duration: 0.5, ease: "easeOut" }} 
+          />
+          <CornerOrnament 
+            corner={0} 
+            src="/img website/obj 3.png" 
+            visible={!showSplash && showObj3}
+            customTransition={{ type: "tween", duration: 0.5, ease: "easeOut" }} 
+          />
+          <CornerOrnament 
+            corner={1} 
+            src="/img website/obj 4.png" 
+            visible={!showSplash && showObj4}
+            customTransition={{ type: "tween", duration: 0.5, ease: "easeOut" }} 
+          />
         </div>
       </motion.div>
       <DraggableMusicPlayer isVisible={musicPlayerExpanded} onClose={() => setMusicPlayerExpanded(false)} defaultX={musicPlayerX} defaultY={musicPlayerY} />
