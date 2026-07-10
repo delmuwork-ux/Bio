@@ -123,7 +123,28 @@ export function SplashScreen({ onEnter, show }: SplashScreenProps) {
       return
     }
 
+    const preloadAudioFromAPI = async () => {
+      try {
+        const response = await fetch("/api/music")
+        const tracks = await response.json()
+        if (tracks && tracks.length > 0) {
+          const track = tracks[0]
+          return new Promise<void>((resolve) => {
+            const audio = new window.Audio()
+            audio.src = track.src
+            audio.preload = "auto"
+            audio.oncanplaythrough = () => resolve()
+            audio.onerror = () => resolve()
+            audio.load()
+          })
+        }
+      } catch (e) {
+        console.warn("Failed to preload audio:", e)
+      }
+    }
+
     const preloadAndDecode = async () => {
+      const totalCount = imagesToPreload.length + 1
       const promises = imagesToPreload.map(async (url) => {
         try {
           const img = new window.Image()
@@ -135,12 +156,21 @@ export function SplashScreen({ onEnter, show }: SplashScreenProps) {
         }
         if (isMounted) {
           loadedCount++
-          const progress = Math.floor((loadedCount / imagesToPreload.length) * 100)
+          const progress = Math.floor((loadedCount / totalCount) * 100)
           setLoadingProgress(progress)
         }
       })
 
-      await Promise.all(promises)
+      const audioPromise = (async () => {
+        await preloadAudioFromAPI()
+        if (isMounted) {
+          loadedCount++
+          const progress = Math.floor((loadedCount / totalCount) * 100)
+          setLoadingProgress(progress)
+        }
+      })()
+
+      await Promise.all([...promises, audioPromise])
       
       if (isMounted) {
         setIsLoaded(true)
