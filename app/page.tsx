@@ -179,6 +179,8 @@ const PixelFrameFlowers = ({ visible = true, flowerSize = 18 }: { visible?: bool
 
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true)
+  const showSplashRef = useRef(true)
+  const musicStartedRef = useRef(false)
   const [showObj1, setShowObj1] = useState(false)
   const [showObj2, setShowObj2] = useState(false)
   const [showObj3, setShowObj3] = useState(false)
@@ -274,6 +276,7 @@ export default function Home() {
   // Initialize website and audio when user enters from splash screen
   const handleSplashEnter = () => {
     setShowSplash(false)
+    showSplashRef.current = false
     
     // Audio is already pre-unlocked and playing since click, but we dispatch a fail-safe event.
     try {
@@ -282,6 +285,11 @@ export default function Home() {
       window.__audioUnlockRequested = true
       window.dispatchEvent(new CustomEvent("unlockAudio"))
     } catch (_) {}
+
+    // If the music has already started playing, trigger the reveal sequence immediately!
+    if (musicStartedRef.current) {
+      triggerRevealSequence()
+    }
 
     // FAIL-SAFE BACKUP TIMER:
     // If the musicStarted event doesn't fire within 1.0s (due to browser audio block or slow load),
@@ -335,7 +343,11 @@ export default function Home() {
 
   useEffect(() => {
     const onMusicStarted = () => {
-      triggerRevealSequence()
+      musicStartedRef.current = true
+      // Only trigger if splash screen has finished exiting (otherwise handleSplashEnter will trigger it)
+      if (!showSplashRef.current) {
+        triggerRevealSequence()
+      }
     }
     window.addEventListener("musicStarted", onMusicStarted)
     return () => window.removeEventListener("musicStarted", onMusicStarted)
