@@ -16,6 +16,91 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
   const autoPlayRef = useRef(autoPlay)
 
 
+  const audioCtxRef = useRef<AudioContext | null>(null)
+  const analyserRef = useRef<AnalyserNode | null>(null)
+  const sourceRef = useRef<MediaElementAudioSourceNode | null>(null)
+  const animationFrameIdRef = useRef<number | null>(null)
+
+  const setupAnalysis = useCallback((audio: HTMLAudioElement) => {
+    if (typeof window === "undefined") return
+
+    try {
+      if (!audioCtxRef.current) {
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext
+        audioCtxRef.current = new AudioContextClass()
+      }
+      
+      const ctx = audioCtxRef.current
+      if (ctx.state === "suspended") {
+        ctx.resume()
+      }
+
+      if (sourceRef.current) {
+        try {
+          sourceRef.current.disconnect()
+        } catch (_) {}
+      }
+
+      if (!analyserRef.current) {
+        const analyser = ctx.createAnalyser()
+        analyser.fftSize = 64
+        analyserRef.current = analyser
+        analyser.connect(ctx.destination)
+      }
+
+      const source = ctx.createMediaElementSource(audio)
+      source.connect(analyserRef.current)
+      sourceRef.current = source
+    } catch (e) {
+      console.warn("Failed to setup audio analysis:", e)
+    }
+  }, [])
+
+  const startAnalysis = useCallback(() => {
+    if (typeof window === "undefined") return
+
+    if (animationFrameIdRef.current) {
+      cancelAnimationFrame(animationFrameIdRef.current)
+    }
+
+    const analyser = analyserRef.current
+    if (!analyser) return
+
+    const bufferLength = analyser.frequencyBinCount
+    const dataArray = new Uint8Array(bufferLength)
+
+    const analyze = () => {
+      if (!audioRef.current || audioRef.current.paused) return
+      
+      analyser.getByteFrequencyData(dataArray)
+      
+      let bassSum = 0
+      const bassBins = Math.min(5, bufferLength)
+      for (let i = 0; i < bassBins; i++) {
+        bassSum += dataArray[i]
+      }
+      const bassAverage = bassSum / bassBins
+      const beatValue = 1.0 + (bassAverage / 255) * 0.16
+      
+      window.dispatchEvent(new CustomEvent("musicBeat", { detail: { beatValue } }))
+      
+      animationFrameIdRef.current = requestAnimationFrame(analyze)
+    }
+
+    analyze()
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current)
+      }
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {})
+      }
+    }
+  }, [])
+
   // track load errors map
   const [loadErrors, setLoadErrors] = useState<Record<number, boolean>>({})
 
@@ -37,8 +122,6 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       }
     }
 
-
-
     audio.onended = () => {
       setTrackIndex(i => (i + 1) % tracks.length)
       setProgress(0)
@@ -48,7 +131,10 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       // clear any previous error for this track
       setLoadErrors(prev => ({ ...prev, [trackIndex]: false }))
       if (readyRef.current) {
-        audio.play().catch(() => {})
+        audio.play().then(() => {
+          setupAnalysis(audio)
+          startAnalysis()
+        }).catch(() => {})
       }
     }
 
@@ -61,6 +147,8 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       audio.play().then(() => {
         setPlaying(true)
         window.dispatchEvent(new CustomEvent("musicStarted"))
+        setupAnalysis(audio)
+        startAnalysis()
       }).catch(() => {})
     }
 
@@ -69,8 +157,11 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       audio.ontimeupdate = null
       audio.onended = null
       audio.oncanplaythrough = null
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current)
+      }
     }
-  }, [trackIndex, currentTrack, tracks.length])
+  }, [trackIndex, currentTrack, tracks.length, setupAnalysis, startAnalysis])
 
   useEffect(() => {
     const handleInteraction = () => {
@@ -88,6 +179,8 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
           // eslint-disable-next-line @typescript-eslint/ban-ts-comment
           // @ts-ignore
           window.__musicStarted = true
+          setupAnalysis(audio)
+          startAnalysis()
         }).catch(() => {})
       }
     }
@@ -121,18 +214,24 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       document.removeEventListener("keydown", handleInteraction)
       window.removeEventListener("unlockAudio", handleUnlockAudio)
     }
-  }, [])
+  }, [setupAnalysis, startAnalysis])
 
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
 
     if (playing && readyRef.current) {
-      audio.play().catch(() => setPlaying(false))
+      audio.play().then(() => {
+        setupAnalysis(audio)
+        startAnalysis()
+      }).catch(() => setPlaying(false))
     } else {
       audio.pause()
+      if (animationFrameIdRef.current) {
+        cancelAnimationFrame(animationFrameIdRef.current)
+      }
     }
-  }, [playing])
+  }, [playing, setupAnalysis, startAnalysis])
 
   const play = useCallback(() => {
     readyRef.current = true

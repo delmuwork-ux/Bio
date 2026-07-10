@@ -1,11 +1,12 @@
 import type React from "react"
 import type { Metadata, Viewport } from "next"
-import { Pixelify_Sans, M_PLUS_Rounded_1c } from "next/font/google"
+import { DotGothic16, M_PLUS_Rounded_1c, Fredoka } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 
-const pixelifySans = Pixelify_Sans({ subsets: ["latin"] })
-const mPlusRounded = M_PLUS_Rounded_1c({ weight: "400", subsets: ["latin", "japanese"] })
+const dotGothic = DotGothic16({ weight: "400", subsets: ["latin"], variable: "--font-pixel" })
+const mPlusRounded = M_PLUS_Rounded_1c({ weight: "400", subsets: ["latin"] })
+const fredoka = Fredoka({ weight: ["400", "500", "600", "700"], subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Tofu ( ⓛ ω ⓛ *)",
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: "#ffc0cb",
   width: "device-width",
   initialScale: 1,
 }
@@ -43,7 +44,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi">
-      <body className={`font-sans ${pixelifySans.className}`} style={{ "--font-jp": mPlusRounded.style.fontFamily } as React.CSSProperties}>
+      <body className={`font-sans ${fredoka.className} ${dotGothic.variable}`} style={{ "--font-jp": mPlusRounded.style.fontFamily } as React.CSSProperties}>
         {children}
         <Analytics />
       </body>

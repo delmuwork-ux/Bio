@@ -8,22 +8,10 @@ export const ANIMATION_CONFIG = {
 
 export const TRACKS: Track[] = [
   {
-    title: "超学生ぴんく @歌ってみた",
-    artist: "超学生",
-    duration: "3:50",
-    src: "/music/track1.mp3",
-  },
-  {
-    title: "黒塗り世界宛て書簡",
-    artist: "Unknown",
-    duration: "2:09",
-    src: "/music/track2.mp3",
-  },
-  {
-    title: "Psychotrance",
-    artist: "Baby Jane",
-    duration: "2:30",
-    src: "/music/track3.mp3",
+    title: "Kita Ikuyo dances with doodle song (喜多郁代で推しの子OPダンス)",
+    artist: "Kita Ikuyo",
+    duration: "1:24",
+    src: "/music/kita_ikuyo_dances.mp3",
   },
 ]
 
@@ -52,13 +40,13 @@ export const SOCIAL_LINKS: SocialLink[] = [
 ]
 
 export const PROFILE_STATS: ProfileStat[] = [
-  { value: "Discord", label: "akumoooon" },
+  { value: "WaveBox", label: "δあくむ✁︎🥀" },
   { value: "X", label: "@_Delmu" },
   { value: "Facebook", label: "δあくむ" },
 ]
 
 export const PROFILE = {
-  name: "- やめとけ -",
+  name: "月白あくむ",
   username: "@Tofu",
   bio: "This is just a placeholder text to show how the bio will look on the profile card. ♡ ૮꒰ ˶• ༝ •˶꒱ა",
   avatar: "/avatar/avatar.png",

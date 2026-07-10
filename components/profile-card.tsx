@@ -1,208 +1,257 @@
 "use client"
 
-import Image from "next/image"
-import { motion, useAnimationControls } from "framer-motion"
+import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
-import { PROFILE, PROFILE_STATS, ANIMATION_CONFIG } from "@/lib/constants"
+import { PROFILE } from "@/lib/constants"
 
-export function ProfileCard() {
-  const nameControls = useAnimationControls()
-  const usernameControls = useAnimationControls()
-  const bioControls = useAnimationControls()
-  const statsControls = useAnimationControls()
-  const avatarControls = useAnimationControls()
-  const [showStats, setShowStats] = useState(false)
-  const [showBio, setShowBio] = useState(false)
-  const [showAvatar, setShowAvatar] = useState(false)
-  const [showUsername, setShowUsername] = useState(false)
-  const [nameVisible, setNameVisible] = useState(false)
+interface ProfileCardProps {
+  showWhiteStrip?: boolean
+  stripPhase?: "vertical" | "full" | "horizontal" | "done"
+  activeStat?: "X" | "WaveBox" | "Booth" | null
+}
 
-  const handleStatClick = async (stat: (typeof PROFILE_STATS)[0]) => {
-    if (stat.value === "Discord" || stat.value === "Osu" || stat.value === "Valorant") {
-      try {
-        await navigator.clipboard.writeText(stat.label)
-      } catch (err) {
-        console.error("Failed to copy:", err)
-      }
-    }
-  }
+export function ProfileCard({ showWhiteStrip = false, stripPhase = "done", activeStat = null }: ProfileCardProps) {
+  const [hasEntered, setHasEntered] = useState(false)
 
   useEffect(() => {
-    const   startAnimation = async () => {
-      // avatar top-down sweep
-      setShowAvatar(false)
-      await avatarControls.start({ y: "0%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5) / 2, ease: ANIMATION_CONFIG.sweep.ease } })
-      await new Promise(r => setTimeout(r, 50))
-      setShowAvatar(true)
-      await avatarControls.start({ y: "100%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5) / 2, ease: ANIMATION_CONFIG.sweep.ease } })
-
-      await nameControls.start({ clipPath: "inset(0 0 0 0)" })
-      
-      setNameVisible(true)
-      // wait 50ms before username sweep
-      await new Promise(r => setTimeout(r, 50))
-
-      // USERNAME sweep (left → right)
-      await usernameControls.start({ x: "0%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
-      await new Promise(r => setTimeout(r, 3))
-      setShowUsername(true)
-      
-      // USERNAME & BIO sweep at the same time
-      await Promise.all([
-        usernameControls.start({ x: "100%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } }),
-        bioControls.start({ x: "0%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
-      ])
-      
-      setShowBio(true)
-      await bioControls.start({ x: "100%", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
-
-      // STATS sweep (static background)
-      await statsControls.start({ clipPath: "inset(0 0 0 0)", transition: { duration: (ANIMATION_CONFIG.sweep.duration || 0.5), ease: ANIMATION_CONFIG.sweep.ease } })
-      setShowStats(true)
-      
-      // Emit event when all animations are complete
-      window.dispatchEvent(new CustomEvent("profileAnimationComplete"))
+    const handler = () => {
+      setHasEntered(true)
+      // Emit complete event to page controller after characters finish entering (0.9s)
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("profileAnimationComplete"))
+      }, 900)
     }
-
-    const handler = () => startAnimation()
     window.addEventListener("startNameAnimation", handler)
     return () => window.removeEventListener("startNameAnimation", handler)
-  }, [nameControls, usernameControls, bioControls, statsControls, avatarControls])
+  }, [])
+
+  const nameChars = [
+    { char: "月", color: "#ffffff", rotate: "-6deg", y: "-4px" },
+    { char: "白", color: "#ffffff", rotate: "4deg", y: "3px" },
+    { char: "あ", color: "#ffd27d", rotate: "-5deg", y: "-2px" },
+    { char: "く", color: "#ffd27d", rotate: "6deg", y: "2px" },
+    { char: "む", color: "#ffd27d", rotate: "-2deg", y: "5px" },
+  ]
 
   return (
-    <div className="relative p-8 card">
-      <div className="flex flex-col items-center">
-        <div className="relative mb-6">
-          <div
-            className="w-24 h-24 overflow-hidden border-2 border-white/20 relative"
-            style={{ borderRadius: "inherit" }}
-          >
-            <motion.div
-              className="absolute inset-0 bg-white z-10 pointer-events-none"
-              initial={{ y: "-100%" }}
-              animate={avatarControls}
-              transition={{ duration: (ANIMATION_CONFIG.sweep.duration || 0.5) / 2, ease: ANIMATION_CONFIG.sweep.ease }}
-              style={{ borderRadius: "inherit" }}
-            />
-            <motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: showAvatar ? 1 : 0 }} 
-              transition={{ duration: 0.08 }} 
-              className="absolute inset-0"
-            >
-              <Image
-                src={PROFILE.avatar}
-                alt="Avatar"
-                fill
-                className="object-cover"
-              />
-            </motion.div>
-          </div>
-        </div>
-
-        <div className="relative h-8 flex items-center justify-center overflow-hidden">
-          <motion.div
-            className="absolute inset-0 bg-white"
-            initial={{ clipPath: "inset(0 100% 0 0)" }}
-            animate={nameControls}
-            transition={ANIMATION_CONFIG.sweep}
-          />
-          <motion.h1
-            className="text-xl font-medium tracking-tight relative z-10 px-3 py-1"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: nameVisible ? 1 : 0, color: nameVisible ? "#000" : "#fff" }}
-            transition={{ duration: 0.2 }}
-          >
-            {PROFILE.name}
-          </motion.h1>
-        </div>
-
-        <div className="relative mt-1 overflow-hidden">
-          <motion.div
-            className="absolute bg-white z-10 pointer-events-none"
-            style={{ top: "-5px", bottom: "-5px", left: "-5px", right: "-5px" }}
-            initial={{ x: "-100%" }}
-            animate={usernameControls}
-            transition={{ ...ANIMATION_CONFIG.sweep, duration: 0.45 }}
-          />
-          <motion.p
-            className="text-sm text-white/40 font-mono relative z-0 text-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: showUsername ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {PROFILE.username}
-          </motion.p>
-        </div>
-
-        <div className="relative mt-4 overflow-hidden" style={{ borderRadius: "inherit" }}>
-          <motion.div
-            className="absolute inset-0 bg-white z-10 pointer-events-none"
-            initial={{ x: "-100%" }}
-            animate={bioControls}
-            transition={{ ...ANIMATION_CONFIG.sweep, duration: 0.45 }}
-            style={{ borderRadius: "inherit" }}
-          />
-          <motion.p
-            className="text-center text-white/60 text-sm leading-relaxed max-w-[280px] mx-auto"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: showBio ? 1 : 0 }}
-            transition={{ duration: 0.3 }}
-          >
-            {PROFILE.bio}
-          </motion.p>
-        </div>
-
-        <div className="flex gap-8 mt-6 pt-6 border-t border-white/10 w-full justify-center relative">
-          {PROFILE_STATS.map((stat, i) => (
-            <div 
-              key={stat.label} 
-              className="text-center relative"
-              onClick={() => handleStatClick(stat)}
-              onMouseEnter={() => {
-                window.dispatchEvent(new CustomEvent("statHover", { detail: { label: stat.label } }))
-              }}
-              onMouseLeave={() => {
-                window.dispatchEvent(new CustomEvent("statHover", { detail: { label: null } }))
-              }}
-              style={{ 
-                cursor: (stat.value === "Discord" || stat.value === "Osu" || stat.value === "Valorant") ? "pointer" : "default",
-              }}
-            >
-              <motion.div
-                className="absolute inset-0 bg-white z-10 pointer-events-none"
-                style={{ left: "-10px", right: "-10px" }}
-                initial={{ clipPath: "inset(0 100% 0 0)" }}
-                animate={statsControls}
-                transition={{ ...ANIMATION_CONFIG.sweep, duration: 0.45 }}
-              />
-              
-              <motion.p
-                className="text-lg font-medium relative z-20"
-                initial={{ opacity: 0, color: "#fff" }}
-                animate={{ 
-                  opacity: showStats ? 1 : 0, 
-                  color: showStats ? "#000" : "#fff"
+    <div className="relative flex items-center justify-center">
+      <motion.div 
+        className="flex flex-col items-center justify-center"
+      >
+        <div className="relative flex items-center justify-center gap-4 select-none py-4 px-8">
+          {showWhiteStrip && stripPhase !== "done" && (
+            <div className="absolute inset-0 z-20 overflow-hidden pointer-events-none">
+              <div
+                className="absolute bg-white left-0 right-0"
+                style={{
+                  top: 0,
+                  height: stripPhase === "vertical" ? "0%" : "50%",
+                  left: stripPhase === "horizontal" ? "50%" : "0%",
+                  right: stripPhase === "horizontal" ? "50%" : "0%",
+                  transition: "all 0.28s cubic-bezier(0.25, 1, 0.5, 1)",
                 }}
-                transition={{ duration: 0.3 }}
-              >
-                {stat.value}
-              </motion.p>
-              <motion.p
-                className="text-[11px] uppercase tracking-wider relative z-20"
-                initial={{ opacity: 0, color: "rgba(255,255,255,0.4)" }}
-                animate={{ 
-                  opacity: showStats ? 1 : 0, 
-                  color: showStats ? "rgba(0,0,0,0.4)" : "rgba(255,255,255,0.4)"
+              />
+              <div
+                className="absolute bg-white left-0 right-0"
+                style={{
+                  bottom: 0,
+                  height: stripPhase === "vertical" ? "0%" : "50%",
+                  left: stripPhase === "horizontal" ? "50%" : "0%",
+                  right: stripPhase === "horizontal" ? "50%" : "0%",
+                  transition: "all 0.28s cubic-bezier(0.25, 1, 0.5, 1)",
                 }}
-                transition={{ duration: 0.3 }}
-              >
-                {stat.label}
-              </motion.p>
+              />
             </div>
-          ))}
+          )}
+          {nameChars.map((item, idx) => {
+            const targetY = parseFloat(item.y) || 0
+            const targetRotate = parseFloat(item.rotate) || 0
+            return (
+              <motion.span
+                key={idx}
+                className="text-6xl md:text-7xl font-extrabold relative inline-block"
+                initial={{ 
+                  opacity: 0, 
+                  scale: 0.1, 
+                  y: 0, 
+                  rotate: 0 
+                }}
+                animate={hasEntered ? { 
+                  opacity: 1, 
+                  scale: [0.1, 1.5, 1.0], 
+                  y: [0, targetY * 1.4, targetY], 
+                  rotate: [0, targetRotate * 1.4, targetRotate] 
+                } : { 
+                  opacity: 0, 
+                  scale: 0.1, 
+                  y: 0, 
+                  rotate: 0 
+                }}
+                transition={{
+                  duration: 0.55,
+                  ease: "easeOut",
+                  delay: idx * 0.12
+                }}
+                style={{
+                  fontFamily: "var(--font-pixel), monospace",
+                  color: item.color,
+                  textShadow: `
+                    -4px -4px 0 #5c3d2e,  
+                     4px -4px 0 #5c3d2e,
+                    -4px  4px 0 #5c3d2e,  
+                     4px  4px 0 #5c3d2e,
+                   0px -4px 0 #5c3d2e,  
+                   0px  4px 0 #5c3d2e,
+                  -4px  0px 0 #5c3d2e,  
+                   4px  0px 0 #5c3d2e,
+                   0 8px 16px rgba(92, 61, 46, 0.45)
+                `
+              }}
+            >
+              {item.char}
+            </motion.span>
+          )
+          })}
         </div>
-      </div>
+
+        {/* Social Icons for Booth, X, and Wavebox */}
+        <motion.div
+          className="flex justify-center gap-6 mt-6 relative z-10"
+          initial={{ opacity: 0, y: 15 }}
+          animate={hasEntered ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+          transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
+        >
+          {/* Booth.pm */}
+          <motion.div
+            role="button"
+            tabIndex={0}
+            className="flex items-center justify-center p-2 cursor-pointer border-none bg-transparent"
+            data-icon-id="Booth"
+            layoutId={activeStat === "Booth" ? "delmu-image-card" : undefined}
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("boothClick"))
+            }}
+            onMouseEnter={() => {
+              window.dispatchEvent(new CustomEvent("statHover", { detail: { label: "Booth" } }))
+            }}
+            onMouseLeave={() => {
+              window.dispatchEvent(new CustomEvent("statHover", { detail: { label: null } }))
+            }}
+            whileHover={{ scale: 1.15, rotate: -5 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 16 16" 
+              fill="#ffffff" 
+              className="w-12 h-12"
+              style={{
+                filter: "drop-shadow(-3px -3px 0 #5c3d2e) drop-shadow(3px -3px 0 #5c3d2e) drop-shadow(-3px 3px 0 #5c3d2e) drop-shadow(3px 3px 0 #5c3d2e) drop-shadow(0px 6px 0px rgba(92, 61, 46, 0.45))"
+              }}
+            >
+              {/* Left stem */}
+              <rect x="3" y="2" width="3" height="12" />
+              {/* Top bar of loop */}
+              <rect x="6" y="2" width="6" height="3" />
+              {/* Right wall of loop */}
+              <rect x="9" y="5" width="3" height="4" />
+              {/* Bottom bar of loop */}
+              <rect x="6" y="8" width="6" height="3" />
+            </svg>
+          </motion.div>
+
+          {/* X (formerly Twitter) */}
+          <motion.div
+            role="button"
+            tabIndex={0}
+            className="flex items-center justify-center p-2 cursor-pointer border-none bg-transparent"
+            data-icon-id="X"
+            layoutId={activeStat === "X" ? "delmu-image-card" : undefined}
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("delmuClick"))
+            }}
+            onMouseEnter={() => {
+              window.dispatchEvent(new CustomEvent("statHover", { detail: { label: "@_Delmu" } }))
+            }}
+            onMouseLeave={() => {
+              window.dispatchEvent(new CustomEvent("statHover", { detail: { label: null } }))
+            }}
+            whileHover={{ scale: 1.15, rotate: -5 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 16 16" 
+              fill="#ffd27d" 
+              className="w-12 h-12"
+              style={{
+                filter: "drop-shadow(-3px -3px 0 #5c3d2e) drop-shadow(3px -3px 0 #5c3d2e) drop-shadow(-3px 3px 0 #5c3d2e) drop-shadow(3px 3px 0 #5c3d2e) drop-shadow(0px 6px 0px rgba(92, 61, 46, 0.45))"
+              }}
+            >
+              {/* Thick diagonal */}
+              <rect x="0" y="0" width="3" height="3" />
+              <rect x="2" y="2" width="3" height="3" />
+              <rect x="4" y="4" width="3" height="3" />
+              <rect x="6" y="6" width="4" height="4" />
+              <rect x="9" y="9" width="3" height="3" />
+              <rect x="11" y="11" width="3" height="3" />
+              <rect x="13" y="13" width="3" height="3" />
+              
+              {/* Thin diagonal */}
+              <rect x="14" y="0" width="2" height="2" />
+              <rect x="12" y="2" width="2" height="2" />
+              <rect x="10" y="4" width="2" height="2" />
+              <rect x="4" y="10" width="2" height="2" />
+              <rect x="2" y="12" width="2" height="2" />
+              <rect x="0" y="14" width="2" height="2" />
+            </svg>
+          </motion.div>
+
+          {/* WaveBox */}
+          <motion.div
+            role="button"
+            tabIndex={0}
+            className="flex items-center justify-center p-2 cursor-pointer border-none bg-transparent"
+            data-icon-id="WaveBox"
+            layoutId={activeStat === "WaveBox" ? "delmu-image-card" : undefined}
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("waveboxClick"))
+            }}
+            onMouseEnter={() => {
+              window.dispatchEvent(new CustomEvent("statHover", { detail: { label: "δあくむ✁︎🥀" } }))
+            }}
+            onMouseLeave={() => {
+              window.dispatchEvent(new CustomEvent("statHover", { detail: { label: null } }))
+            }}
+            whileHover={{ scale: 1.15, rotate: 5 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 16 16" 
+              fill="#ffffff" 
+              className="w-12 h-12"
+              style={{
+                filter: "drop-shadow(-3px -3px 0 #5c3d2e) drop-shadow(3px -3px 0 #5c3d2e) drop-shadow(-3px 3px 0 #5c3d2e) drop-shadow(3px 3px 0 #5c3d2e) drop-shadow(0px 6px 0px rgba(92, 61, 46, 0.45))"
+              }}
+            >
+              {/* Outer border of the envelope */}
+              <rect x="0" y="3" width="16" height="1" />
+              <rect x="0" y="12" width="16" height="1" />
+              <rect x="0" y="4" width="1" height="8" />
+              <rect x="15" y="4" width="1" height="8" />
+              {/* Inner envelope flap lines */}
+              <rect x="1" y="4" width="2" height="1" />
+              <rect x="13" y="4" width="2" height="1" />
+              <rect x="3" y="5" width="2" height="1" />
+              <rect x="11" y="5" width="2" height="1" />
+              <rect x="5" y="6" width="2" height="1" />
+              <rect x="9" y="6" width="2" height="1" />
+              <rect x="7" y="7" width="2" height="1" />
+            </svg>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </div>
   )
 }

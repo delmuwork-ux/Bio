@@ -17,7 +17,7 @@ async function handleAudioRequest(
 
     const ext = extname(decodedFilename).toLowerCase()
     
-    if (!["mp3", ".m4a", ".wav", ".ogg", ".flac", ".mka"].includes(ext)) {
+    if (![".mp3", ".m4a", ".wav", ".ogg", ".flac", ".mka"].includes(ext)) {
       return new Response("Invalid file type", { status: 400 })
     }
 

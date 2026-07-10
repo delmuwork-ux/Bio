@@ -17,7 +17,7 @@ function AudioBars({ playing }: { playing: boolean }) {
       {[0, 1, 2, 3].map(i => (
         <div
           key={i}
-          className="w-[3px] bg-white rounded-full origin-bottom"
+          className="w-[3px] bg-[#b58c5a] rounded-full origin-bottom"
           style={{ height: 12, transform: `scaleY(${playing ? 0.8 : 0.3})` }}
         />
       ))}
@@ -334,32 +334,35 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
       {/* Sweep overlay - render khi mở hoặc đang tắt */}
       {(expanded || sweepClosing) && (
         <motion.div
-          className="absolute inset-0 bg-white z-50 pointer-events-none w-[320px]"
+          className="absolute inset-0 bg-[#c69c72] z-50 pointer-events-none w-[320px]"
           initial={{ scaleY: 0, transformOrigin: "top" }}
           animate={sweepControls}
+          style={{ borderRadius: "24px" }}
         />
       )}
 
       {/* Player card - always render (pre-compiled), just toggle visibility */}
       <div
-        className="w-full bg-[#0a0a0a]/95 border border-white/10 overflow-hidden backdrop-blur-xl relative flex flex-col"
+        className="w-full bg-[#fffcf7]/95 border-4 border-pink-200 overflow-hidden backdrop-blur-xl relative flex flex-col"
         style={{
-          boxShadow: "0 0 0 1px rgba(255,255,255,.1), 0 20px 50px -10px rgba(0,0,0,.8)",
+          boxShadow: "0 16px 40px rgba(198, 156, 114, 0.2)",
           minHeight: "300px",
           maxHeight: "650px",
+          borderRadius: "24px",
+          borderColor: "#dfbe9f",
           visibility: playerVisible ? "visible" : "hidden",
         }}
       >
           {/* Loading state */}
           {isLoading && (
-            <div className="flex items-center justify-center h-64 text-white/50 text-sm">
+            <div className="flex items-center justify-center h-64 text-[#8c6753]/60 text-sm font-semibold">
               Loading music...
             </div>
           )}
 
           {/* No tracks state */}
           {!isLoading && tracks.length === 0 && (
-            <div className="flex items-center justify-center h-64 text-white/50 text-sm text-center px-4">
+            <div className="flex items-center justify-center h-64 text-[#8c6753]/60 text-sm text-center px-4 font-semibold">
               No music files found in /public/music
             </div>
           )}
@@ -370,8 +373,8 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
               {/* Header */}
               <div className="flex items-center justify-between px-4 pt-4 pb-2 relative z-0 flex-shrink-0">
                 <div className="flex items-center gap-1">
-                  <p className="text-sm font-medium text-white">Now</p>
-                  <p className="text-sm font-medium text-black bg-white px-1.5 py-0.5">Playing</p>
+                  <p className="text-sm font-bold text-[#5c3d2e]">Now</p>
+                  <p className="text-sm font-bold text-white bg-[#b58c5a] px-1.5 py-0.5 rounded-md">Playing</p>
                 </div>
                 {onClose && (
                   <button
@@ -379,10 +382,10 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
                     onMouseEnter={() => window.dispatchEvent(new CustomEvent("closeButtonHover", { detail: { label: "Close?" } }))}
                     onMouseLeave={() => window.dispatchEvent(new CustomEvent("closeButtonHover", { detail: { label: null } }))}
                     disabled={isAnimatingExpand || isClosing}
-                    className="flex items-center justify-center w-6 h-6 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-white/20 rounded"
+                    className="flex items-center justify-center w-6 h-6 transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#eed8c1]/40 rounded-full text-[#b58c5a]"
                   >
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <rect x="2" y="2" width="12" height="12" fill="white"/>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2 2L10 10M2 10L10 2" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"/>
                     </svg>
                   </button>
                 )}
@@ -390,20 +393,20 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
 
               {/* Progress bar */}
               <motion.div
-                className="h-[2px] bg-white/5 relative overflow-hidden z-0 flex-shrink-0"
+                className="h-[4px] bg-[#eed8c1] relative overflow-hidden z-0 flex-shrink-0"
                 initial={{ opacity: 1 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
               >
                 <motion.div
-                  className="absolute inset-y-0 left-0 bg-white"
+                  className="absolute inset-y-0 left-0 bg-[#b58c5a] rounded-full"
                   animate={{ width: `${player.progress}%` }}
                   transition={{ duration: 0.1 }}
                 />
               </motion.div>
 
               {/* Main content + queue */}
-              <div className="flex-1 p-4 relative z-0 overflow-hidden flex flex-col" onWheel={handleWheel} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+              <div className="flex-1 p-4 relative z-0 overflow-hidden flex flex-col items-center" onWheel={handleWheel} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
                 {/* Album cover */}
               <div 
                 className="mb-4 flex justify-center flex-shrink-0 cursor-pointer relative" 
@@ -415,18 +418,18 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
                   <img
                     src={displayed.cover}
                     alt={displayed.title}
-                    className="w-56 h-56 object-cover hover:opacity-80 transition-opacity"
+                    className="w-52 h-52 object-cover hover:opacity-80 transition-all rounded-2xl border-2 border-[#eed8c1] shadow-sm"
                   />
                 ) : (
-                  <div className="w-56 h-56 bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center hover:opacity-80 transition-opacity">
-                    <div className="text-center">
-                      <p className="text-white/40 text-sm">♪</p>
+                  <div className="w-52 h-52 bg-[#fffbf6] border-2 border-[#eed8c1] rounded-2xl flex items-center justify-center hover:opacity-80 transition-all shadow-sm">
+                    <div className="text-center animate-bounce">
+                      <p className="text-[#c69c72]/60 text-3xl">♪</p>
                     </div>
                   </div>
                 )}
                 {/* Track change sweep overlay */}
                 <motion.div
-                  className="absolute inset-0 bg-white pointer-events-none"
+                  className="absolute inset-0 bg-[#c69c72] pointer-events-none rounded-2xl"
                   initial={{ scaleX: 0 }}
                   animate={trackChangeSweepControls}
                   style={{
@@ -444,25 +447,25 @@ export function MusicPlayer({ isVisible = false, onClose }: MusicPlayerProps) {
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       transition={{ duration: 0.15 }}
-                      className="flex-shrink-0"
+                      className="flex-shrink-0 w-full text-center"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="min-w-0 flex-1 relative overflow-hidden">
-                          <div className="relative">
+                      <div className="flex flex-col items-center justify-center">
+                        <div className="min-w-0 flex-1 relative overflow-hidden text-center">
+                          <div className="relative inline-block">
                             <p 
-                              className="font-medium text-black leading-tight text-[15px] relative z-10 bg-white px-1.5 py-0.5 truncate inline-block"
+                              className="font-bold text-[#5c3d2e] leading-tight text-[15px] relative z-10 bg-[#fffbf6]/80 border border-[#eed8c1] px-3 py-1 rounded-xl truncate inline-block"
                               style={{
                                 overflow: "hidden",
                                 textOverflow: "ellipsis",
                                 whiteSpace: "nowrap",
-                                maxWidth: "230px",
+                                maxWidth: "250px",
                               }}
                             >
                               {displayed.title}
                             </p>
                           </div>
                           <p 
-                            className="text-white/50 text-xs mt-0.5 relative z-10"
+                            className="text-[#8c6753] font-semibold text-xs mt-1.5 relative z-10"
                             style={{
                               overflow: "hidden",
                               textOverflow: "ellipsis",
