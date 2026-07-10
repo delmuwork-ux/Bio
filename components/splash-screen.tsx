@@ -157,7 +157,7 @@ export function SplashScreen({ onEnter, show }: SplashScreenProps) {
   const handleClick = () => {
     if (!isLoaded || isExiting) return
     setIsExiting(true)
-    setTimeout(onEnter, 800)
+    setTimeout(onEnter, 300)
   }
 
   return (
@@ -170,7 +170,7 @@ export function SplashScreen({ onEnter, show }: SplashScreenProps) {
       onClick={handleClick}
       initial={{ opacity: 1 }}
       animate={{ opacity: show && !isExiting ? 1 : 0 }}
-      transition={{ duration: 0.8, ease: "easeInOut" }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
     >
       {/* Pixel pattern background overlay */}
       <div

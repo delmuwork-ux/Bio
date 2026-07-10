@@ -237,23 +237,23 @@ export default function Home() {
 
     setShowMusicPlayer(true)
 
-    // start vertical-to-full white strip 1.55s after trigger/music starts (plus 120ms settle delay)
+    // start vertical-to-full white strip 1.55s after trigger/music starts (plus 30ms settle delay)
     setTimeout(() => {
       setShowWhiteStrip(true)
       setStripPhase("vertical")
-    }, 1670)
+    }, 1580)
 
-    // Fills vertically (takes 280ms, completes at 2000ms)
-    setTimeout(() => setStripPhase("full"), 1720)
+    // Fills vertically (takes 280ms, completes at 1910ms)
+    setTimeout(() => setStripPhase("full"), 1630)
 
-    // Splits horizontally (takes 280ms, completes at 2350ms)
+    // Splits horizontally (takes 280ms, completes at 2260ms)
     // Reveal profile card at the exact start of horizontal split so it reveals behind the expanding strip
     setTimeout(() => {
       setShowProfileCard(true)
       setStripPhase("horizontal")
-    }, 2070)
+    }, 1980)
     
-    // Hide all corner chibis exactly 3.02s after trigger
+    // Hide all corner chibis exactly 2.93s after trigger
     // This lets the user see all 4 chibis together in the corners of the centered screen
     // before they slide out
     setTimeout(() => {
@@ -261,14 +261,14 @@ export default function Home() {
       setShowObj2(false)
       setShowObj3(false)
       setShowObj4(false)
-    }, 3020)
+    }, 2930)
 
     // Complete the strip phase and trigger character name entrance animation
     setTimeout(() => {
       setStripPhase("done")
       setShowWhiteStrip(false)
       window.dispatchEvent(new CustomEvent("startNameAnimation"))
-    }, 2420)
+    }, 2330)
   }
 
   // Initialize website and audio when user enters from splash screen
@@ -359,7 +359,7 @@ export default function Home() {
       })
 
       // Settle delay allows the browser to stabilize layout before launching heavy pans
-      const settleDelay = 120;
+      const settleDelay = 30;
 
       // Smoothly zoom in to obj 1 (Bottom-Left)
       const t_cam1 = setTimeout(() => {
