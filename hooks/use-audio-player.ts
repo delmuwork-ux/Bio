@@ -83,25 +83,17 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       const bassAverage = bassSum / bassBins
       const beatValue = 1.0 + (bassAverage / 255) * 0.16
       
-      // Extract 12 frequency bins from dataArray for CAVA terminal visualizer effect
-      const values12 = [
-        dataArray[0] / 255,
-        dataArray[1] / 255,
-        dataArray[2] / 255,
-        dataArray[3] / 255,
+      // Extract 4 mid-to-high frequency bins from dataArray for visualizer effect
+      const values4 = [
         dataArray[4] / 255,
-        dataArray[5] / 255,
-        dataArray[6] / 255,
-        dataArray[8] / 255,
-        dataArray[10] / 255,
-        dataArray[12] / 255,
-        dataArray[15] / 255,
-        dataArray[19] / 255
+        dataArray[7] / 255,
+        dataArray[11] / 255,
+        dataArray[16] / 255
       ]
 
       window.dispatchEvent(new CustomEvent("musicBeat", { detail: { beatValue } }))
       window.dispatchEvent(new CustomEvent("musicVisualizer", { 
-        detail: { values: values12 } 
+        detail: { values: values4 } 
       }))
       window.dispatchEvent(new CustomEvent("audioTimeUpdate", {
         detail: { currentTime: audioRef.current.currentTime }
@@ -155,7 +147,7 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
 
     audio.onpause = () => {
       window.dispatchEvent(new CustomEvent("musicVisualizer", {
-        detail: { values: Array(12).fill(0.15) }
+        detail: { values: Array(4).fill(0.15) }
       }))
     }
 

@@ -186,7 +186,7 @@ export default function Home() {
   const lastFrameTimeRef = useRef<number | null>(null)
   const timelineLoopActiveRef = useRef(false)
   const visBarsRef = useRef<HTMLDivElement[]>([])
-  const lastVisualizerValues = useRef<number[]>(Array(12).fill(0.15))
+  const lastVisualizerValues = useRef<number[]>(Array(4).fill(0.15))
   const [showObj1, setShowObj1] = useState(false)
   const [showObj2, setShowObj2] = useState(false)
   const [showObj3, setShowObj3] = useState(false)
@@ -521,8 +521,8 @@ export default function Home() {
   useEffect(() => {
     const handleVisualizer = (e: Event) => {
       const { values } = (e as CustomEvent<{ values: number[] }>).detail
-      // Standardize multipliers to avoid hitting the ceiling
-      const multipliers = [1.0, 1.1, 1.1, 1.2, 1.2, 1.3, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8]
+      // Multipliers for the 4 kept mid-to-high channels
+      const multipliers = [1.25, 1.4, 1.6, 1.9]
       const prev = lastVisualizerValues.current
       
       const nextValues = values.map((val, i) => {
@@ -536,7 +536,7 @@ export default function Home() {
       
       lastVisualizerValues.current = nextValues
       
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 4; i++) {
         const bar = visBarsRef.current[i]
         if (bar) {
           bar.style.transform = `scaleY(${nextValues[i]})`
@@ -1330,13 +1330,13 @@ export default function Home() {
                 </span>
               </div>
 
-              {/* Mini Audio Equalizer Visualizer (Linux CAVA Terminal spectrum style) */}
-              <div className="flex-shrink-0 flex items-end gap-[1.5px] h-4 px-1 pb-1">
-                {Array.from({ length: 12 }).map((_, idx) => (
+              {/* Mini Audio Equalizer Visualizer */}
+              <div className="flex-shrink-0 flex items-end gap-[2.5px] h-4 px-1 pb-1">
+                {Array.from({ length: 4 }).map((_, idx) => (
                   <div
                     key={idx}
                     ref={(el) => { if (el) visBarsRef.current[idx] = el }}
-                    className="w-0.5 h-full bg-[#5c3d2e] origin-bottom"
+                    className={`w-[3px] h-full origin-bottom ${idx % 2 === 0 ? "bg-[#5c3d2e]" : "bg-[#b58c5a]"}`}
                     style={{ transform: "scaleY(0.15)" }}
                   />
                 ))}
