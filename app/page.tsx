@@ -204,6 +204,7 @@ export default function Home() {
   const playlistSweepControls = useAnimationControls()
   const nowPlayingSweepControls = useAnimationControls()
   const cameraControls = useAnimationControls()
+  const bgControls = useAnimationControls()
   const [delmuImageVisible, setDelmuImageVisible] = useState(false)
   const delmuSweepControls = useAnimationControls()
   const [delmuExpanded, setDelmuExpanded] = useState(false)
@@ -351,6 +352,11 @@ export default function Home() {
         x: "0vw",
         y: "0vh"
       })
+      bgControls.set({
+        scale: 1,
+        x: "0vw",
+        y: "0vh"
+      })
 
       // Settle delay allows the browser to stabilize layout before launching heavy pans
       const settleDelay = 120;
@@ -361,6 +367,12 @@ export default function Home() {
           scale: 2.2,
           x: "90vw",
           y: "-80vh",
+          transition: { duration: 0.28, ease: "easeOut" }
+        })
+        bgControls.start({
+          scale: 1.05,
+          x: "8vw",
+          y: "-7vh",
           transition: { duration: 0.28, ease: "easeOut" }
         })
       }, settleDelay)
@@ -378,6 +390,12 @@ export default function Home() {
           scale: 2.2,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
+        bgControls.start({
+          x: "-8vw",
+          y: "-7vh",
+          scale: 1.05,
+          transition: { duration: 0.32, ease: "easeInOut" }
+        })
       }, 280 + settleDelay)
 
       // Show obj 2 at 360ms (mid-pan)
@@ -391,6 +409,12 @@ export default function Home() {
           x: "90vw",
           y: "80vh",
           scale: 2.2,
+          transition: { duration: 0.32, ease: "easeInOut" }
+        })
+        bgControls.start({
+          x: "8vw",
+          y: "7vh",
+          scale: 1.05,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
       }, 600 + settleDelay)
@@ -408,6 +432,12 @@ export default function Home() {
           scale: 2.2,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
+        bgControls.start({
+          x: "-8vw",
+          y: "7vh",
+          scale: 1.05,
+          transition: { duration: 0.32, ease: "easeInOut" }
+        })
       }, 920 + settleDelay)
 
       // Show obj 4 at 1000ms (mid-pan)
@@ -418,6 +448,12 @@ export default function Home() {
       // Zoom back out to normal view at 1550ms (310ms pause at obj 4 to show it off)
       const t_cam5 = setTimeout(() => {
         cameraControls.start({
+          x: "0vw",
+          y: "0vh",
+          scale: 1,
+          transition: { duration: 0.65, ease: [0.25, 1, 0.5, 1] }
+        })
+        bgControls.start({
           x: "0vw",
           y: "0vh",
           scale: 1,
@@ -437,7 +473,7 @@ export default function Home() {
         clearTimeout(t_cam5)
       }
     }
-  }, [showSplash, showMusicPlayer, cameraControls])
+  }, [showSplash, showMusicPlayer, cameraControls, bgControls])
 
   useEffect(() => {
     const onProfileAnimationComplete = () => {
@@ -1113,7 +1149,7 @@ export default function Home() {
             backfaceVisibility: "hidden",
           }}
         >
-          <CyberBackground />
+          <CyberBackground animate={bgControls} />
         <div className="relative z-10 flex flex-col items-center justify-start min-h-screen px-4 pt-48 pb-40">
           <AnimatePresence>
             {showProfileCard && (

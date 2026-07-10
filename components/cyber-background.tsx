@@ -1,10 +1,23 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { motion } from "framer-motion"
 
-export function CyberBackground() {
+interface CyberBackgroundProps {
+  animate?: any
+}
+
+export function CyberBackground({ animate }: CyberBackgroundProps) {
   return (
-    <div className="absolute top-[-30vh] left-[-30vw] w-[160vw] h-[160vh] z-0 overflow-hidden">
+    <motion.div 
+      className="absolute top-[-10vh] left-[-10vw] w-[120vw] h-[120vh] z-0 overflow-hidden"
+      animate={animate}
+      style={{
+        transformOrigin: "center center",
+        willChange: "transform",
+        transformStyle: "preserve-3d",
+        backfaceVisibility: "hidden",
+      }}
+    >
       <div 
         className="absolute inset-0 bg-cover bg-center transition-all duration-500"
         style={{
@@ -24,6 +37,6 @@ export function CyberBackground() {
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
         }}
       />
-    </div>
+    </motion.div>
   )
 }
