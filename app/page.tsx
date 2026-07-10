@@ -521,16 +521,17 @@ export default function Home() {
   useEffect(() => {
     const handleVisualizer = (e: Event) => {
       const { values } = (e as CustomEvent<{ values: number[] }>).detail
-      const multipliers = [2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4]
+      // Standardize multipliers to avoid hitting the ceiling
+      const multipliers = [1.0, 1.1, 1.1, 1.2, 1.2, 1.3, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8]
       const prev = lastVisualizerValues.current
       
       const nextValues = values.map((val, i) => {
-        // Amplify frequency signals for retro visualizer feel
-        const target = val * (multipliers[i] ?? 3.5)
-        // LERP: smooth transition (72% previous + 28% new target) to eliminate jitter
-        const smoothed = prev[i] * 0.72 + target * 0.28
-        // Clamp to min 0.15 and max 1.3
-        return Math.min(1.3, Math.max(0.15, smoothed))
+        // Use a power of 1.4 to increase contrast (dynamic range) between loud and quiet signals
+        const amplified = Math.pow(val, 1.4) * (multipliers[i] ?? 1.5)
+        // LERP: smooth transition (75% previous + 25% new target) to eliminate high-frequency jitter
+        const smoothed = prev[i] * 0.75 + amplified * 0.25
+        // Clamp between minimum scale 0.15 and maximum scale 1.0 (fits perfectly inside container)
+        return Math.min(1.0, Math.max(0.15, smoothed))
       })
       
       lastVisualizerValues.current = nextValues
