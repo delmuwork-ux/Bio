@@ -122,21 +122,31 @@ export function SplashScreen({ onEnter }: SplashScreenProps) {
       return
     }
 
-    imagesToPreload.forEach((url) => {
-      const img = new window.Image()
-      img.src = url
-      const handleLoad = () => {
-        if (!isMounted) return
-        loadedCount++
-        const progress = Math.floor((loadedCount / imagesToPreload.length) * 100)
-        setLoadingProgress(progress)
-        if (loadedCount === imagesToPreload.length) {
-          setIsLoaded(true)
+    const preloadAndDecode = async () => {
+      const promises = imagesToPreload.map(async (url) => {
+        try {
+          const img = new window.Image()
+          img.src = url
+          // Wait for the image to download AND decode into GPU memory
+          await img.decode()
+        } catch (e) {
+          console.warn("Failed to preload/decode asset:", url, e)
         }
+        if (isMounted) {
+          loadedCount++
+          const progress = Math.floor((loadedCount / imagesToPreload.length) * 100)
+          setLoadingProgress(progress)
+        }
+      })
+
+      await Promise.all(promises)
+      
+      if (isMounted) {
+        setIsLoaded(true)
       }
-      img.onload = handleLoad
-      img.onerror = handleLoad // Fail-safe: don't block user if an image fails to load
-    })
+    }
+
+    preloadAndDecode()
 
     return () => {
       isMounted = false
