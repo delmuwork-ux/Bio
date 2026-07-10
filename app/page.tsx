@@ -1322,14 +1322,10 @@ export default function Home() {
               {/* Scrolling/Truncated Track text */}
               <div className="flex flex-col min-w-0 flex-1 justify-center" style={{ fontFamily: "var(--font-pixel), monospace" }}>
                 <div className="flex items-center gap-1.5 leading-none mb-[2px]">
-                  {/* Pulsing Music Note Icon */}
-                  <motion.span 
-                    animate={{ scale: [1, 1.25, 1] }}
-                    transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut" }}
-                    className="text-[9px] text-[#d95d5d] leading-none"
-                  >
+                  {/* Static Music Note Icon */}
+                  <span className="text-[9px] text-[#d95d5d] leading-none">
                     ♫
-                  </motion.span>
+                  </span>
                   <span className="text-[7.5px] uppercase tracking-wider text-[#b58c5a] font-bold">
                     SPINNING
                   </span>
