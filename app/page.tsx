@@ -369,7 +369,7 @@ export default function Home() {
           transition: { duration: 0.28, ease: "easeOut" }
         })
         bgControls.start({
-          scale: 1.05,
+          scale: 1.45,
           x: "6vw",
           y: "-6vh",
           transition: { duration: 0.28, ease: "easeOut" }
@@ -392,7 +392,7 @@ export default function Home() {
         bgControls.start({
           x: "-6vw",
           y: "-6vh",
-          scale: 1.05,
+          scale: 1.45,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
       }, 280 + settleDelay)
@@ -413,7 +413,7 @@ export default function Home() {
         bgControls.start({
           x: "6vw",
           y: "6vh",
-          scale: 1.05,
+          scale: 1.45,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
       }, 600 + settleDelay)
@@ -434,7 +434,7 @@ export default function Home() {
         bgControls.start({
           x: "-6vw",
           y: "6vh",
-          scale: 1.05,
+          scale: 1.45,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
       }, 920 + settleDelay)
