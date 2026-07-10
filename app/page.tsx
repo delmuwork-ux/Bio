@@ -4,7 +4,6 @@ import { useState, useEffect, useRef, useLayoutEffect } from "react"
 import { motion, AnimatePresence, useAnimationControls, useMotionValue } from "framer-motion"
 import Image from "next/image"
 import { ProfileCard } from "@/components/profile-card"
-import { DraggableMusicPlayer } from "@/components/draggable-music-player"
 import { CyberBackground } from "@/components/cyber-background"
 import { SplashScreen } from "@/components/splash-screen"
 import { ANIMATION_CONFIG } from "@/lib/constants"
@@ -369,7 +368,7 @@ export default function Home() {
           transition: { duration: 0.28, ease: "easeOut" }
         })
         bgControls.start({
-          scale: 1.45,
+          scale: 1.05,
           x: "6vw",
           y: "-6vh",
           transition: { duration: 0.28, ease: "easeOut" }
@@ -392,7 +391,7 @@ export default function Home() {
         bgControls.start({
           x: "-6vw",
           y: "-6vh",
-          scale: 1.45,
+          scale: 1.05,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
       }, 280 + settleDelay)
@@ -413,7 +412,7 @@ export default function Home() {
         bgControls.start({
           x: "6vw",
           y: "6vh",
-          scale: 1.45,
+          scale: 1.05,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
       }, 600 + settleDelay)
@@ -434,7 +433,7 @@ export default function Home() {
         bgControls.start({
           x: "-6vw",
           y: "6vh",
-          scale: 1.45,
+          scale: 1.05,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
       }, 920 + settleDelay)
@@ -1198,21 +1197,15 @@ export default function Home() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="fixed bottom-6 left-6 z-[40] flex items-center justify-between border-[3px] border-[#5c3d2e] bg-[#fffcf7] select-none pointer-events-auto"
+            className="fixed bottom-6 left-6 z-[40] flex items-center border-[3px] border-[#5c3d2e] bg-[#fffcf7] select-none pointer-events-none"
             style={{
               height: 48,
-              width: 300,
+              width: 220,
               boxShadow: "inset 0 0 0 1px #d4af37, 0 6px 0px rgba(92, 61, 46, 0.45)",
               clipPath: pixelClipPath(4),
             }}
           >
-            {/* Play/Pause state and Track Info clickable */}
-            <div 
-              className="flex items-center gap-3 px-3 py-1 flex-1 min-w-0 cursor-pointer h-full hover:bg-[#5c3d2e]/5 transition-colors"
-              onClick={() => setMusicPlayerExpanded(!musicPlayerExpanded)}
-              onMouseEnter={() => window.dispatchEvent(new CustomEvent("playlistButtonHover", { detail: { label: "Open Player" } }))}
-              onMouseLeave={() => window.dispatchEvent(new CustomEvent("playlistButtonHover", { detail: { label: null } }))}
-            >
+            <div className="flex items-center gap-3 px-3 py-1 flex-1 min-w-0 h-full">
               {/* Pixel Music Note Icon */}
               <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-[#5c3d2e]" style={{ clipPath: pixelClipPath(2) }}>
                 <svg viewBox="0 0 8 8" className="w-3.5 h-3.5 fill-[#fffcf7] shape-rendering-crisp-edges">
@@ -1240,22 +1233,9 @@ export default function Home() {
                 </span>
               </div>
             </div>
-
-            {/* Playlist button */}
-            <button
-              className="h-full px-4 flex items-center justify-center border-l-[3px] border-[#5c3d2e] hover:bg-[#5c3d2e] text-[#5c3d2e] hover:text-[#fffcf7] transition-all cursor-pointer font-bold text-[10px] uppercase font-mono"
-              style={{ fontFamily: "'DotGothic16', 'Press Start 2P', monospace" }}
-              onClick={() => setMusicPlayerExpanded(!musicPlayerExpanded)}
-              onMouseEnter={() => window.dispatchEvent(new CustomEvent("playlistButtonHover", { detail: { label: "View Playlist" } }))}
-              onMouseLeave={() => window.dispatchEvent(new CustomEvent("playlistButtonHover", { detail: { label: null } }))}
-            >
-              List
-            </button>
           </motion.div>
         )}
       </AnimatePresence>
-
-      <DraggableMusicPlayer isVisible={musicPlayerExpanded} onClose={() => setMusicPlayerExpanded(false)} defaultX={musicPlayerX} defaultY={musicPlayerY} />
     </main>
     </>
   )
