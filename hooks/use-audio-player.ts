@@ -83,26 +83,25 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       const bassAverage = bassSum / bassBins
       const beatValue = 1.0 + (bassAverage / 255) * 0.16
       
-      // Calculate averages for 4 bands
-      let band1Sum = 0
-      for (let i = 0; i < 3; i++) band1Sum += dataArray[i]
-      const val1 = band1Sum / 3 / 255
-      
-      let band2Sum = 0
-      for (let i = 3; i < 7; i++) band2Sum += dataArray[i]
-      const val2 = band2Sum / 4 / 255
-      
-      let band3Sum = 0
-      for (let i = 7; i < 12; i++) band3Sum += dataArray[i]
-      const val3 = band3Sum / 5 / 255
-      
-      let band4Sum = 0
-      for (let i = 12; i < 20; i++) band4Sum += dataArray[i]
-      const val4 = band4Sum / 8 / 255
+      // Extract 12 frequency bins from dataArray for CAVA terminal visualizer effect
+      const values12 = [
+        dataArray[0] / 255,
+        dataArray[1] / 255,
+        dataArray[2] / 255,
+        dataArray[3] / 255,
+        dataArray[4] / 255,
+        dataArray[5] / 255,
+        dataArray[6] / 255,
+        dataArray[8] / 255,
+        dataArray[10] / 255,
+        dataArray[12] / 255,
+        dataArray[15] / 255,
+        dataArray[19] / 255
+      ]
 
       window.dispatchEvent(new CustomEvent("musicBeat", { detail: { beatValue } }))
       window.dispatchEvent(new CustomEvent("musicVisualizer", { 
-        detail: { values: [val1, val2, val3, val4] } 
+        detail: { values: values12 } 
       }))
       window.dispatchEvent(new CustomEvent("audioTimeUpdate", {
         detail: { currentTime: audioRef.current.currentTime }
@@ -156,7 +155,7 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
 
     audio.onpause = () => {
       window.dispatchEvent(new CustomEvent("musicVisualizer", {
-        detail: { values: [0.15, 0.15, 0.15, 0.15] }
+        detail: { values: Array(12).fill(0.15) }
       }))
     }
 

@@ -185,11 +185,8 @@ export default function Home() {
   const virtualTimeRef = useRef(0)
   const lastFrameTimeRef = useRef<number | null>(null)
   const timelineLoopActiveRef = useRef(false)
-  const visBar1Ref = useRef<HTMLDivElement>(null)
-  const visBar2Ref = useRef<HTMLDivElement>(null)
-  const visBar3Ref = useRef<HTMLDivElement>(null)
-  const visBar4Ref = useRef<HTMLDivElement>(null)
-  const lastVisualizerValues = useRef([0.15, 0.15, 0.15, 0.15])
+  const visBarsRef = useRef<HTMLDivElement[]>([])
+  const lastVisualizerValues = useRef<number[]>(Array(12).fill(0.15))
   const [showObj1, setShowObj1] = useState(false)
   const [showObj2, setShowObj2] = useState(false)
   const [showObj3, setShowObj3] = useState(false)
@@ -524,24 +521,26 @@ export default function Home() {
   useEffect(() => {
     const handleVisualizer = (e: Event) => {
       const { values } = (e as CustomEvent<{ values: number[] }>).detail
-      const multipliers = [2.2, 2.6, 3.2, 3.8]
+      const multipliers = [2.2, 2.4, 2.6, 2.8, 3.0, 3.2, 3.4, 3.6, 3.8, 4.0, 4.2, 4.4]
       const prev = lastVisualizerValues.current
       
       const nextValues = values.map((val, i) => {
         // Amplify frequency signals for retro visualizer feel
-        const target = val * multipliers[i]
-        // LERP: smooth transition (75% previous + 25% new target) to eliminate jitter
-        const smoothed = prev[i] * 0.75 + target * 0.25
+        const target = val * (multipliers[i] ?? 3.5)
+        // LERP: smooth transition (72% previous + 28% new target) to eliminate jitter
+        const smoothed = prev[i] * 0.72 + target * 0.28
         // Clamp to min 0.15 and max 1.3
         return Math.min(1.3, Math.max(0.15, smoothed))
       })
       
       lastVisualizerValues.current = nextValues
       
-      if (visBar1Ref.current) visBar1Ref.current.style.transform = `scaleY(${nextValues[0]})`
-      if (visBar2Ref.current) visBar2Ref.current.style.transform = `scaleY(${nextValues[1]})`
-      if (visBar3Ref.current) visBar3Ref.current.style.transform = `scaleY(${nextValues[2]})`
-      if (visBar4Ref.current) visBar4Ref.current.style.transform = `scaleY(${nextValues[3]})`
+      for (let i = 0; i < 12; i++) {
+        const bar = visBarsRef.current[i]
+        if (bar) {
+          bar.style.transform = `scaleY(${nextValues[i]})`
+        }
+      }
     }
     
     window.addEventListener("musicVisualizer", handleVisualizer)
@@ -1330,28 +1329,16 @@ export default function Home() {
                 </span>
               </div>
 
-              {/* Mini Audio Equalizer Visualizer */}
-              <div className="flex-shrink-0 flex items-end gap-[2.5px] h-4 px-1 pb-1">
-                <div
-                  ref={visBar1Ref}
-                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs"
-                  style={{ transform: "scaleY(0.15)" }}
-                />
-                <div
-                  ref={visBar2Ref}
-                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs"
-                  style={{ transform: "scaleY(0.15)" }}
-                />
-                <div
-                  ref={visBar3Ref}
-                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs"
-                  style={{ transform: "scaleY(0.15)" }}
-                />
-                <div
-                  ref={visBar4Ref}
-                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs"
-                  style={{ transform: "scaleY(0.15)" }}
-                />
+              {/* Mini Audio Equalizer Visualizer (Linux CAVA Terminal spectrum style) */}
+              <div className="flex-shrink-0 flex items-end gap-[1.5px] h-4 px-1 pb-1">
+                {Array.from({ length: 12 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    ref={(el) => { if (el) visBarsRef.current[idx] = el }}
+                    className="w-0.5 h-full bg-[#5c3d2e] origin-bottom"
+                    style={{ transform: "scaleY(0.15)" }}
+                  />
+                ))}
               </div>
             </div>
           </motion.div>
