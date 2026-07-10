@@ -55,7 +55,6 @@ const OBJ_POOL = [
 ]
 
 const CornerOrnament = ({ corner, src, customTransition, visible = true }: { corner: number; src: string; customTransition?: any; visible?: boolean }) => {
-  const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState(false)
 
   return (
@@ -65,28 +64,16 @@ const CornerOrnament = ({ corner, src, customTransition, visible = true }: { cor
       initial="hidden"
       animate={visible ? "visible" : "hidden"}
       transition={customTransition}
+      style={{ willChange: "transform, opacity" }}
     >
       {!error && (
         <img
           src={src}
           alt=""
           loading="eager"
-          decoding="async"
-          className="w-full h-full object-contain transition-opacity duration-200"
-          style={{ opacity: loaded ? 1 : 0 }}
-          onLoad={() => setLoaded(true)}
+          decoding="sync"
+          className="w-full h-full object-contain"
           onError={() => setError(true)}
-          ref={(el: HTMLImageElement | null) => {
-            if (el) {
-              if (el.complete) {
-                if (el.naturalWidth > 0) {
-                  setLoaded(true)
-                } else {
-                  setError(true)
-                }
-              }
-            }
-          }}
         />
       )}
     </motion.div>
@@ -1115,22 +1102,24 @@ export default function Home() {
       </AnimatePresence>
 
       <main className="relative min-h-screen overflow-hidden w-screen bg-[#d9a75d]">
-      <motion.div 
-        animate={cameraControls} 
-        className="w-full min-h-screen relative" 
-        style={{ 
-          transformOrigin: "center center",
-          pointerEvents: profileAnimationComplete ? "auto" : "none",
-          willChange: "transform"
-        }}
-      >
         <CyberBackground />
+        <motion.div 
+          animate={cameraControls} 
+          className="w-full min-h-screen relative" 
+          style={{ 
+            transformOrigin: "center center",
+            pointerEvents: profileAnimationComplete ? "auto" : "none",
+            willChange: "transform",
+            transformStyle: "preserve-3d",
+            backfaceVisibility: "hidden",
+          }}
+        >
         <div className="relative z-10 flex flex-col items-center justify-start min-h-screen px-4 pt-48 pb-40">
           <AnimatePresence>
             {showProfileCard && (
               <div className="flex items-start justify-center relative">
                 <div className="w-full max-w-3xl space-y-4 relative flex-shrink-0">
-                  <motion.div style={{ transformOrigin: "center center" }} initial={{ opacity: 0, scale: 0.75 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}>
+                  <motion.div style={{ transformOrigin: "center center", willChange: "transform, opacity" }} initial={{ opacity: 0, scale: 0.75 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}>
                     <ProfileCard showWhiteStrip={showWhiteStrip} stripPhase={stripPhase} activeStat={activeStat} />
                   </motion.div>
                 </div>
