@@ -110,6 +110,7 @@ export function SplashScreen({ onEnter }: SplashScreenProps) {
       "/img website/Wavebox.png",
       "/img website/x.png",
       "/avatar/avatar.png",
+      "/img website/background.jpg",
     ]
 
     let loadedCount = 0

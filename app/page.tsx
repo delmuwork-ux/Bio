@@ -70,6 +70,8 @@ const CornerOrnament = ({ corner, src, customTransition, visible = true }: { cor
         <img
           src={src}
           alt=""
+          loading="eager"
+          decoding="async"
           className="w-full h-full object-contain transition-opacity duration-200"
           style={{ opacity: loaded ? 1 : 0 }}
           onLoad={() => setLoaded(true)}
