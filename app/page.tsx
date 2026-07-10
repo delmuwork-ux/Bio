@@ -185,6 +185,10 @@ export default function Home() {
   const virtualTimeRef = useRef(0)
   const lastFrameTimeRef = useRef<number | null>(null)
   const timelineLoopActiveRef = useRef(false)
+  const visBar1Ref = useRef<HTMLDivElement>(null)
+  const visBar2Ref = useRef<HTMLDivElement>(null)
+  const visBar3Ref = useRef<HTMLDivElement>(null)
+  const visBar4Ref = useRef<HTMLDivElement>(null)
   const [showObj1, setShowObj1] = useState(false)
   const [showObj2, setShowObj2] = useState(false)
   const [showObj3, setShowObj3] = useState(false)
@@ -513,6 +517,21 @@ export default function Home() {
     return () => {
       window.removeEventListener("audioTimeUpdate", handleTimeUpdate)
       timelineLoopActiveRef.current = false
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleVisualizer = (e: Event) => {
+      const { values } = (e as CustomEvent<{ values: number[] }>).detail
+      if (visBar1Ref.current) visBar1Ref.current.style.transform = `scaleY(${Math.max(0.15, values[0])})`
+      if (visBar2Ref.current) visBar2Ref.current.style.transform = `scaleY(${Math.max(0.15, values[1])})`
+      if (visBar3Ref.current) visBar3Ref.current.style.transform = `scaleY(${Math.max(0.15, values[2])})`
+      if (visBar4Ref.current) visBar4Ref.current.style.transform = `scaleY(${Math.max(0.15, values[3])})`
+    }
+    
+    window.addEventListener("musicVisualizer", handleVisualizer)
+    return () => {
+      window.removeEventListener("musicVisualizer", handleVisualizer)
     }
   }, [])
 
@@ -1298,25 +1317,25 @@ export default function Home() {
 
               {/* Mini Audio Equalizer Visualizer */}
               <div className="flex-shrink-0 flex items-end gap-[2.5px] h-4 px-1 pb-1">
-                <motion.div
-                  animate={{ scaleY: [0.3, 1, 0.3] }}
-                  transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
-                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs"
+                <div
+                  ref={visBar1Ref}
+                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs transition-transform duration-[75ms] ease-out"
+                  style={{ transform: "scaleY(0.15)" }}
                 />
-                <motion.div
-                  animate={{ scaleY: [0.2, 0.85, 0.2] }}
-                  transition={{ repeat: Infinity, duration: 0.85, ease: "easeInOut" }}
-                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs"
+                <div
+                  ref={visBar2Ref}
+                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs transition-transform duration-[75ms] ease-out"
+                  style={{ transform: "scaleY(0.15)" }}
                 />
-                <motion.div
-                  animate={{ scaleY: [0.4, 0.95, 0.4] }}
-                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs"
+                <div
+                  ref={visBar3Ref}
+                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs transition-transform duration-[75ms] ease-out"
+                  style={{ transform: "scaleY(0.15)" }}
                 />
-                <motion.div
-                  animate={{ scaleY: [0.3, 0.7, 0.3] }}
-                  transition={{ repeat: Infinity, duration: 1.05, ease: "easeInOut" }}
-                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs"
+                <div
+                  ref={visBar4Ref}
+                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs transition-transform duration-[75ms] ease-out"
+                  style={{ transform: "scaleY(0.15)" }}
                 />
               </div>
             </div>
