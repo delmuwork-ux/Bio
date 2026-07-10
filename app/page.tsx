@@ -1264,14 +1264,11 @@ export default function Home() {
               </div>
               
               {/* Scrolling/Truncated Track text */}
-              <div className="flex flex-col min-w-0">
-                <span className="text-[8px] uppercase tracking-wider text-[#b58c5a] font-bold font-mono">
+              <div className="flex flex-col min-w-0" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+                <span className="text-[8px] uppercase tracking-wider text-[#b58c5a] font-bold leading-tight">
                   Now Playing
                 </span>
-                <span 
-                  className="text-[11px] font-bold text-[#5c3d2e] truncate"
-                  style={{ fontFamily: "'DotGothic16', 'Press Start 2P', monospace" }}
-                >
+                <span className="text-[11px] font-bold text-[#5c3d2e] truncate leading-tight">
                   {currentTrackTitle}
                 </span>
               </div>
