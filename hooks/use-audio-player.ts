@@ -19,10 +19,19 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
   const audioCtxRef = useRef<AudioContext | null>(null)
   const analyserRef = useRef<AnalyserNode | null>(null)
   const sourceRef = useRef<MediaElementAudioSourceNode | null>(null)
+  const connectedAudioRef = useRef<HTMLAudioElement | null>(null)
   const animationFrameIdRef = useRef<number | null>(null)
 
   const setupAnalysis = useCallback((audio: HTMLAudioElement) => {
     if (typeof window === "undefined") return
+
+    // If this specific audio element is already connected, do not attempt to reconnect it
+    if (connectedAudioRef.current === audio && sourceRef.current) {
+      if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+        audioCtxRef.current.resume()
+      }
+      return
+    }
 
     try {
       if (!audioCtxRef.current) {
@@ -52,6 +61,7 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       const source = ctx.createMediaElementSource(audio)
       source.connect(analyserRef.current)
       sourceRef.current = source
+      connectedAudioRef.current = audio
     } catch (e) {
       console.warn("Failed to setup audio analysis:", e)
     }
