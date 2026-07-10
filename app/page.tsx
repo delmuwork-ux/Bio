@@ -1138,6 +1138,7 @@ export default function Home() {
       </AnimatePresence>
 
       <main className="relative min-h-screen overflow-hidden w-screen bg-[#d9a75d]">
+        <CyberBackground animate={bgControls} />
         <motion.div 
           animate={cameraControls} 
           className="w-full min-h-screen relative" 
@@ -1149,7 +1150,6 @@ export default function Home() {
             backfaceVisibility: "hidden",
           }}
         >
-          <CyberBackground animate={bgControls} />
         <div className="relative z-10 flex flex-col items-center justify-start min-h-screen px-4 pt-48 pb-40">
           <AnimatePresence>
             {showProfileCard && (
