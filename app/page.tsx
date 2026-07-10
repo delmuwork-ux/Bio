@@ -200,6 +200,7 @@ export default function Home() {
   const [musicPlayerX, setMusicPlayerX] = useState(0)
   const [musicPlayerY, setMusicPlayerY] = useState(0)
   const [showPlaylistButton, setShowPlaylistButton] = useState(false)
+  const [hudPositionState, setHudPositionState] = useState<"initial" | "centerUp" | "corner">("initial")
   const [showPlaylistButtonText, setShowPlaylistButtonText] = useState(false)
   const [showNowPlayingButtonText, setShowNowPlayingButtonText] = useState(false)
   const [hoveredStatLabel, setHoveredStatLabel] = useState<string | null>(null)
@@ -352,6 +353,10 @@ export default function Home() {
 
       setShowWhiteStrip(true)
       setStripPhase("vertical")
+      
+      // Slide up from bottom-center to below social SVG icons
+      setShowPlaylistButton(true)
+      setHudPositionState("centerUp")
     }
 
     // White Strip Full
@@ -382,6 +387,9 @@ export default function Home() {
       setShowObj2(false)
       setShowObj3(false)
       setShowObj4(false)
+      
+      // Move Vinyl HUD player to bottom-left corner
+      setHudPositionState("corner")
       timelineLoopActiveRef.current = false
     }
   }
@@ -554,9 +562,6 @@ export default function Home() {
     const onProfileAnimationComplete = () => {
       setProfileAnimationComplete(true)
       
-      // Show playlist button after profile animation completes
-      setShowPlaylistButton(true)
-      
       // Show music player after profile animation completes
       setTimeout(() => {
         setShowMusicPlayer(true)
@@ -565,7 +570,7 @@ export default function Home() {
 
     window.addEventListener("profileAnimationComplete", onProfileAnimationComplete)
     return () => window.removeEventListener("profileAnimationComplete", onProfileAnimationComplete)
-  }, [showMusicPlayer])
+  }, [])
 
   useEffect(() => {
     const runPlaylistSweep = async () => {
@@ -1270,11 +1275,44 @@ export default function Home() {
       <AnimatePresence>
         {showPlaylistButton && (
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="fixed bottom-6 left-6 z-[40] flex items-center border-[3px] border-[#5c3d2e] select-none pointer-events-none"
+            variants={{
+              initial: {
+                left: "50%",
+                top: "100%",
+                x: "-50%",
+                y: "0px",
+                opacity: 0,
+                scale: 0.95
+              },
+              centerUp: {
+                left: "50%",
+                top: "50%",
+                x: "-50%",
+                y: "210px",
+                opacity: 1,
+                scale: 1,
+                transition: {
+                  duration: 0.65,
+                  ease: [0.25, 1, 0.5, 1]
+                }
+              },
+              corner: {
+                left: "24px",
+                top: "calc(100vh - 82px)",
+                x: "0%",
+                y: "0px",
+                opacity: 1,
+                scale: 1,
+                transition: {
+                  duration: 0.8,
+                  ease: [0.25, 1, 0.5, 1]
+                }
+              }
+            }}
+            initial="initial"
+            animate={hudPositionState}
+            exit="initial"
+            className="fixed z-[40] flex items-center border-[3px] border-[#5c3d2e] select-none pointer-events-none"
             style={{
               height: 58,
               width: 260,
