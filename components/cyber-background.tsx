@@ -19,7 +19,7 @@ export function CyberBackground({ animate }: CyberBackgroundProps) {
       }}
     >
       <div 
-        className="absolute inset-0 bg-cover bg-center transition-all duration-500"
+        className="absolute inset-0 bg-cover bg-center"
         style={{
           backgroundImage: `url("/img website/background.jpg")`,
         }}

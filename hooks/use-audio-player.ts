@@ -210,9 +210,37 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
     }
 
     const handleUnlockAudio = () => {
-      // mark that the user requested music and ensure play happens
       autoPlayRef.current = true
-      handleInteraction()
+      
+      const audio = audioRef.current
+      if (audio) {
+        // 1. Play synchronously to satisfy Chrome user gesture requirement
+        audio.play().then(() => {
+          // 2. Immediately pause and reset so we don't start the audio sound yet
+          audio.pause()
+          audio.currentTime = 0
+          
+          // 3. Play for real after 200ms of delay to match the user's requested 0.2s start delay
+          setTimeout(() => {
+            audio.play().then(() => {
+              setPlaying(true)
+              window.dispatchEvent(new CustomEvent("musicStarted"))
+              // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+              // @ts-ignore
+              window.__musicStarted = true
+              setupAnalysis(audio)
+              startAnalysis()
+            }).catch((e) => {
+              console.warn("Failed delayed audio start:", e)
+            })
+          }, 200)
+        }).catch((e) => {
+          console.warn("Failed synchronous audio unlock, falling back:", e)
+          handleInteraction()
+        })
+      } else {
+        handleInteraction()
+      }
     }
 
     // If a page-level click already requested audio before this hook mounted,

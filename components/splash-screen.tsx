@@ -188,17 +188,14 @@ export function SplashScreen({ onEnter, show }: SplashScreenProps) {
     if (!isLoaded || isExiting) return
     setIsExiting(true)
     
-    // Delay audio play by 200ms of user interaction as requested
-    setTimeout(() => {
-      try {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        window.__audioUnlockRequested = true
-        window.dispatchEvent(new CustomEvent("unlockAudio"))
-      } catch (e) {
-        console.warn("Failed to unlock audio on click:", e)
-      }
-    }, 200)
+    try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      window.__audioUnlockRequested = true
+      window.dispatchEvent(new CustomEvent("unlockAudio"))
+    } catch (e) {
+      console.warn("Failed to unlock audio on click:", e)
+    }
 
     setTimeout(onEnter, 300)
   }

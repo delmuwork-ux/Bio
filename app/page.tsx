@@ -71,7 +71,7 @@ const CornerOrnament = ({ corner, src, customTransition, visible = true }: { cor
           src={src}
           alt=""
           loading="eager"
-          decoding="sync"
+          decoding="async"
           className="w-full h-full object-contain"
           onError={() => setError(true)}
         />
@@ -244,26 +244,37 @@ export default function Home() {
   const processTimeline = (time: number) => {
     const triggered = timelineTriggeredRef.current
 
+    // Helper to convert vw/vh to absolute pixels for high-performance GPU compositing
+    const getPixelCoordinates = (xVw: number, yVh: number) => {
+      if (typeof window === "undefined") return { x: 0, y: 0 }
+      return {
+        x: (window.innerWidth * xVw) / 100,
+        y: (window.innerHeight * yVh) / 100
+      }
+    }
+
     // Set camera initially to centered normal view at start
     if (time >= 0 && !triggered.initCam) {
       triggered.initCam = true
-      cameraControls.set({ scale: 1, x: "0vw", y: "0vh" })
-      bgControls.set({ scale: 1, x: "0vw", y: "0vh" })
+      cameraControls.set({ scale: 1, x: 0, y: 0 })
+      bgControls.set({ scale: 1, x: 0, y: 0 })
     }
 
     // Obj 1 & Camera 1 (Bottom-Left)
     if (time >= 0.23 && !triggered.cam1) {
       triggered.cam1 = true
+      const cam = getPixelCoordinates(60, -60)
+      const bg = getPixelCoordinates(6, -6)
       cameraControls.start({
         scale: 2.2,
-        x: "60vw",
-        y: "-60vh",
+        x: cam.x,
+        y: cam.y,
         transition: { duration: 0.28, ease: "easeOut" }
       })
       bgControls.start({
         scale: 1.05,
-        x: "6vw",
-        y: "-6vh",
+        x: bg.x,
+        y: bg.y,
         transition: { duration: 0.28, ease: "easeOut" }
       })
     }
@@ -275,15 +286,17 @@ export default function Home() {
     // Obj 2 & Camera 2 (Bottom-Right)
     if (time >= 0.51 && !triggered.cam2) {
       triggered.cam2 = true
+      const cam = getPixelCoordinates(-60, -60)
+      const bg = getPixelCoordinates(-6, -6)
       cameraControls.start({
-        x: "-60vw",
-        y: "-60vh",
+        x: cam.x,
+        y: cam.y,
         scale: 2.2,
         transition: { duration: 0.32, ease: "easeInOut" }
       })
       bgControls.start({
-        x: "-6vw",
-        y: "-6vh",
+        x: bg.x,
+        y: bg.y,
         scale: 1.05,
         transition: { duration: 0.32, ease: "easeInOut" }
       })
@@ -296,15 +309,17 @@ export default function Home() {
     // Obj 3 & Camera 3 (Top-Left)
     if (time >= 0.83 && !triggered.cam3) {
       triggered.cam3 = true
+      const cam = getPixelCoordinates(60, 60)
+      const bg = getPixelCoordinates(6, 6)
       cameraControls.start({
-        x: "60vw",
-        y: "60vh",
+        x: cam.x,
+        y: cam.y,
         scale: 2.2,
         transition: { duration: 0.32, ease: "easeInOut" }
       })
       bgControls.start({
-        x: "6vw",
-        y: "6vh",
+        x: bg.x,
+        y: bg.y,
         scale: 1.05,
         transition: { duration: 0.32, ease: "easeInOut" }
       })
@@ -317,15 +332,17 @@ export default function Home() {
     // Obj 4 & Camera 4 (Top-Right)
     if (time >= 1.15 && !triggered.cam4) {
       triggered.cam4 = true
+      const cam = getPixelCoordinates(-60, 60)
+      const bg = getPixelCoordinates(-6, 6)
       cameraControls.start({
-        x: "-60vw",
-        y: "60vh",
+        x: cam.x,
+        y: cam.y,
         scale: 2.2,
         transition: { duration: 0.32, ease: "easeInOut" }
       })
       bgControls.start({
-        x: "-6vw",
-        y: "6vh",
+        x: bg.x,
+        y: bg.y,
         scale: 1.05,
         transition: { duration: 0.32, ease: "easeInOut" }
       })
@@ -339,14 +356,14 @@ export default function Home() {
     if (time >= 1.78 && !triggered.cam5) {
       triggered.cam5 = true
       cameraControls.start({
-        x: "0vw",
-        y: "0vh",
+        x: 0,
+        y: 0,
         scale: 1,
         transition: { duration: 0.65, ease: [0.25, 1, 0.5, 1] }
       })
       bgControls.start({
-        x: "0vw",
-        y: "0vh",
+        x: 0,
+        y: 0,
         scale: 1,
         transition: { duration: 0.65, ease: [0.25, 1, 0.5, 1] }
       })
