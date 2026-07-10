@@ -6,6 +6,7 @@ import Image from "next/image"
 import { ProfileCard } from "@/components/profile-card"
 import { CyberBackground } from "@/components/cyber-background"
 import { SplashScreen } from "@/components/splash-screen"
+import { MusicPlayer } from "@/components/music-player"
 import { ANIMATION_CONFIG } from "@/lib/constants"
 
 const getCornerClassName = (corner: number) => {
@@ -1236,6 +1237,10 @@ export default function Home() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <div className="hidden">
+        <MusicPlayer isVisible={false} />
+      </div>
     </main>
     </>
   )
