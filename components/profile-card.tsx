@@ -183,22 +183,21 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
                 filter: "drop-shadow(-3px -3px 0 #5c3d2e) drop-shadow(3px -3px 0 #5c3d2e) drop-shadow(-3px 3px 0 #5c3d2e) drop-shadow(3px 3px 0 #5c3d2e) drop-shadow(0px 6px 0px rgba(92, 61, 46, 0.45))"
               }}
             >
-              {/* Thick diagonal */}
-              <rect x="0" y="0" width="3" height="3" />
-              <rect x="2" y="2" width="3" height="3" />
-              <rect x="4" y="4" width="3" height="3" />
-              <rect x="6" y="6" width="4" height="4" />
-              <rect x="9" y="9" width="3" height="3" />
-              <rect x="11" y="11" width="3" height="3" />
-              <rect x="13" y="13" width="3" height="3" />
-              
-              {/* Thin diagonal */}
-              <rect x="14" y="0" width="2" height="2" />
-              <rect x="12" y="2" width="2" height="2" />
-              <rect x="10" y="4" width="2" height="2" />
-              <rect x="4" y="10" width="2" height="2" />
-              <rect x="2" y="12" width="2" height="2" />
-              <rect x="0" y="14" width="2" height="2" />
+              {/* X mark - top-left to bottom-right diagonal */}
+              <rect x="1" y="1" width="3" height="3" />
+              <rect x="3" y="3" width="3" height="3" />
+              <rect x="5" y="5" width="3" height="3" />
+              <rect x="7" y="7" width="2" height="2" />
+              <rect x="8" y="8" width="3" height="3" />
+              <rect x="10" y="10" width="3" height="3" />
+              <rect x="12" y="12" width="3" height="3" />
+              {/* X mark - top-right to bottom-left diagonal */}
+              <rect x="12" y="1" width="3" height="3" />
+              <rect x="10" y="3" width="3" height="3" />
+              <rect x="8" y="5" width="3" height="3" />
+              <rect x="5" y="8" width="3" height="3" />
+              <rect x="3" y="10" width="3" height="3" />
+              <rect x="1" y="12" width="3" height="3" />
             </svg>
           </motion.div>
 
