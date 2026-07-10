@@ -365,14 +365,14 @@ export default function Home() {
       const t_cam1 = setTimeout(() => {
         cameraControls.start({
           scale: 2.2,
-          x: "90vw",
-          y: "-80vh",
+          x: "60vw",
+          y: "-60vh",
           transition: { duration: 0.28, ease: "easeOut" }
         })
         bgControls.start({
           scale: 1.05,
-          x: "8vw",
-          y: "-7vh",
+          x: "6vw",
+          y: "-6vh",
           transition: { duration: 0.28, ease: "easeOut" }
         })
       }, settleDelay)
@@ -385,14 +385,14 @@ export default function Home() {
       // Camera starts pan to Bottom-Right at 280ms (exactly as zoom-in completes, zero pause)
       const t_cam2 = setTimeout(() => {
         cameraControls.start({
-          x: "-90vw",
-          y: "-80vh",
+          x: "-60vw",
+          y: "-60vh",
           scale: 2.2,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
         bgControls.start({
-          x: "-8vw",
-          y: "-7vh",
+          x: "-6vw",
+          y: "-6vh",
           scale: 1.05,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
@@ -406,14 +406,14 @@ export default function Home() {
       // Camera starts pan to Top-Left at 600ms (exactly as pan 2 completes, zero pause)
       const t_cam3 = setTimeout(() => {
         cameraControls.start({
-          x: "90vw",
-          y: "80vh",
+          x: "60vw",
+          y: "60vh",
           scale: 2.2,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
         bgControls.start({
-          x: "8vw",
-          y: "7vh",
+          x: "6vw",
+          y: "6vh",
           scale: 1.05,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
@@ -427,14 +427,14 @@ export default function Home() {
       // Camera starts pan to Top-Right at 920ms (exactly as pan 3 completes, zero pause)
       const t_cam4 = setTimeout(() => {
         cameraControls.start({
-          x: "-90vw",
-          y: "80vh",
+          x: "-60vw",
+          y: "60vh",
           scale: 2.2,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
         bgControls.start({
-          x: "-8vw",
-          y: "7vh",
+          x: "-6vw",
+          y: "6vh",
           scale: 1.05,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
