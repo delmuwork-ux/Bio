@@ -353,10 +353,6 @@ export default function Home() {
 
       setShowWhiteStrip(true)
       setStripPhase("vertical")
-      
-      // Slide up from bottom-center to below social SVG icons
-      setShowPlaylistButton(true)
-      setHudPositionState("centerUp")
     }
 
     // White Strip Full
@@ -378,6 +374,10 @@ export default function Home() {
       setStripPhase("done")
       setShowWhiteStrip(false)
       window.dispatchEvent(new CustomEvent("startNameAnimation"))
+
+      // Slide up from bottom-center to below social SVG icons (when camera is fully centered)
+      setShowPlaylistButton(true)
+      setHudPositionState("centerUp")
     }
 
     // Hide Chibis
@@ -1288,7 +1288,7 @@ export default function Home() {
                 left: "50%",
                 top: "50%",
                 x: "-50%",
-                y: "210px",
+                y: "175px",
                 opacity: 1,
                 scale: 1,
                 transition: {
