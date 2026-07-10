@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react"
 
 export function CyberBackground() {
   return (
-    <div className="fixed inset-0 z-0">
+    <div className="absolute top-[-30vh] left-[-30vw] w-[160vw] h-[160vh] z-0 overflow-hidden">
       <div 
         className="absolute inset-0 bg-cover bg-center transition-all duration-500"
         style={{
