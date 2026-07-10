@@ -1276,53 +1276,62 @@ export default function Home() {
             transition={{ duration: 0.4, ease: "easeOut" }}
             className="fixed bottom-6 left-6 z-[40] flex items-center border-[3px] border-[#5c3d2e] select-none pointer-events-none"
             style={{
-              height: 54,
-              width: 255,
-              background: "linear-gradient(135deg, #fffcf7 0%, #f6ecd5 100%)",
+              height: 58,
+              width: 260,
+              background: "linear-gradient(135deg, #fffdfb 0%, #f5e8cf 100%)",
               boxShadow: "inset 0 0 0 1px #d4af37, 0 6px 0px rgba(92, 61, 46, 0.45)",
               clipPath: pixelClipPath(4),
             }}
           >
             <div className="flex items-center gap-3 px-3 py-1 flex-1 min-w-0 h-full relative">
-              {/* Spinning Retro Cassette Icon */}
-              <div className="flex-shrink-0 w-11 h-8 bg-[#5c3d2e] relative flex items-center justify-center" style={{ clipPath: pixelClipPath(2) }}>
-                {/* Cassette label */}
-                <div className="w-[36px] h-[22px] bg-[#ffd27d] flex items-center justify-between px-[5px]" style={{ clipPath: pixelClipPath(1) }}>
-                  {/* Left Spinning Gear */}
-                  <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                    className="w-2.5 h-2.5 border-2 border-dashed border-[#5c3d2e] rounded-full flex items-center justify-center"
-                  >
-                    <div className="w-1 h-1 bg-[#5c3d2e] rounded-full" />
-                  </motion.div>
-                  {/* Tape strip line in middle */}
-                  <div className="w-1.5 h-[2px] bg-[#5c3d2e]" />
-                  {/* Right Spinning Gear */}
-                  <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-                    className="w-2.5 h-2.5 border-2 border-dashed border-[#5c3d2e] rounded-full flex items-center justify-center"
-                  >
-                    <div className="w-1 h-1 bg-[#5c3d2e] rounded-full" />
-                  </motion.div>
-                </div>
-                {/* Cassette trapezoid bottom */}
-                <div className="absolute bottom-[1px] left-1/2 -translate-x-1/2 w-[18px] h-[3px] bg-[#8b6b4a]" style={{ clipPath: "polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%)" }} />
+              {/* Spinning Vinyl Record and Tonearm Container */}
+              <div className="relative w-11 h-11 flex-shrink-0 flex items-center justify-center">
+                {/* Spinning Vinyl Disc */}
+                <motion.div 
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+                  className="w-10 h-10 rounded-full bg-[#302217] flex items-center justify-center relative border-2 border-[#5c3d2e] shadow-inner"
+                >
+                  {/* Concentric Groove Lines */}
+                  <div className="absolute inset-1 rounded-full border border-[#5c3d2e]/30" />
+                  <div className="absolute inset-2 rounded-full border border-dashed border-[#b58c5a]/40" />
+                  {/* Center Sticker */}
+                  <div className="w-3.5 h-3.5 rounded-full bg-[#ffd27d] border border-[#5c3d2e] flex items-center justify-center">
+                    {/* Spindle hole */}
+                    <div className="w-1 h-1 rounded-full bg-[#302217]" />
+                  </div>
+                </motion.div>
+                
+                {/* Tonearm/Stylus resting on Vinyl */}
+                <motion.div 
+                  animate={{ rotate: [0, -2, 0] }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                  className="absolute top-0.5 right-0.5 w-5 h-5 origin-top-right pointer-events-none"
+                >
+                  <svg viewBox="0 0 10 10" className="w-full h-full fill-none stroke-[#5c3d2e] stroke-[1.5] shape-rendering-crisp-edges">
+                    {/* Spindle pivot */}
+                    <circle cx="8" cy="2" r="1.2" fill="#5c3d2e" stroke="none" />
+                    {/* Arm curve */}
+                    <path d="M8,2 C7,4 6,4 4,6 L2.5,6" />
+                    {/* Cartridge needle head */}
+                    <rect x="1" y="5" width="1.5" height="2" fill="#b58c5a" stroke="#5c3d2e" strokeWidth="0.5" />
+                  </svg>
+                </motion.div>
               </div>
 
               {/* Scrolling/Truncated Track text */}
               <div className="flex flex-col min-w-0 flex-1 justify-center" style={{ fontFamily: "var(--font-pixel), monospace" }}>
                 <div className="flex items-center gap-1.5 leading-none mb-[2px]">
-                  {/* Blinking PLAY dot */}
+                  {/* Pulsing Music Note Icon */}
                   <motion.span 
-                    animate={{ opacity: [1, 0, 1] }}
-                    transition={{ repeat: Infinity, duration: 1.5, ease: "steps(2)" }}
-                    className="w-1.5 h-1.5 bg-[#d95d5d]"
-                    style={{ clipPath: pixelClipPath(1) }}
-                  />
+                    animate={{ scale: [1, 1.25, 1] }}
+                    transition={{ repeat: Infinity, duration: 0.8, ease: "easeInOut" }}
+                    className="text-[9px] text-[#d95d5d] leading-none"
+                  >
+                    ♫
+                  </motion.span>
                   <span className="text-[7.5px] uppercase tracking-wider text-[#b58c5a] font-bold">
-                    PLAYING
+                    SPINNING
                   </span>
                 </div>
                 <span className="text-[11px] font-bold text-[#5c3d2e] truncate leading-tight">
