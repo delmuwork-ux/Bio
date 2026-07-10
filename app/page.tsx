@@ -1240,37 +1240,84 @@ export default function Home() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="fixed bottom-6 left-6 z-[40] flex items-center border-[3px] border-[#5c3d2e] bg-[#fffcf7] select-none pointer-events-none"
+            className="fixed bottom-6 left-6 z-[40] flex items-center border-[3px] border-[#5c3d2e] select-none pointer-events-none"
             style={{
-              height: 48,
-              width: 220,
+              height: 54,
+              width: 255,
+              background: "linear-gradient(135deg, #fffcf7 0%, #f6ecd5 100%)",
               boxShadow: "inset 0 0 0 1px #d4af37, 0 6px 0px rgba(92, 61, 46, 0.45)",
               clipPath: pixelClipPath(4),
             }}
           >
-            <div className="flex items-center gap-3 px-3 py-1 flex-1 min-w-0 h-full">
-              {/* Pixel Music Note Icon */}
-              <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-[#5c3d2e]" style={{ clipPath: pixelClipPath(2) }}>
-                <svg viewBox="0 0 8 8" className="w-3.5 h-3.5 fill-[#fffcf7] shape-rendering-crisp-edges">
-                  <rect x="2" y="1" width="4" height="1" />
-                  <rect x="5" y="2" width="1" height="4" />
-                  <rect x="2" y="3" width="1" height="1" />
-                  <rect x="2" y="4" width="1" height="1" />
-                  <rect x="1" y="4" width="1" height="1" />
-                  <rect x="3" y="4" width="1" height="1" />
-                  <rect x="1" y="5" width="3" height="1" />
-                  <rect x="2" y="6" width="1" height="1" />
-                </svg>
+            <div className="flex items-center gap-3 px-3 py-1 flex-1 min-w-0 h-full relative">
+              {/* Spinning Retro Cassette Icon */}
+              <div className="flex-shrink-0 w-11 h-8 bg-[#5c3d2e] relative flex items-center justify-center" style={{ clipPath: pixelClipPath(2) }}>
+                {/* Cassette label */}
+                <div className="w-[36px] h-[22px] bg-[#ffd27d] flex items-center justify-between px-[5px]" style={{ clipPath: pixelClipPath(1) }}>
+                  {/* Left Spinning Gear */}
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                    className="w-2.5 h-2.5 border-2 border-dashed border-[#5c3d2e] rounded-full flex items-center justify-center"
+                  >
+                    <div className="w-1 h-1 bg-[#5c3d2e] rounded-full" />
+                  </motion.div>
+                  {/* Tape strip line in middle */}
+                  <div className="w-1.5 h-[2px] bg-[#5c3d2e]" />
+                  {/* Right Spinning Gear */}
+                  <motion.div 
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
+                    className="w-2.5 h-2.5 border-2 border-dashed border-[#5c3d2e] rounded-full flex items-center justify-center"
+                  >
+                    <div className="w-1 h-1 bg-[#5c3d2e] rounded-full" />
+                  </motion.div>
+                </div>
+                {/* Cassette trapezoid bottom */}
+                <div className="absolute bottom-[1px] left-1/2 -translate-x-1/2 w-[18px] h-[3px] bg-[#8b6b4a]" style={{ clipPath: "polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%)" }} />
               </div>
-              
+
               {/* Scrolling/Truncated Track text */}
-              <div className="flex flex-col min-w-0" style={{ fontFamily: "var(--font-pixel), monospace" }}>
-                <span className="text-[8px] uppercase tracking-wider text-[#b58c5a] font-bold leading-tight">
-                  Now Playing
-                </span>
+              <div className="flex flex-col min-w-0 flex-1 justify-center" style={{ fontFamily: "var(--font-pixel), monospace" }}>
+                <div className="flex items-center gap-1.5 leading-none mb-[2px]">
+                  {/* Blinking PLAY dot */}
+                  <motion.span 
+                    animate={{ opacity: [1, 0, 1] }}
+                    transition={{ repeat: Infinity, duration: 1.5, ease: "steps(2)" }}
+                    className="w-1.5 h-1.5 bg-[#d95d5d]"
+                    style={{ clipPath: pixelClipPath(1) }}
+                  />
+                  <span className="text-[7.5px] uppercase tracking-wider text-[#b58c5a] font-bold">
+                    PLAYING
+                  </span>
+                </div>
                 <span className="text-[11px] font-bold text-[#5c3d2e] truncate leading-tight">
                   {currentTrackTitle}
                 </span>
+              </div>
+
+              {/* Mini Audio Equalizer Visualizer */}
+              <div className="flex-shrink-0 flex items-end gap-[2.5px] h-4 px-1 pb-1">
+                <motion.div
+                  animate={{ scaleY: [0.3, 1, 0.3] }}
+                  transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
+                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs"
+                />
+                <motion.div
+                  animate={{ scaleY: [0.2, 0.85, 0.2] }}
+                  transition={{ repeat: Infinity, duration: 0.85, ease: "easeInOut" }}
+                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs"
+                />
+                <motion.div
+                  animate={{ scaleY: [0.4, 0.95, 0.4] }}
+                  transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs"
+                />
+                <motion.div
+                  animate={{ scaleY: [0.3, 0.7, 0.3] }}
+                  transition={{ repeat: Infinity, duration: 1.05, ease: "easeInOut" }}
+                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs"
+                />
               </div>
             </div>
           </motion.div>
