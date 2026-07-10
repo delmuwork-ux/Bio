@@ -249,23 +249,23 @@ export default function Home() {
 
     setShowMusicPlayer(true)
 
-    // start vertical-to-full white strip 1.55s after trigger/music starts
+    // start vertical-to-full white strip 1.55s after trigger/music starts (plus 120ms settle delay)
     setTimeout(() => {
       setShowWhiteStrip(true)
       setStripPhase("vertical")
-    }, 1550)
+    }, 1670)
 
-    // Fills vertically (takes 280ms, completes at 1880ms)
-    setTimeout(() => setStripPhase("full"), 1600)
+    // Fills vertically (takes 280ms, completes at 2000ms)
+    setTimeout(() => setStripPhase("full"), 1720)
 
-    // Splits horizontally (takes 280ms, completes at 2230ms)
+    // Splits horizontally (takes 280ms, completes at 2350ms)
     // Reveal profile card at the exact start of horizontal split so it reveals behind the expanding strip
     setTimeout(() => {
       setShowProfileCard(true)
       setStripPhase("horizontal")
-    }, 1950)
+    }, 2070)
     
-    // Hide all corner chibis exactly 2.9s (2900ms) after trigger
+    // Hide all corner chibis exactly 3.02s after trigger
     // This lets the user see all 4 chibis together in the corners of the centered screen
     // before they slide out
     setTimeout(() => {
@@ -273,14 +273,14 @@ export default function Home() {
       setShowObj2(false)
       setShowObj3(false)
       setShowObj4(false)
-    }, 2900)
+    }, 3020)
 
     // Complete the strip phase and trigger character name entrance animation
     setTimeout(() => {
       setStripPhase("done")
       setShowWhiteStrip(false)
       window.dispatchEvent(new CustomEvent("startNameAnimation"))
-    }, 2300)
+    }, 2420)
   }
 
   // Initialize website and audio when user enters from splash screen
@@ -365,18 +365,23 @@ export default function Home() {
         y: "0vh"
       })
 
+      // Settle delay allows the browser to stabilize layout before launching heavy pans
+      const settleDelay = 120;
+
       // Smoothly zoom in to obj 1 (Bottom-Left)
-      cameraControls.start({
-        scale: 2.2,
-        x: "90vw",
-        y: "-80vh",
-        transition: { duration: 0.28, ease: "easeOut" }
-      })
+      const t_cam1 = setTimeout(() => {
+        cameraControls.start({
+          scale: 2.2,
+          x: "90vw",
+          y: "-80vh",
+          transition: { duration: 0.28, ease: "easeOut" }
+        })
+      }, settleDelay)
 
       // Show obj 1 at 80ms (mid-zoom)
       const t_obj1 = setTimeout(() => {
         setShowObj1(true)
-      }, 80)
+      }, 80 + settleDelay)
 
       // Camera starts pan to Bottom-Right at 280ms (exactly as zoom-in completes, zero pause)
       const t_cam2 = setTimeout(() => {
@@ -386,12 +391,12 @@ export default function Home() {
           scale: 2.2,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
-      }, 280)
+      }, 280 + settleDelay)
 
       // Show obj 2 at 360ms (mid-pan)
       const t_obj2 = setTimeout(() => {
         setShowObj2(true)
-      }, 360)
+      }, 360 + settleDelay)
 
       // Camera starts pan to Top-Left at 600ms (exactly as pan 2 completes, zero pause)
       const t_cam3 = setTimeout(() => {
@@ -401,12 +406,12 @@ export default function Home() {
           scale: 2.2,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
-      }, 600)
+      }, 600 + settleDelay)
 
       // Show obj 3 at 680ms (mid-pan)
       const t_obj3 = setTimeout(() => {
         setShowObj3(true)
-      }, 680)
+      }, 680 + settleDelay)
 
       // Camera starts pan to Top-Right at 920ms (exactly as pan 3 completes, zero pause)
       const t_cam4 = setTimeout(() => {
@@ -416,12 +421,12 @@ export default function Home() {
           scale: 2.2,
           transition: { duration: 0.32, ease: "easeInOut" }
         })
-      }, 920)
+      }, 920 + settleDelay)
 
       // Show obj 4 at 1000ms (mid-pan)
       const t_obj4 = setTimeout(() => {
         setShowObj4(true)
-      }, 1000)
+      }, 1000 + settleDelay)
 
       // Zoom back out to normal view at 1550ms (310ms pause at obj 4 to show it off)
       const t_cam5 = setTimeout(() => {
@@ -431,9 +436,10 @@ export default function Home() {
           scale: 1,
           transition: { duration: 0.65, ease: [0.25, 1, 0.5, 1] }
         })
-      }, 1550)
+      }, 1550 + settleDelay)
 
       return () => {
+        clearTimeout(t_cam1)
         clearTimeout(t_obj1)
         clearTimeout(t_cam2)
         clearTimeout(t_obj2)
@@ -744,10 +750,8 @@ export default function Home() {
 
   return (
     <>
-      {/* Splash Screen - Show before main content */}
-      <AnimatePresence>
-        {showSplash && <SplashScreen onEnter={handleSplashEnter} />}
-      </AnimatePresence>
+      {/* Splash Screen - Rendered statically to prevent layout unmount reflows */}
+      <SplashScreen onEnter={handleSplashEnter} show={showSplash} />
 
       {/* Mouse Following White Rectangle - Optimized with MotionValues */}
       <motion.div

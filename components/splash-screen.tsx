@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion"
 
 interface SplashScreenProps {
   onEnter: () => void
+  show: boolean
 }
 
 // Pixel art loading spinner — rotating pixel square
@@ -94,7 +95,7 @@ const PixelProgressBar = ({ progress }: { progress: number }) => {
   )
 }
 
-export function SplashScreen({ onEnter }: SplashScreenProps) {
+export function SplashScreen({ onEnter, show }: SplashScreenProps) {
   const [isExiting, setIsExiting] = useState(false)
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
@@ -162,10 +163,13 @@ export function SplashScreen({ onEnter }: SplashScreenProps) {
   return (
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden cursor-pointer select-none"
-      style={{ backgroundColor: "#2a1a0e" }}
+      style={{ 
+        backgroundColor: "#2a1a0e",
+        pointerEvents: show && !isExiting ? "auto" : "none"
+      }}
       onClick={handleClick}
       initial={{ opacity: 1 }}
-      animate={{ opacity: isExiting ? 0 : 1 }}
+      animate={{ opacity: show && !isExiting ? 1 : 0 }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
     >
       {/* Pixel pattern background overlay */}
