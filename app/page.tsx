@@ -189,6 +189,7 @@ export default function Home() {
   const visBar2Ref = useRef<HTMLDivElement>(null)
   const visBar3Ref = useRef<HTMLDivElement>(null)
   const visBar4Ref = useRef<HTMLDivElement>(null)
+  const lastVisualizerValues = useRef([0.15, 0.15, 0.15, 0.15])
   const [showObj1, setShowObj1] = useState(false)
   const [showObj2, setShowObj2] = useState(false)
   const [showObj3, setShowObj3] = useState(false)
@@ -523,10 +524,24 @@ export default function Home() {
   useEffect(() => {
     const handleVisualizer = (e: Event) => {
       const { values } = (e as CustomEvent<{ values: number[] }>).detail
-      if (visBar1Ref.current) visBar1Ref.current.style.transform = `scaleY(${Math.max(0.15, values[0])})`
-      if (visBar2Ref.current) visBar2Ref.current.style.transform = `scaleY(${Math.max(0.15, values[1])})`
-      if (visBar3Ref.current) visBar3Ref.current.style.transform = `scaleY(${Math.max(0.15, values[2])})`
-      if (visBar4Ref.current) visBar4Ref.current.style.transform = `scaleY(${Math.max(0.15, values[3])})`
+      const multipliers = [2.2, 2.6, 3.2, 3.8]
+      const prev = lastVisualizerValues.current
+      
+      const nextValues = values.map((val, i) => {
+        // Amplify frequency signals for retro visualizer feel
+        const target = val * multipliers[i]
+        // LERP: smooth transition (75% previous + 25% new target) to eliminate jitter
+        const smoothed = prev[i] * 0.75 + target * 0.25
+        // Clamp to min 0.15 and max 1.3
+        return Math.min(1.3, Math.max(0.15, smoothed))
+      })
+      
+      lastVisualizerValues.current = nextValues
+      
+      if (visBar1Ref.current) visBar1Ref.current.style.transform = `scaleY(${nextValues[0]})`
+      if (visBar2Ref.current) visBar2Ref.current.style.transform = `scaleY(${nextValues[1]})`
+      if (visBar3Ref.current) visBar3Ref.current.style.transform = `scaleY(${nextValues[2]})`
+      if (visBar4Ref.current) visBar4Ref.current.style.transform = `scaleY(${nextValues[3]})`
     }
     
     window.addEventListener("musicVisualizer", handleVisualizer)
@@ -1319,22 +1334,22 @@ export default function Home() {
               <div className="flex-shrink-0 flex items-end gap-[2.5px] h-4 px-1 pb-1">
                 <div
                   ref={visBar1Ref}
-                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs transition-transform duration-[75ms] ease-out"
+                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs"
                   style={{ transform: "scaleY(0.15)" }}
                 />
                 <div
                   ref={visBar2Ref}
-                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs transition-transform duration-[75ms] ease-out"
+                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs"
                   style={{ transform: "scaleY(0.15)" }}
                 />
                 <div
                   ref={visBar3Ref}
-                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs transition-transform duration-[75ms] ease-out"
+                  className="w-[3px] h-full bg-[#5c3d2e] origin-bottom rounded-xs"
                   style={{ transform: "scaleY(0.15)" }}
                 />
                 <div
                   ref={visBar4Ref}
-                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs transition-transform duration-[75ms] ease-out"
+                  className="w-[3px] h-full bg-[#b58c5a] origin-bottom rounded-xs"
                   style={{ transform: "scaleY(0.15)" }}
                 />
               </div>

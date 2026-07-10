@@ -44,6 +44,7 @@ export function useAudioPlayer({ tracks, autoPlay = false }: UseAudioPlayerOptio
       if (!analyserRef.current) {
         const analyser = ctx.createAnalyser()
         analyser.fftSize = 64
+        analyser.smoothingTimeConstant = 0.7
         analyserRef.current = analyser
         analyser.connect(ctx.destination)
       }
