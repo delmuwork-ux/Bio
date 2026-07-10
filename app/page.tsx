@@ -1189,6 +1189,72 @@ export default function Home() {
           />
         </div>
       </motion.div>
+
+      {/* Bottom-Left Music HUD Bar */}
+      <AnimatePresence>
+        {showPlaylistButton && (
+          <motion.div
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 30, scale: 0.95 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className="fixed bottom-6 left-6 z-[40] flex items-center justify-between border-[3px] border-[#5c3d2e] bg-[#fffcf7] select-none pointer-events-auto"
+            style={{
+              height: 48,
+              width: 300,
+              boxShadow: "inset 0 0 0 1px #d4af37, 0 6px 0px rgba(92, 61, 46, 0.45)",
+              clipPath: pixelClipPath(4),
+            }}
+          >
+            {/* Play/Pause state and Track Info clickable */}
+            <div 
+              className="flex items-center gap-3 px-3 py-1 flex-1 min-w-0 cursor-pointer h-full hover:bg-[#5c3d2e]/5 transition-colors"
+              onClick={() => setMusicPlayerExpanded(!musicPlayerExpanded)}
+              onMouseEnter={() => window.dispatchEvent(new CustomEvent("playlistButtonHover", { detail: { label: "Open Player" } }))}
+              onMouseLeave={() => window.dispatchEvent(new CustomEvent("playlistButtonHover", { detail: { label: null } }))}
+            >
+              {/* Pixel Music Note Icon */}
+              <div className="flex-shrink-0 w-6 h-6 flex items-center justify-center bg-[#5c3d2e]" style={{ clipPath: pixelClipPath(2) }}>
+                <svg viewBox="0 0 8 8" className="w-3.5 h-3.5 fill-[#fffcf7] shape-rendering-crisp-edges">
+                  <rect x="2" y="1" width="4" height="1" />
+                  <rect x="5" y="2" width="1" height="4" />
+                  <rect x="2" y="3" width="1" height="1" />
+                  <rect x="2" y="4" width="1" height="1" />
+                  <rect x="1" y="4" width="1" height="1" />
+                  <rect x="3" y="4" width="1" height="1" />
+                  <rect x="1" y="5" width="3" height="1" />
+                  <rect x="2" y="6" width="1" height="1" />
+                </svg>
+              </div>
+              
+              {/* Scrolling/Truncated Track text */}
+              <div className="flex flex-col min-w-0">
+                <span className="text-[8px] uppercase tracking-wider text-[#b58c5a] font-bold font-mono">
+                  Now Playing
+                </span>
+                <span 
+                  className="text-[11px] font-bold text-[#5c3d2e] truncate"
+                  style={{ fontFamily: "'DotGothic16', 'Press Start 2P', monospace" }}
+                >
+                  {currentTrackTitle}
+                </span>
+              </div>
+            </div>
+
+            {/* Playlist button */}
+            <button
+              className="h-full px-4 flex items-center justify-center border-l-[3px] border-[#5c3d2e] hover:bg-[#5c3d2e] text-[#5c3d2e] hover:text-[#fffcf7] transition-all cursor-pointer font-bold text-[10px] uppercase font-mono"
+              style={{ fontFamily: "'DotGothic16', 'Press Start 2P', monospace" }}
+              onClick={() => setMusicPlayerExpanded(!musicPlayerExpanded)}
+              onMouseEnter={() => window.dispatchEvent(new CustomEvent("playlistButtonHover", { detail: { label: "View Playlist" } }))}
+              onMouseLeave={() => window.dispatchEvent(new CustomEvent("playlistButtonHover", { detail: { label: null } }))}
+            >
+              List
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <DraggableMusicPlayer isVisible={musicPlayerExpanded} onClose={() => setMusicPlayerExpanded(false)} defaultX={musicPlayerX} defaultY={musicPlayerY} />
     </main>
     </>
