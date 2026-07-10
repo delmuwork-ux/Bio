@@ -275,14 +275,13 @@ export default function Home() {
   const handleSplashEnter = () => {
     setShowSplash(false)
     
-    // Wait 100ms (0.1s) for the splash screen to fade out completely before playing music
-    setTimeout(() => {
-      // unlock audio and play music after user interaction
+    // Audio is already pre-unlocked and playing since click, but we dispatch a fail-safe event.
+    try {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       window.__audioUnlockRequested = true
-      requestAnimationFrame(() => requestAnimationFrame(() => window.dispatchEvent(new CustomEvent("unlockAudio"))))
-    }, 100)
+      window.dispatchEvent(new CustomEvent("unlockAudio"))
+    } catch (_) {}
 
     // FAIL-SAFE BACKUP TIMER:
     // If the musicStarted event doesn't fire within 1.0s (due to browser audio block or slow load),

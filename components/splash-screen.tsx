@@ -157,6 +157,17 @@ export function SplashScreen({ onEnter, show }: SplashScreenProps) {
   const handleClick = () => {
     if (!isLoaded || isExiting) return
     setIsExiting(true)
+    
+    // Unlock and play audio immediately at t = 0ms of user interaction
+    try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      window.__audioUnlockRequested = true
+      window.dispatchEvent(new CustomEvent("unlockAudio"))
+    } catch (e) {
+      console.warn("Failed to unlock audio on click:", e)
+    }
+
     setTimeout(onEnter, 300)
   }
 
