@@ -1288,7 +1288,7 @@ export default function Home() {
                 left: "50%",
                 top: "50%",
                 x: "-50%",
-                y: "175px",
+                y: "155px",
                 opacity: 1,
                 scale: 1,
                 transition: {
