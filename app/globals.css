@@ -202,3 +202,42 @@
     opacity: 1;
   }
 }
+
+.pixel-text-bold {
+  font-family: var(--font-pixel), monospace;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: geometricPrecision;
+  font-synthesis: none;
+  -webkit-text-stroke: 2px currentColor;
+  text-shadow: 
+    -5px -5px 0 #5c3d2e,  
+     5px -5px 0 #5c3d2e,
+    -5px  5px 0 #5c3d2e,  
+     5px  5px 0 #5c3d2e,
+     0px -5px 0 #5c3d2e,  
+     0px  5px 0 #5c3d2e,
+    -5px  0px 0 #5c3d2e,  
+     5px  0px 0 #5c3d2e,
+    -5px -3px 0 #5c3d2e,
+    -5px  3px 0 #5c3d2e,
+     5px -3px 0 #5c3d2e,
+     5px  3px 0 #5c3d2e,
+    -3px -5px 0 #5c3d2e,
+     3px -5px 0 #5c3d2e,
+    -3px  5px 0 #5c3d2e,
+     3px  5px 0 #5c3d2e,
+    -4px -4px 0 #5c3d2e,
+     4px -4px 0 #5c3d2e,
+    -4px  4px 0 #5c3d2e,
+     4px  4px 0 #5c3d2e,
+    -2px -5px 0 #5c3d2e,
+     2px -5px 0 #5c3d2e,
+    -2px  5px 0 #5c3d2e,
+     2px  5px 0 #5c3d2e,
+    -5px -2px 0 #5c3d2e,
+     5px -2px 0 #5c3d2e,
+    -5px  2px 0 #5c3d2e,
+     5px  2px 0 #5c3d2e,
+    0 8px 16px rgba(92, 61, 46, 0.45);
+}

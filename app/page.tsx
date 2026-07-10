@@ -857,16 +857,6 @@ export default function Home() {
     }
   }, [isDelmuHovered, isWaveBoxHovered, isBoothHovered, isClosing, delmuExpanded, delmuSweepControls])
 
-  const getActiveStatForCard = () => {
-    if (showAnchor) return showAnchor;
-    // Don't assign layoutId to icon while expanded (prevents dual layoutId conflict)
-    if (delmuExpanded) return null;
-    if (isBoothHovered) return "Booth";
-    if (isDelmuHovered) return "X";
-    if (isWaveBoxHovered) return "WaveBox";
-    return null;
-  }
-  const activeStat = getActiveStatForCard();
 
   return (
     <>
@@ -1247,13 +1237,13 @@ export default function Home() {
             backfaceVisibility: "hidden",
           }}
         >
-        <div className="relative z-10 flex flex-col items-center justify-start min-h-screen px-4 pt-48 pb-40">
+        <div className="relative z-10 flex flex-col items-center justify-center min-h-screen px-4">
           <AnimatePresence>
             {showProfileCard && (
-              <div className="flex items-start justify-center relative">
+              <div className="flex items-start justify-center relative -mt-20">
                 <div className="w-full max-w-3xl space-y-4 relative flex-shrink-0">
                   <motion.div style={{ transformOrigin: "center center", willChange: "transform, opacity" }} initial={{ opacity: 0, scale: 0.75 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.3, ease: [0.34, 1.56, 0.64, 1] }}>
-                    <ProfileCard showWhiteStrip={showWhiteStrip} stripPhase={stripPhase} activeStat={activeStat} />
+                    <ProfileCard showWhiteStrip={showWhiteStrip} stripPhase={stripPhase} />
                   </motion.div>
                 </div>
               </div>
