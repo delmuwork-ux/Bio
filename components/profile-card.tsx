@@ -50,7 +50,7 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
       <motion.div 
         className="flex flex-col items-center justify-center relative"
       >
-        <div className="relative flex items-center justify-center gap-4 select-none py-4 px-8">
+        <div className="relative flex items-center justify-center gap-1.5 sm:gap-3 md:gap-4 select-none py-4 px-3 sm:px-6 md:px-8">
           {showWhiteStrip && stripPhase !== "done" && (
             <div className="absolute inset-0 z-20 overflow-hidden pointer-events-none">
               <div
@@ -81,7 +81,7 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
             return (
               <motion.span
                 key={idx}
-                className="text-6xl md:text-7xl relative inline-block animate-none pixel-text-bold"
+                className="text-[42px] sm:text-6xl md:text-7xl relative inline-block animate-none pixel-text-bold"
                 variants={{
                   hidden: { 
                     opacity: 0, 
@@ -116,7 +116,7 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
 
         {/* Social Icons for Booth, X, and Wavebox */}
         <motion.div
-          className="flex justify-center gap-6 mt-6 relative z-10"
+          className="flex justify-center gap-4 sm:gap-6 mt-4 sm:mt-6 relative z-10"
           initial={{ opacity: 0, y: 15 }}
           animate={hasEntered ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
           transition={{ delay: 0.6, duration: 0.5, ease: "easeOut" }}
@@ -143,7 +143,7 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
               xmlns="http://www.w3.org/2000/svg" 
               viewBox="0 0 16 16" 
               fill="#ffffff" 
-              className="w-12 h-12"
+              className="w-10 h-10 sm:w-12 sm:h-12"
               style={{
                 filter: "drop-shadow(-3px -3px 0 #5c3d2e) drop-shadow(3px -3px 0 #5c3d2e) drop-shadow(-3px 3px 0 #5c3d2e) drop-shadow(3px 3px 0 #5c3d2e) drop-shadow(0px 6px 0px rgba(92, 61, 46, 0.45))"
               }}
@@ -191,7 +191,7 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
               xmlns="http://www.w3.org/2000/svg" 
               viewBox="0 0 16 16" 
               fill="#ffd27d" 
-              className="w-12 h-12"
+              className="w-10 h-10 sm:w-12 sm:h-12"
               style={{
                 filter: "drop-shadow(-3px -3px 0 #5c3d2e) drop-shadow(3px -3px 0 #5c3d2e) drop-shadow(-3px 3px 0 #5c3d2e) drop-shadow(3px 3px 0 #5c3d2e) drop-shadow(0px 6px 0px rgba(92, 61, 46, 0.45))"
               }}
@@ -236,7 +236,7 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
               xmlns="http://www.w3.org/2000/svg" 
               viewBox="0 0 16 16" 
               fill="#ffffff" 
-              className="w-12 h-12"
+              className="w-10 h-10 sm:w-12 sm:h-12"
               style={{
                 filter: "drop-shadow(-3px -3px 0 #5c3d2e) drop-shadow(3px -3px 0 #5c3d2e) drop-shadow(-3px 3px 0 #5c3d2e) drop-shadow(3px 3px 0 #5c3d2e) drop-shadow(0px 6px 0px rgba(92, 61, 46, 0.45))"
               }}

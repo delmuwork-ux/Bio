@@ -11,10 +11,10 @@ import { ANIMATION_CONFIG } from "@/lib/constants"
 
 const getCornerClassName = (corner: number) => {
   switch (corner) {
-    case 0: return "absolute top-[-80px] left-[-80px] w-[400px] h-[400px]"
-    case 1: return "absolute top-[-80px] right-[-80px] w-[400px] h-[400px]"
-    case 2: return "absolute bottom-[-80px] right-[-80px] w-[400px] h-[400px]"
-    case 3: return "absolute bottom-[-80px] left-[-80px] w-[400px] h-[400px]"
+    case 0: return "absolute top-[-40px] left-[-40px] w-[200px] h-[200px] sm:top-[-60px] sm:left-[-60px] sm:w-[300px] sm:h-[300px] md:top-[-80px] md:left-[-80px] md:w-[400px] h-[400px]"
+    case 1: return "absolute top-[-40px] right-[-40px] w-[200px] h-[200px] sm:top-[-60px] sm:right-[-60px] sm:w-[300px] sm:h-[300px] md:top-[-80px] md:right-[-80px] md:w-[400px] h-[400px]"
+    case 2: return "absolute bottom-[-40px] right-[-40px] w-[200px] h-[200px] sm:bottom-[-60px] sm:right-[-60px] sm:w-[300px] sm:h-[300px] md:bottom-[-80px] md:right-[-80px] md:w-[400px] h-[400px]"
+    case 3: return "absolute bottom-[-40px] left-[-40px] w-[200px] h-[200px] sm:bottom-[-60px] sm:left-[-60px] sm:w-[300px] sm:h-[300px] md:bottom-[-80px] md:left-[-80px] md:w-[400px] h-[400px]"
     default: return ""
   }
 }
@@ -179,6 +179,17 @@ const PixelFrameFlowers = ({ visible = true, flowerSize = 18 }: { visible?: bool
 
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    handleResize()
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [])
+
   const showSplashRef = useRef(true)
   const musicStartedRef = useRef(false)
   const timelineTriggeredRef = useRef<Record<string, boolean>>({})
@@ -243,6 +254,9 @@ export default function Home() {
   // Drives the timeline logic using virtualTimeRef (synced with actual audio currentTime or virtual clock)
   const processTimeline = (time: number) => {
     const triggered = timelineTriggeredRef.current
+    const isMobileDevice = typeof window !== "undefined" && window.innerWidth < 768
+    const zoomScale = isMobileDevice ? 1.55 : 2.2
+    const panOffset = isMobileDevice ? 32 : 60
 
     // Helper to convert vw/vh to absolute pixels for high-performance GPU compositing
     const getPixelCoordinates = (xVw: number, yVh: number) => {
@@ -263,10 +277,10 @@ export default function Home() {
     // Obj 1 & Camera 1 (Bottom-Left)
     if (time >= 0.23 && !triggered.cam1) {
       triggered.cam1 = true
-      const cam = getPixelCoordinates(60, -60)
-      const bg = getPixelCoordinates(6, -6)
+      const cam = getPixelCoordinates(panOffset, -panOffset)
+      const bg = getPixelCoordinates(panOffset / 10, -panOffset / 10)
       cameraControls.start({
-        scale: 2.2,
+        scale: zoomScale,
         x: cam.x,
         y: cam.y,
         transition: { duration: 0.28, ease: "easeOut" }
@@ -286,12 +300,12 @@ export default function Home() {
     // Obj 2 & Camera 2 (Bottom-Right)
     if (time >= 0.51 && !triggered.cam2) {
       triggered.cam2 = true
-      const cam = getPixelCoordinates(-60, -60)
-      const bg = getPixelCoordinates(-6, -6)
+      const cam = getPixelCoordinates(-panOffset, -panOffset)
+      const bg = getPixelCoordinates(-panOffset / 10, -panOffset / 10)
       cameraControls.start({
         x: cam.x,
         y: cam.y,
-        scale: 2.2,
+        scale: zoomScale,
         transition: { duration: 0.32, ease: "easeInOut" }
       })
       bgControls.start({
@@ -309,12 +323,12 @@ export default function Home() {
     // Obj 3 & Camera 3 (Top-Left)
     if (time >= 0.83 && !triggered.cam3) {
       triggered.cam3 = true
-      const cam = getPixelCoordinates(60, 60)
-      const bg = getPixelCoordinates(6, 6)
+      const cam = getPixelCoordinates(panOffset, panOffset)
+      const bg = getPixelCoordinates(panOffset / 10, panOffset / 10)
       cameraControls.start({
         x: cam.x,
         y: cam.y,
-        scale: 2.2,
+        scale: zoomScale,
         transition: { duration: 0.32, ease: "easeInOut" }
       })
       bgControls.start({
@@ -332,12 +346,12 @@ export default function Home() {
     // Obj 4 & Camera 4 (Top-Right)
     if (time >= 1.15 && !triggered.cam4) {
       triggered.cam4 = true
-      const cam = getPixelCoordinates(-60, 60)
-      const bg = getPixelCoordinates(-6, 6)
+      const cam = getPixelCoordinates(-panOffset, panOffset)
+      const bg = getPixelCoordinates(-panOffset / 10, panOffset / 10)
       cameraControls.start({
         x: cam.x,
         y: cam.y,
-        scale: 2.2,
+        scale: zoomScale,
         transition: { duration: 0.32, ease: "easeInOut" }
       })
       bgControls.start({
@@ -1002,7 +1016,7 @@ export default function Home() {
                   setClosingAnimation({
                     x: iconCenterX - cardCenterX,
                     y: iconCenterY - cardCenterY,
-                    scale: Math.max(iconRect.width / 500, 0.04),
+                    scale: Math.max(iconRect.width / (isMobile ? window.innerWidth * 0.9 : 500), 0.04),
                   })
                 } else {
                   setClosingAnimation({ x: 0, y: 0, scale: 0.04 })
@@ -1050,15 +1064,15 @@ export default function Home() {
               layoutId="delmu-image-card"
               className={`fixed bg-[#fffcf7] cursor-pointer z-[9999] ${isClosing ? "pointer-events-none" : "pointer-events-auto"}`}
               style={{
-                width: isDelmuFullscreen ? "100vw" : 500,
-                height: isDelmuFullscreen ? "100vh" : 460,
+                width: isDelmuFullscreen ? "100vw" : (isMobile ? "90vw" : 500),
+                height: isDelmuFullscreen ? "100vh" : (isMobile ? "calc(90vw * 0.92)" : 460),
                 borderRadius: 0,
                 left: 0,
                 right: 0,
                 top: 0,
                 bottom: 0,
                 margin: "auto",
-                clipPath: isDelmuFullscreen ? 'none' : pixelClipPath(7),
+                clipPath: isDelmuFullscreen ? 'none' : pixelClipPath(isMobile ? 4 : 7),
               }}
               onClick={(e) => {
                 e.stopPropagation()
@@ -1101,14 +1115,14 @@ export default function Home() {
                 y: 0,
                 rotate: 0,
               } : (isFloating ? {
-                borderWidth: "14px",
+                borderWidth: isMobile ? "8px" : "14px",
                 borderColor: "#5c3d2e",
                 boxShadow: "inset 0 0 0 3px #d4af37, inset 0 0 15px rgba(0, 0, 0, 0.3)",
                 filter: "drop-shadow(0 12px 30px rgba(92, 61, 46, 0.4)) drop-shadow(0 4px 6px rgba(92, 61, 46, 0.25))",
                 y: [0, -12, 4, -8, 2, 0],
                 rotate: [0, 1.2, -0.6, -1.2, 0.6, 0],
               } : {
-                borderWidth: "14px",
+                borderWidth: isMobile ? "8px" : "14px",
                 borderColor: "#5c3d2e",
                 boxShadow: "inset 0 0 0 3px #d4af37, inset 0 0 15px rgba(0, 0, 0, 0.3)",
                 filter: "drop-shadow(0 12px 30px rgba(92, 61, 46, 0.4)) drop-shadow(0 4px 6px rgba(92, 61, 46, 0.25))",
@@ -1144,8 +1158,8 @@ export default function Home() {
                 }
               }}
             >
-              <PixelFrameCorners size={14} inset={1} visible={!isDelmuFullscreen && !closingAnimation} />
-              <PixelFrameFlowers flowerSize={20} visible={!isDelmuFullscreen && !closingAnimation} />
+               <PixelFrameCorners size={isMobile ? 8 : 14} inset={1} visible={!isDelmuFullscreen && !closingAnimation} />
+               <PixelFrameFlowers flowerSize={isMobile ? 12 : 20} visible={!isDelmuFullscreen && !closingAnimation} />
               <div className="absolute inset-0 overflow-hidden">
                 <motion.div
                   className="absolute inset-0"
@@ -1176,7 +1190,7 @@ export default function Home() {
                 </motion.div>
               </div>
               <button
-                className="absolute top-5 right-5 z-30 w-9 h-9 flex items-center justify-center cursor-pointer border-0 p-0 group"
+                className="absolute top-3 right-3 sm:top-5 sm:right-5 z-30 w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center cursor-pointer border-0 p-0 group"
                 style={{ background: 'none' }}
                 onClick={(e) => {
                   e.stopPropagation()
@@ -1193,7 +1207,7 @@ export default function Home() {
                     setClosingAnimation({
                       x: iconCenterX - cardCenterX,
                       y: iconCenterY - cardCenterY,
-                      scale: Math.max(iconRect.width / 500, 0.04),
+                      scale: Math.max(iconRect.width / (isMobile ? window.innerWidth * 0.9 : 500), 0.04),
                     })
                   } else {
                     setClosingAnimation({ x: 0, y: 0, scale: 0.04 })
@@ -1295,21 +1309,21 @@ export default function Home() {
                 left: "50%",
                 top: "50%",
                 x: "-50%",
-                y: "155px",
+                y: isMobile ? "142px" : "155px",
                 opacity: 1,
-                scale: 1,
+                scale: isMobile ? 0.9 : 1,
                 transition: {
                   duration: 0.65,
                   ease: [0.25, 1, 0.5, 1]
                 }
               },
               corner: {
-                left: "24px",
-                top: "calc(100vh - 82px)",
-                x: "0%",
+                left: isMobile ? "50%" : "24px",
+                top: isMobile ? "calc(100vh - 72px)" : "calc(100vh - 82px)",
+                x: isMobile ? "-50%" : "0%",
                 y: "0px",
                 opacity: 1,
-                scale: 1,
+                scale: isMobile ? 0.9 : 1,
                 transition: {
                   duration: 0.8,
                   ease: [0.25, 1, 0.5, 1]
