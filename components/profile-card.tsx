@@ -281,17 +281,23 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
               fill="#ffffff" 
               className="w-6 h-6"
             >
-              {/* Outer white eye border shape */}
-              <rect x="1" y="7" width="14" height="2" />
-              <rect x="2" y="5" width="12" height="2" />
-              <rect x="2" y="9" width="12" height="2" />
-              <rect x="4" y="3" width="8" height="2" />
-              <rect x="4" y="11" width="8" height="2" />
+              {/* Outer white shape of the eye */}
+              <rect x="5" y="3" width="6" height="1" />
+              <rect x="3" y="4" width="10" height="1" />
+              <rect x="2" y="5" width="12" height="1" />
+              <rect x="1" y="6" width="14" height="4" />
+              <rect x="2" y="10" width="12" height="1" />
+              <rect x="3" y="11" width="10" height="1" />
+              <rect x="5" y="12" width="6" height="1" />
               
-              {/* Pupil / Iris */}
-              <rect x="6" y="5" width="4" height="6" fill="#ffd27d" />
-              <rect x="7" y="6" width="2" height="4" fill="#5c3d2e" />
-              <rect x="7" y="6" width="1" height="1" fill="#ffffff" />
+              {/* Iris (yellow/gold) */}
+              <rect x="5" y="5" width="6" height="6" fill="#ffd27d" />
+              
+              {/* Pupil (dark brown) */}
+              <rect x="6" y="6" width="4" height="4" fill="#5c3d2e" />
+              
+              {/* Sparkle highlight (white) */}
+              <rect x="8" y="6" width="2" height="2" fill="#ffffff" />
             </svg>
             <span style={{ fontSize: "16px", letterSpacing: "1px" }}>
               {views.toLocaleString()}
