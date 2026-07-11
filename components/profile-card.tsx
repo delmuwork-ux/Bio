@@ -11,6 +11,7 @@ interface ProfileCardProps {
 
 export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: ProfileCardProps) {
   const [hasEntered, setHasEntered] = useState(false)
+  const [views, setViews] = useState<number | null>(null)
 
   useEffect(() => {
     const handler = () => {
@@ -23,6 +24,18 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
     window.addEventListener("startNameAnimation", handler)
     return () => window.removeEventListener("startNameAnimation", handler)
   }, [])
+
+  useEffect(() => {
+    if (!hasEntered) return
+    fetch("/api/views")
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.views === "number") {
+          setViews(data.views)
+        }
+      })
+      .catch((err) => console.error("Error fetching views:", err))
+  }, [hasEntered])
 
   const nameChars = [
     { char: "月", color: "#ffffff", rotate: "-6deg", y: "-4px" },
@@ -247,6 +260,44 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
             </svg>
           </motion.div>
         </motion.div>
+
+        {/* View Counter */}
+        {views !== null && (
+          <motion.div
+            className="mt-6 flex items-center gap-2 select-none"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 0.85, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.4, ease: "easeOut" }}
+            style={{
+              fontFamily: "var(--font-pixel), monospace",
+              color: "#ffffff",
+              fontWeight: "bold",
+              filter: "drop-shadow(-2px -2px 0 #5c3d2e) drop-shadow(2px -2px 0 #5c3d2e) drop-shadow(-2px 2px 0 #5c3d2e) drop-shadow(2px 2px 0 #5c3d2e) drop-shadow(0px 3px 0px rgba(92, 61, 46, 0.45))"
+            }}
+          >
+            <svg 
+              xmlns="http://www.w3.org/2000/svg" 
+              viewBox="0 0 16 16" 
+              fill="#ffffff" 
+              className="w-6 h-6"
+            >
+              {/* Outer white eye border shape */}
+              <rect x="1" y="7" width="14" height="2" />
+              <rect x="2" y="5" width="12" height="2" />
+              <rect x="2" y="9" width="12" height="2" />
+              <rect x="4" y="3" width="8" height="2" />
+              <rect x="4" y="11" width="8" height="2" />
+              
+              {/* Pupil / Iris */}
+              <rect x="6" y="5" width="4" height="6" fill="#ffd27d" />
+              <rect x="7" y="6" width="2" height="4" fill="#5c3d2e" />
+              <rect x="7" y="6" width="1" height="1" fill="#ffffff" />
+            </svg>
+            <span style={{ fontSize: "16px", letterSpacing: "1px" }}>
+              {views.toLocaleString()}
+            </span>
+          </motion.div>
+        )}
       </motion.div>
     </div>
   )
