@@ -11,10 +11,10 @@ import { ANIMATION_CONFIG } from "@/lib/constants"
 
 const getCornerClassName = (corner: number) => {
   switch (corner) {
-    case 0: return "absolute top-[-40px] left-[-40px] w-[200px] h-[200px] sm:top-[-60px] sm:left-[-60px] sm:w-[300px] sm:h-[300px] md:top-[-80px] md:left-[-80px] md:w-[400px] h-[400px]"
-    case 1: return "absolute top-[-40px] right-[-40px] w-[200px] h-[200px] sm:top-[-60px] sm:right-[-60px] sm:w-[300px] sm:h-[300px] md:top-[-80px] md:right-[-80px] md:w-[400px] h-[400px]"
-    case 2: return "absolute bottom-[-40px] right-[-40px] w-[200px] h-[200px] sm:bottom-[-60px] sm:right-[-60px] sm:w-[300px] sm:h-[300px] md:bottom-[-80px] md:right-[-80px] md:w-[400px] h-[400px]"
-    case 3: return "absolute bottom-[-40px] left-[-40px] w-[200px] h-[200px] sm:bottom-[-60px] sm:left-[-60px] sm:w-[300px] sm:h-[300px] md:bottom-[-80px] md:left-[-80px] md:w-[400px] h-[400px]"
+    case 0: return "absolute top-[-40px] left-[-40px] w-[200px] h-[200px] sm:top-[-60px] sm:left-[-60px] sm:w-[300px] sm:h-[300px] md:top-[-80px] md:left-[-80px] md:w-[400px] md:h-[400px]"
+    case 1: return "absolute top-[-40px] right-[-40px] w-[200px] h-[200px] sm:top-[-60px] sm:right-[-60px] sm:w-[300px] sm:h-[300px] md:top-[-80px] md:right-[-80px] md:w-[400px] md:h-[400px]"
+    case 2: return "absolute bottom-[-40px] right-[-40px] w-[200px] h-[200px] sm:bottom-[-60px] sm:right-[-60px] sm:w-[300px] sm:h-[300px] md:bottom-[-80px] md:right-[-80px] md:w-[400px] md:h-[400px]"
+    case 3: return "absolute bottom-[-40px] left-[-40px] w-[200px] h-[200px] sm:bottom-[-60px] sm:left-[-60px] sm:w-[300px] sm:h-[300px] md:bottom-[-80px] md:left-[-80px] md:w-[400px] md:h-[400px]"
     default: return ""
   }
 }
