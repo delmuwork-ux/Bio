@@ -48,7 +48,7 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
   return (
     <div className="relative flex items-center justify-center">
       <motion.div 
-        className="flex flex-col items-center justify-center"
+        className="flex flex-col items-center justify-center relative"
       >
         <div className="relative flex items-center justify-center gap-4 select-none py-4 px-8">
           {showWhiteStrip && stripPhase !== "done" && (
@@ -264,9 +264,9 @@ export function ProfileCard({ showWhiteStrip = false, stripPhase = "done" }: Pro
         {/* View Counter */}
         {views !== null && (
           <motion.div
-            className="mt-6 flex items-center gap-2 select-none"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 0.85, y: 0 }}
+            className="absolute -bottom-12 left-1/2 flex items-center gap-2 select-none whitespace-nowrap"
+            initial={{ opacity: 0, y: 10, x: "-50%" }}
+            animate={{ opacity: 0.85, y: 0, x: "-50%" }}
             transition={{ delay: 0.2, duration: 0.4, ease: "easeOut" }}
             style={{
               fontFamily: "var(--font-pixel), monospace",
